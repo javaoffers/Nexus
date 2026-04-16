@@ -9,8 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/nexus-flow/nexus/config"
+	"github.com/nexus-flow/nexus/core/cache"
 	"github.com/nexus-flow/nexus/db"
-	"github.com/nexus-flow/nexus/internal/cache"
 	"github.com/nexus-flow/nexus/router"
 )
 

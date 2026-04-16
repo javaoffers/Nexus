@@ -2,9 +2,9 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/nexus-flow/nexus/internal/handler"
-	"github.com/nexus-flow/nexus/internal/handler/example"
-	"github.com/nexus-flow/nexus/internal/middleware"
+	"github.com/nexus-flow/nexus/core/handler"
+	"github.com/nexus-flow/nexus/core/handler/example"
+	"github.com/nexus-flow/nexus/core/middleware"
 )
 
 func Setup(r *gin.Engine) {

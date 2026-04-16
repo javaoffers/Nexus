@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/nexus-flow/nexus/config"
-	"github.com/nexus-flow/nexus/internal/model"
+	"github.com/nexus-flow/nexus/core/model"
 	"github.com/nexus-flow/nexus/pkg/crypto"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
