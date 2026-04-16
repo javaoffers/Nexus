@@ -1,0 +1,32 @@
+# Go
+nexus-server
+*.exe
+*.test
+*.out
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+build/
+dist/
+
+# Frontend
+node_modules/
+console-ui/dist/
+
+# Database
+data/
+*.db
+
+# Config override
+config.local.yaml

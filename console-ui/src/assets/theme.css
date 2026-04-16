@@ -1,0 +1,92 @@
+:root {
+  /* === Nexus Design Tokens === */
+
+  /* Primary */
+  --nexus-primary: #5B5FE6;
+  --nexus-primary-light-1: #7275EB;
+  --nexus-primary-light-2: #898CF0;
+  --nexus-primary-light-3: #A0A3F5;
+  --nexus-primary-light-5: #CDCEFA;
+  --nexus-primary-light-9: #F0F0FF;
+  --nexus-primary-dark-1: #4A4ED0;
+  --nexus-primary-dark-2: #3A3EBA;
+
+  /* Neutrals */
+  --nexus-bg-page: #F7F8FA;
+  --nexus-bg-card: #FFFFFF;
+  --nexus-bg-header: #FFFFFF;
+  --nexus-bg-sidebar: #FFFFFF;
+  --nexus-bg-table-header: #FAFBFC;
+  --nexus-border-light: #E5E6EB;
+  --nexus-border-base: #D9DAE0;
+  --nexus-text-primary: #1D2129;
+  --nexus-text-secondary: #4E5969;
+  --nexus-text-tertiary: #86909C;
+  --nexus-text-disabled: #C9CDD4;
+
+  /* Semantic */
+  --nexus-success: #00B42A;
+  --nexus-warning: #FF7D00;
+  --nexus-danger: #F53F3F;
+
+  /* Shadows */
+  --nexus-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --nexus-shadow-base: 0 2px 8px 0 rgba(0, 0, 0, 0.06);
+  --nexus-shadow-md: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  --nexus-shadow-lg: 0 8px 24px 0 rgba(0, 0, 0, 0.1);
+
+  /* Layout */
+  --nexus-header-height: 56px;
+  --nexus-sidebar-width: 216px;
+  --nexus-border-radius-sm: 4px;
+  --nexus-border-radius-base: 6px;
+  --nexus-border-radius-lg: 8px;
+
+  /* === Element Plus CSS Variable Overrides === */
+  --el-color-primary: #5B5FE6;
+  --el-color-primary-light-1: #7275EB;
+  --el-color-primary-light-2: #898CF0;
+  --el-color-primary-light-3: #A0A3F5;
+  --el-color-primary-light-4: #B7B9F7;
+  --el-color-primary-light-5: #CDCEFA;
+  --el-color-primary-light-6: #D7D8FB;
+  --el-color-primary-light-7: #E1E2FC;
+  --el-color-primary-light-8: #EBEBFD;
+  --el-color-primary-light-9: #F0F0FF;
+  --el-color-primary-dark-2: #3A3EBA;
+
+  --el-color-success: #00B42A;
+  --el-color-warning: #FF7D00;
+  --el-color-danger: #F53F3F;
+  --el-color-info: #86909C;
+
+  --el-bg-color: #FFFFFF;
+  --el-bg-color-page: #F7F8FA;
+  --el-bg-color-overlay: #FFFFFF;
+
+  --el-border-color: #D9DAE0;
+  --el-border-color-light: #E5E6EB;
+  --el-border-color-lighter: #F2F3F5;
+  --el-border-color-extra-light: #F7F8FA;
+
+  --el-text-color-primary: #1D2129;
+  --el-text-color-regular: #4E5969;
+  --el-text-color-secondary: #86909C;
+  --el-text-color-placeholder: #C9CDD4;
+
+  --el-border-radius-base: 6px;
+  --el-border-radius-small: 4px;
+  --el-border-radius-round: 20px;
+
+  --el-box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06);
+  --el-box-shadow-light: 0 1px 4px 0 rgba(0, 0, 0, 0.05);
+  --el-box-shadow-lighter: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --el-box-shadow-dark: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+
+  --el-font-size-base: 14px;
+  --el-font-size-small: 13px;
+  --el-font-size-extra-small: 12px;
+
+  --el-menu-active-color: #5B5FE6;
+  --el-menu-hover-bg-color: #F0F0FF;
+}

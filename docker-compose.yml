@@ -1,0 +1,8 @@
+version: "3"
+services:
+  nexus:
+    image: cmj/nexus:latest
+    ports:
+      - 9127:9127
+    volumes:
+      - ./conf/application.properties:/home/nexus/conf/application.properties
