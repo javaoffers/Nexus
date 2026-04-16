@@ -1,39 +1,39 @@
 # Nexus
 
-可视化 API 编排平台 —— 通过拖拽方式编排 API 调用流程。
+A visual API orchestration platform — design API call flows with drag-and-drop.
 
-## 技术栈
+## Tech Stack
 
-- **后端**: Go (Gin + GORM)
-- **前端**: Vue 3 + TypeScript + Element Plus + D3.js
-- **数据库**: SQLite (默认) / MySQL (可选)
-- **缓存**: 内存 (默认) / Redis (可选)
+- **Backend**: Go (Gin + GORM)
+- **Frontend**: Vue 3 + TypeScript + Element Plus + D3.js
+- **Database**: SQLite (default) / MySQL (optional)
+- **Cache**: In-memory (default) / Redis (optional)
 
-## 快速开始
+## Quick Start
 
-### 编译运行
+### Build & Run
 
 ```bash
-# 编译后端
+# Build backend
 go build -o nexus-server .
 
-# 运行 (默认端口 9127)
+# Run (default port 9127)
 ./nexus-server
 
-# 编译前端 (可选，开发时前端可单独运行)
+# Build frontend (optional, can run separately during development)
 cd console-ui && npm install && npm run build
 ```
 
-### 配置
+### Configuration
 
-编辑 `config/config.yaml`:
+Edit `config/config.yaml`:
 
 ```yaml
 server:
   port: 9127
 
 database:
-  driver: sqlite    # sqlite 或 mysql
+  driver: sqlite    # sqlite or mysql
   sqlite:
     path: ./data/nexus.db
   mysql:
@@ -44,7 +44,7 @@ database:
     password: "123456"
 
 cache:
-  type: memory      # memory 或 redis
+  type: memory      # memory or redis
   redis:
     addr: "127.0.0.1:6379"
 ```
@@ -56,29 +56,29 @@ docker build -t nexus .
 docker run -p 9127:9127 nexus
 ```
 
-### 默认账号
+### Default Account
 
-- 用户名: `nexus`
-- 密码: `nexus123`
+- Username: `nexus`
+- Password: `nexus123`
 
-## 项目结构
+## Project Structure
 
 ```
-├── main.go              # 入口
-├── config/              # 配置
-├── internal/
-│   ├── model/           # 数据模型
-│   ├── repository/      # 数据访问层
-│   ├── service/         # 业务逻辑层
-│   ├── handler/         # HTTP 处理器
-│   ├── middleware/       # 中间件 (JWT/Token/CORS)
-│   ├── engine/          # 流程编排执行引擎
-│   └── cache/           # 缓存抽象层
-├── pkg/                 # 公共工具包
-├── router/              # 路由注册
-├── db/                  # 数据库初始化
-├── console-ui/          # Vue 前端
-└── example/             # 独立示例项目
+├── main.go              # Entry point
+├── config/              # Configuration
+├── core/
+│   ├── model/           # Data models
+│   ├── repository/      # Data access layer
+│   ├── service/         # Business logic layer
+│   ├── handler/         # HTTP handlers
+│   ├── middleware/       # Middleware (JWT/Token/CORS)
+│   ├── engine/          # Flow orchestration engine
+│   └── cache/           # Cache abstraction layer
+├── pkg/                 # Common utilities
+├── router/              # Route registration
+├── db/                  # Database initialization
+├── console-ui/          # Vue frontend
+└── example/             # Standalone example project
 ```
 
 ## License
