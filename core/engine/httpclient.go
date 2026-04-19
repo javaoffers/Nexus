@@ -74,9 +74,11 @@ func SendHTTPRequest(method MethodDef, headers, params map[string]interface{}) (
 		return nil, fmt.Errorf("read response: %w", err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if json.Unmarshal(respBody, &result) != nil {
-		result = map[string]interface{}{"response": string(respBody)}
+		result = map[string]any{
+			"response": string(respBody),
+		}
 	}
 	return result, nil
 }
