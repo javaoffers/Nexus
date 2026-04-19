@@ -1,44 +1,44 @@
-<script setup lang="ts">
-const diamonds = new Array(36).fill(1).map((_, index) => {
-  const size = 30 + 4 * index;
-  const top = (1.15 - random()) * window.innerHeight;
-  const left = Math.random() * window.innerWidth;
-  return {
-    index,
-    style: {
-      width: size + 'px',
-      height: size + 'px',
-      top: top + 'px',
-      left: left + 'px',
-      background: randomColor(),
-    },
-  };
-});
-function random() {
-  return Math.random() * Math.random();
-}
+<script>
 function randomColor() {
-  // R在128~255之间
-  const r = Math.floor(Math.random() * 128) + 128;
-  const g = Math.floor(Math.random() * 128) + 128;
-  const b = Math.floor(Math.random() * 128) + 128;
-
-  // 将RGB分量转换成16进制表示的字符串
-  const hexR = r.toString(16).padStart(2, '0');
-  const hexG = g.toString(16).padStart(2, '0');
-  const hexB = b.toString(16).padStart(2, '0');
-
-  // 拼接成完整的颜色代码（加上井号#开头）
+  var r = Math.floor(Math.random() * 128) + 128;
+  var g = Math.floor(Math.random() * 128) + 128;
+  var b = Math.floor(Math.random() * 128) + 128;
+  var hexR = r.toString(16).padStart(2, '0');
+  var hexG = g.toString(16).padStart(2, '0');
+  var hexB = b.toString(16).padStart(2, '0');
   var colorCode = '#' + hexR + hexG + hexB;
   return colorCode;
 }
+
+export default {
+  data() {
+    var diamonds = new Array(36).fill(1).map(function (_, index) {
+      var size = 30 + 4 * index;
+      var top = (1.15 - Math.random() * Math.random()) * window.innerHeight;
+      var left = Math.random() * window.innerWidth;
+      return {
+        index: index,
+        style: {
+          width: size + 'px',
+          height: size + 'px',
+          top: top + 'px',
+          left: left + 'px',
+          background: randomColor(),
+        },
+      };
+    });
+    return {
+      diamonds: diamonds,
+    };
+  },
+};
 </script>
 <template>
   <div class="entry-bg">
     <div class="diamond" v-for="item in diamonds" :style="item.style" :key="item.index"></div>
   </div>
 </template>
-<style lang="less" scoped>
+<style scoped>
 .entry-bg {
   position: absolute;
   top: 0;
@@ -48,11 +48,11 @@ function randomColor() {
   overflow: hidden;
   pointer-events: none;
   background: #f0f2f5;
-  .diamond {
-    position: absolute;
-    background: #fff;
-    transform: rotate(45deg);
-    box-shadow: var(--el-box-shadow-dark);
-  }
+}
+.entry-bg .diamond {
+  position: absolute;
+  background: #fff;
+  transform: rotate(45deg);
+  box-shadow: var(--el-box-shadow-dark);
 }
 </style>

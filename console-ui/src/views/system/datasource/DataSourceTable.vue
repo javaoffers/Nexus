@@ -1,26 +1,19 @@
-<script lang="ts" setup>
-defineProps({
-  dataRows: {
-    type: Array,
-    default: [],
+<script>
+export default {
+  props: ['dataRows', 'pageNum', 'pageSize', 'dataTotal', 'loading'],
+  emits: ['pageChange', 'connect', 'edit', 'delete'],
+  methods: {
+    connect(row) {
+      this.$emit('connect', row);
+    },
+    editRow(row) {
+      this.$emit('edit', row);
+    },
+    deleteRow(row, index) {
+      this.$emit('delete', row, index);
+    },
   },
-  pageNum: Number,
-  pageSize: Number,
-  dataTotal: Number,
-  loading: Boolean,
-});
-const emit = defineEmits(['pageChange', 'connect', 'edit', 'delete']);
-
-function connect(row: any) {
-  emit('connect', row);
-}
-function editRow(row: any) {
-  emit('edit', row);
-}
-
-function deleteRow(row: any, index: number) {
-  emit('delete', row, index);
-}
+};
 </script>
 
 <template>
@@ -43,10 +36,9 @@ function deleteRow(row: any, index: number) {
       background
       layout="total, prev, pager, next"
       :total="dataTotal"
-      @currentChange="(val: number) => $emit('pageChange', val)"
+      @currentChange="(val) => $emit('pageChange', val)"
     />
   </div>
 </template>
-<style lang="less" scoped>
-
+<style scoped>
 </style>

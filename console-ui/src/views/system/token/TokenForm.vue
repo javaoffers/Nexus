@@ -1,56 +1,56 @@
-<script setup lang="ts">
-import { ref, reactive, computed, nextTick } from 'vue';
-import type { FormInstance, FormRules } from 'element-plus';
-const dialogVisible = ref(false);
-const formRef = ref<FormInstance>();
-const editItem = ref<Record<string, any>>();
-const formValue = reactive({
-  tokenDesc: '',
-});
-const rules = reactive<FormRules>({
-  tokenDesc: [{ required: true, message: '请输入令牌描述', trigger: 'blur' }],
-});
+<script>
+export default {
+  emits: ['add', 'edit'],
+  data() {
+    return {
+      dialogVisible: false,
+      editItem: undefined,
+      formValue: {
+        tokenDesc: '',
+      },
+      rules: {
+        tokenDesc: [{ required: true, message: '请输入令牌描述', trigger: 'blur' }],
+      },
+    };
+  },
+  computed: {
+    title() {
+      if (this.editItem) {
+        return '编辑令牌';
+      }
+      return '新增令牌';
+    },
+  },
+  methods: {
+    onCancel() {
+      this.dialogVisible = false;
+    },
+    async onSubmit() {
+      if (!this.$refs.formRef) return;
+      const valid = await this.$refs.formRef.validate(() => {});
+      if (!valid) {
+        return;
+      }
 
-const emit = defineEmits(['add', 'edit']);
-
-function onCancel() {
-  dialogVisible.value = false;
-}
-
-async function onSubmit() {
-  if (!formRef.value) return;
-  const valid = await formRef.value?.validate(() => {});
-  if (!valid) {
-    return;
-  }
-
-  dialogVisible.value = false;
-  if (editItem.value) {
-    emit('edit', { ...editItem.value, ...formValue });
-  } else {
-    emit('add', formValue);
-  }
-}
-
-function open(item?: Record<string, any>) {
-  editItem.value = item;
-  dialogVisible.value = true;
-  nextTick(() => {
-    formRef.value?.resetFields();
-    if (item) {
-      formValue.tokenDesc = item.tokenDesc;
-    }
-  });
-}
-
-const title = computed(() => {
-  if (editItem.value) {
-    return '编辑令牌';
-  }
-  return '新增令牌';
-});
-
-defineExpose({ open });
+      this.dialogVisible = false;
+      if (this.editItem) {
+        this.$emit('edit', { ...this.editItem, ...this.formValue });
+      } else {
+        this.$emit('add', this.formValue);
+      }
+    },
+    open(item) {
+      this.editItem = item;
+      this.dialogVisible = true;
+      this.$nextTick(() => {
+        this.$refs.formRef?.resetFields();
+        if (item) {
+          this.formValue.tokenDesc = item.tokenDesc;
+        }
+      });
+    },
+  },
+};
 </script>
 <template>
   <el-dialog v-model="dialogVisible" :title="title" width="400">

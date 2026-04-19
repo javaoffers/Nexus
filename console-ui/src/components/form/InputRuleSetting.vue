@@ -1,137 +1,136 @@
-<script lang="ts" setup>
-import { ref, watch, PropType } from 'vue';
-import {valueType, RuleItem, DataType} from '@/typings';
+<script>
+import { valueType } from '@/typings';
 import { Delete } from '@element-plus/icons-vue';
-import {getVariableDataType, isDataTypeEqual, isDataTypeMatch} from '@/utils/dataType';
+import { getVariableDataType, isDataTypeEqual, isDataTypeMatch } from '@/utils/dataType';
 import FilterValue from '../filter/FilterValue.vue';
-import DataTypeDisplay from "@/components/common/DataTypeDisplay.vue";
-import VariableSelect from "@/components/common/VariableSelect.vue";
-import {ElMessage} from "element-plus";
+import DataTypeDisplay from '@/components/common/DataTypeDisplay.vue';
+import VariableSelect from '@/components/common/VariableSelect.vue';
+import { ElMessage } from 'element-plus';
 
 const assignTypeList = [
   { value: valueType.CONSTANT, label: '常量' },
   { value: valueType.VARIABLE, label: '变量' },
 ];
 
-const props = defineProps({
-  modelValue: Array as PropType<RuleItem[]>,
-  showRequired: {
-    type: Boolean,
-    default: false,
+export default {
+  components: {
+    FilterValue,
+    DataTypeDisplay,
+    VariableSelect,
+    Delete,
   },
-  showTargetType: {
-    type: Boolean,
-    default: true,
+  props: {
+    modelValue: Array,
+    showRequired: {
+      type: Boolean,
+      default: false,
+    },
+    showTargetType: {
+      type: Boolean,
+      default: true,
+    },
+    addText: String,
+    sourceList: {
+      type: Array,
+      default: () => [],
+    },
+    targetList: {
+      type: Array,
+      default: () => [],
+    },
+    requiredKeys: {
+      type: Array,
+      default: () => [],
+    },
   },
-  addText: String,
-  sourceList: {
-    type: Array as PropType<any[]>,
-    default: () => [],
+  emits: ['update:modelValue'],
+  data() {
+    return {
+      rules: [...(this.modelValue || [])],
+      columns: [
+        { name: '参数描述', prop: 'source' },
+        { name: '数据类型', prop: 'sourceDataType' },
+        { name: '赋值方式', prop: 'targetType' },
+        { name: '赋值', prop: 'target' },
+      ],
+      assignTypeList,
+      valueType,
+    };
   },
-  targetList: {
-    type: Array as PropType<any[]>,
-    default: () => [],
+  watch: {
+    modelValue(val) {
+      if (val !== this.rules) {
+        this.rules = [...val];
+      }
+    },
   },
-  requiredKeys: {
-    type: Array as PropType<string[]>,
-    default: () => [],
+  methods: {
+    addRule() {
+      this.rules.push({
+        source: '',
+        sourceDataType: null,
+        sourceType: valueType.VARIABLE,
+        target: '',
+        targetDataType: null,
+        targetType: valueType.INPUT_PARAM,
+        required: false,
+      });
+      this.onChange();
+    },
+    removeRule(rowIndex) {
+      this.rules.splice(rowIndex, 1);
+      this.onChange();
+    },
+    onChange() {
+      this.$emit('update:modelValue', this.rules);
+    },
+    onSourceTypeChange(rowIndex) {
+      this.rules[rowIndex].source = '';
+      this.rules[rowIndex].sourceDataType = null;
+      this.onChange();
+    },
+    onSourceVarChange(rowIndex) {
+      const target = this.rules[rowIndex].target;
+      const targetVariable = this.sourceList.find(item => item.paramKey === target);
+
+      const source = this.rules[rowIndex].source;
+      let sourceVariable = getVariableDataType(source, this.targetList);
+      if (!isDataTypeEqual(targetVariable.dataType, sourceVariable.dataType)) {
+        ElMessage.error('所选变量的数据类型与目标变量数据类型不匹配');
+        this.rules[rowIndex].source = '';
+        return;
+      }
+      this.rules[rowIndex].sourceDataType = sourceVariable.dataType;
+      this.onChange();
+    },
+    getAvailableTarget(target) {
+      return this.sourceList.filter(item => {
+        if (item.paramKey === target) {
+          return item;
+        }
+        return !this.rules.map(item => item.target).includes(item.paramKey);
+      });
+    },
+    getAvailableSource(target, targetDataType) {
+      return this.targetList.filter(item => {
+        if (item.variableKey === target) {
+          return false;
+        }
+        return isDataTypeMatch(item.dataType, targetDataType);
+      });
+    },
+    onTargetChange(rowIndex) {
+      const target = this.rules[rowIndex].target;
+      const param = this.sourceList.find(item => item.paramKey === target);
+      this.rules[rowIndex].source = '';
+      this.rules[rowIndex].targetDataType = param.dataType;
+      this.rules[rowIndex].targetType = param.targetType;
+      if (this.requiredKeys.includes(target)) {
+        this.rules[rowIndex].required = true;
+      }
+    },
   },
-});
-const emit = defineEmits(['update:modelValue']);
-const rules = ref<RuleItem[]>([...(props.modelValue || [])]);
-
-watch(
-  () => props.modelValue,
-  (val: any) => {
-    if (val !== rules.value) {
-      rules.value = [...val];
-    }
-  }
-);
-
-const columns = [
-  { name: '参数描述', prop: 'source' },
-  { name: '数据类型', prop: 'sourceDataType' },
-  { name: '赋值方式', prop: 'targetType' },
-  { name: '赋值', prop: 'target' },
-];
-
-function addRule() {
-  rules.value.push({
-    source: '',
-    sourceDataType: null,
-    sourceType: valueType.VARIABLE,
-    target: '',
-    targetDataType: null,
-    targetType: valueType.INPUT_PARAM,
-    required: false,
-  });
-  onChange();
-}
-
-function removeRule(rowIndex: number) {
-  rules.value.splice(rowIndex, 1);
-  onChange();
-}
-
-function onChange() {
-  emit('update:modelValue', rules.value);
-}
-
-function onSourceTypeChange(rowIndex: number) {
-  rules.value[rowIndex].source = '';
-  rules.value[rowIndex].sourceDataType = null;
-  onChange();
-}
-
-function onSourceVarChange(rowIndex: number) {
-  const target = rules.value[rowIndex].target;
-  const targetVariable = props.sourceList!.find(item => item.paramKey === target);
-
-  const source = rules.value[rowIndex].source;
-  let sourceVariable = getVariableDataType(source,props.targetList);
-  if(!isDataTypeEqual(targetVariable.dataType,sourceVariable.dataType)){
-    ElMessage.error('所选变量的数据类型与目标变量数据类型不匹配');
-    rules.value[rowIndex].source = '';
-    return;
-  }
-  //const param = props.sourceList!.find(item => item.variableKey === source);
-  rules.value[rowIndex].sourceDataType = sourceVariable.dataType;
-  onChange();
-}
-
-function getAvailableTarget(target: string) {
-  return props.sourceList!.filter(item => {
-    // 已选参数也能选
-    if (item.paramKey === target) {
-      return item;
-    }
-    // 只能选未被选择的参数
-    return !rules.value.map(item => item.target).includes(item.paramKey);
-  });
-}
-function getAvailableSource(target: string, targetDataType: DataType) {
-  //console.log(props.sourceList,target,targetDataType)
-  return props.targetList!.filter(item => {
-    // 不选取自己
-    if (item.variableKey === target) {
-      return false;
-    }
-    // 只能选与自己类型一致的
-    return isDataTypeMatch(item.dataType, targetDataType);
-  });
-}
-
-function onTargetChange(rowIndex: number) {
-  const target = rules.value[rowIndex].target;
-  const param = props.sourceList!.find(item => item.paramKey === target);
-  rules.value[rowIndex].source = '';
-  rules.value[rowIndex].targetDataType = param.dataType;
-  rules.value[rowIndex].targetType = param.targetType;
-  if (props.requiredKeys!.includes(target)) {
-    rules.value[rowIndex].required = true;
-  }
-}
+};
 </script>
 
 <template>
@@ -163,7 +162,7 @@ function onTargetChange(rowIndex: number) {
             </el-select>
           </div>
           <div class="rule-setting-td" v-if="column.prop === 'sourceDataType'">
-            <DataTypeDisplay :dataType="rule.targetDataType as DataType"/>
+            <DataTypeDisplay :dataType="rule.targetDataType"/>
           </div>
           <div class="rule-setting-td" v-if="column.prop === 'targetType' && showTargetType">
             <el-select v-model="rule.sourceType" size="small" @change="onSourceTypeChange(rowIndex)">
@@ -180,8 +179,8 @@ function onTargetChange(rowIndex: number) {
                 v-else
                 v-model="rule.source"
                 size="small"
-                :options="getAvailableSource(rule.target, rule.targetDataType as DataType)"
-                :filterDataType="rule.targetDataType as DataType"
+                :options="getAvailableSource(rule.target, rule.targetDataType)"
+                :filterDataType="rule.targetDataType"
                 @change="onSourceVarChange(rowIndex)"
             />
           </div>
@@ -197,55 +196,49 @@ function onTargetChange(rowIndex: number) {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .rule-setting {
   width: 100%;
-  &-head {
-    background-color: #f2f2f2;
-    padding: 0 1px;
-  }
-  &-body {
-    border-left: 1px solid #f2f2f2;
-    border-right: 1px solid #f2f2f2;
-  }
-  &-tr {
-    display: flex;
-    border-bottom: 1px solid #f2f2f2;
-    height: 36px;
-  }
-  &-td {
-    flex: 1;
-    min-width: 0;
-    padding: 0 6px;
-    display: flex;
-    align-items: center;
-    .required {
-      color: red;
-      width: 10px;
-    }
-    &.delete-td {
-      width: 40px;
-      flex: none;
-      justify-content: center;
-    }
-    &.delete-td {
-      width: 20px;
-      margin-right: 10px;
-      & > .el-icon {
-        cursor: pointer;
-        color: #999;
-      }
-    }
-  }
-  &-foot {
-    text-align: center;
-    padding: 6px 0;
-  }
 }
-
-.rule-setting-td{
-  .dataTypeName {
-    color: var(--el-text-color-regular);
-  }
+.rule-setting-head {
+  background-color: #f2f2f2;
+  padding: 0 1px;
+}
+.rule-setting-body {
+  border-left: 1px solid #f2f2f2;
+  border-right: 1px solid #f2f2f2;
+}
+.rule-setting-tr {
+  display: flex;
+  border-bottom: 1px solid #f2f2f2;
+  height: 36px;
+}
+.rule-setting-td {
+  flex: 1;
+  min-width: 0;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+}
+.rule-setting-td .required {
+  color: red;
+  width: 10px;
+}
+.rule-setting-td.delete-td {
+  width: 20px;
+  flex: none;
+  justify-content: center;
+  margin-right: 10px;
+}
+.rule-setting-td.delete-td > .el-icon {
+  cursor: pointer;
+  color: #999;
+}
+.rule-setting-foot {
+  text-align: center;
+  padding: 6px 0;
+}
+.rule-setting-td .dataTypeName {
+  color: var(--el-text-color-regular);
 }
 </style>

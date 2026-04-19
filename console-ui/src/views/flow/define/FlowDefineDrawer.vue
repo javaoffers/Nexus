@@ -1,82 +1,83 @@
-<script setup lang="ts">
-import { computed, nextTick, reactive, ref } from 'vue';
-import { FormInstance, FormRules } from 'element-plus';
-import { FlowDefineInfo } from '@/typings';
+<script>
 import ParamSetting from '@/components/form/ParamSetting.vue';
 import { flowDefineService } from '@/service';
-import ResizableDrawer from "@/components/common/ResizableDrawer.vue";
+import ResizableDrawer from '@/components/common/ResizableDrawer.vue';
 
-const flowDefineDrawerVisible = ref(false);
-const formRef = ref<FormInstance>();
-const editItem = ref<Record<string, any>>();
-const flowDefineFormValue = reactive<FlowDefineInfo>(getDefaultFlowDefine());
-
-function getDefaultFlowDefine() {
-  return {
-    id: null,
-    flowName: '',
-    flowType: '',
-    remark: '',
-    flowInputParams: [],
-    flowOutputParams: [],
-  };
-}
-
-const rules = reactive<FormRules>({
-  flowName: [{ required: true, message: '请输入流程名称', trigger: 'blur' }],
-  flowType: [{ required: true, message: '请选择流程类型', trigger: 'blur' }],
-});
-
-const emit = defineEmits(['add', 'edit']);
-
-function onCancel() {
-  flowDefineDrawerVisible.value = false;
-}
-
-async function onSubmit() {
-  if (!formRef.value) return;
-  const valid = await formRef.value?.validate(() => {});
-  if (!valid) {
-    return;
-  }
-
-  flowDefineDrawerVisible.value = false;
-  if (editItem.value) {
-    emit('edit', { ...editItem.value, ...flowDefineFormValue });
-  } else {
-    emit('add', flowDefineFormValue);
-  }
-}
-
-function open(item?: Record<string, any>) {
-  editItem.value = item;
-  flowDefineDrawerVisible.value = true;
-  nextTick(async () => {
-    formRef.value?.resetFields();
-    if (item) {
-      const res = await flowDefineService.getDefineInfo(item.id);
-      if (res.success) {
-        flowDefineFormValue.id = res.result.id;
-        flowDefineFormValue.flowName = res.result.flowName;
-        flowDefineFormValue.flowType = res.result.flowType;
-        flowDefineFormValue.remark = res.result.remark;
-        flowDefineFormValue.flowInputParams = res.result.flowInputParams;
-        flowDefineFormValue.flowOutputParams = res.result.flowOutputParams;
+export default {
+  components: {
+    ParamSetting,
+    ResizableDrawer,
+  },
+  emits: ['add', 'edit'],
+  data() {
+    return {
+      flowDefineDrawerVisible: false,
+      editItem: undefined,
+      flowDefineFormValue: this.getDefaultFlowDefine(),
+      rules: {
+        flowName: [{ required: true, message: '请输入流程名称', trigger: 'blur' }],
+        flowType: [{ required: true, message: '请选择流程类型', trigger: 'blur' }],
+      },
+    };
+  },
+  computed: {
+    title() {
+      if (this.editItem) {
+        return '编辑流程定义';
       }
-    } else {
-      Object.assign(flowDefineFormValue, getDefaultFlowDefine());
-    }
-  });
-}
+      return '新增流程定义';
+    },
+  },
+  methods: {
+    getDefaultFlowDefine() {
+      return {
+        id: null,
+        flowName: '',
+        flowType: '',
+        remark: '',
+        flowInputParams: [],
+        flowOutputParams: [],
+      };
+    },
+    onCancel() {
+      this.flowDefineDrawerVisible = false;
+    },
+    async onSubmit() {
+      if (!this.$refs.formRef) return;
+      const valid = await this.$refs.formRef.validate(() => {});
+      if (!valid) {
+        return;
+      }
 
-const title = computed(() => {
-  if (editItem.value) {
-    return '编辑流程定义';
-  }
-  return '新增流程定义';
-});
-
-defineExpose({ open });
+      this.flowDefineDrawerVisible = false;
+      if (this.editItem) {
+        this.$emit('edit', { ...this.editItem, ...this.flowDefineFormValue });
+      } else {
+        this.$emit('add', this.flowDefineFormValue);
+      }
+    },
+    open(item) {
+      this.editItem = item;
+      this.flowDefineDrawerVisible = true;
+      this.$nextTick(async () => {
+        this.$refs.formRef?.resetFields();
+        if (item) {
+          const res = await flowDefineService.getDefineInfo(item.id);
+          if (res.success) {
+            this.flowDefineFormValue.id = res.result.id;
+            this.flowDefineFormValue.flowName = res.result.flowName;
+            this.flowDefineFormValue.flowType = res.result.flowType;
+            this.flowDefineFormValue.remark = res.result.remark;
+            this.flowDefineFormValue.flowInputParams = res.result.flowInputParams;
+            this.flowDefineFormValue.flowOutputParams = res.result.flowOutputParams;
+          }
+        } else {
+          Object.assign(this.flowDefineFormValue, this.getDefaultFlowDefine());
+        }
+      });
+    },
+  },
+};
 </script>
 
 <template>

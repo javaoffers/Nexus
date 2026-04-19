@@ -1,36 +1,31 @@
-<script lang="ts" setup>
+<script>
 import { Plus } from '@element-plus/icons-vue';
 import FilterList from './FilterList.vue';
-import { PropType } from 'vue';
-const props = defineProps({
-  value: {
-    type: Array as PropType<any[]>,
-    required: true,
+
+export default {
+  components: {
+    FilterList,
+    Plus,
   },
-  sourceList: {
-    type: Array as PropType<any[]>,
-    default: () => [],
+  props: ['value', 'sourceList', 'targetList'],
+  emits: ['change'],
+  methods: {
+    onChange(item, index) {
+      let result = [...this.value];
+      result[index] = item;
+      result = result.filter((item, index) => index === 0 || item.length > 0);
+      if (result.length === 0) {
+        result = [[]];
+      }
+      this.$emit('change', result);
+    },
+    onAdd() {
+      const result = [...this.value];
+      result.push([{}]);
+      this.$emit('change', result);
+    },
   },
-  targetList: {
-    type: Array as PropType<any[]>,
-    default: () => [],
-  },
-});
-const emit = defineEmits(['change']);
-function onChange(item: any, index: number) {
-  let result = [...props.value];
-  result[index] = item;
-  result = result.filter((item, index) => index === 0 || item.length > 0);
-  if (result.length === 0) {
-    result = [[]];
-  }
-  emit('change', result);
-}
-function onAdd() {
-  const result = [...props.value];
-  result.push([{}]);
-  emit('change', result);
-}
+};
 </script>
 
 <template>

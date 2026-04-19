@@ -1,20 +1,23 @@
-<script lang="ts" setup>
-import {ref} from "vue";
-
-const agreementDialogVisible = ref(false);
-
-function openUserAgreementDialog(){
-  agreementDialogVisible.value = true;
-}
-
-defineExpose({ openUserAgreementDialog });
+<script>
+export default {
+  data() {
+    return {
+      agreementDialogVisible: false,
+    };
+  },
+  methods: {
+    openUserAgreementDialog() {
+      this.agreementDialogVisible = true;
+    },
+  },
+};
 </script>
 
 <template>
   <el-dialog v-model="agreementDialogVisible" title="用户协议" width="650">
     <div class="content">
       <h2>第一部分：引言</h2>
-      欢迎使用 [微服务编排平台Nexus]（以下简称“本软件”）。本协议由 [Nexus作者]（以下简称“我们”）与您（“用户”或“您”）共同签订。在您开始使用本软件之前，请仔细阅读以下条款，一旦您开始使用本软件，则视为您已阅读、理解并同意遵守以下所有条款。
+      欢迎使用 [微服务编排平台Nexus]（以下简称"本软件"）。本协议由 [Nexus作者]（以下简称"我们"）与您（"用户"或"您"）共同签订。在您开始使用本软件之前，请仔细阅读以下条款，一旦您开始使用本软件，则视为您已阅读、理解并同意遵守以下所有条款。
 
       <h2>第二部分：使用条款</h2>
       <h3>1.合法使用</h3>
@@ -73,11 +76,11 @@ defineExpose({ openUserAgreementDialog });
   </el-dialog>
 </template>
 
-<style lang="less" scoped>
-.content{
+<style scoped>
+.content {
   line-height: 25px;
-  h2 {
-    margin-bottom: 5px;
-  }
+}
+.content h2 {
+  margin-bottom: 5px;
 }
 </style>

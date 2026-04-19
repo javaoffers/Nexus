@@ -1,18 +1,27 @@
-<script lang="ts" setup>
+<script>
 import ApiSelect from '@/components/form/ApiSelect.vue';
 import OutputRuleSetting from '@/components/form/OutputRuleSetting.vue';
 import InputRuleSetting from '@/components/form/InputRuleSetting.vue';
-import {computed, PropType, ref, watch} from 'vue';
-import {ElementType, FlowVariableType, MethodInfo, RawData} from '../../types';
-import {apiService, suiteService} from '@/service';
-import {InputParams, OutputParams, valueType} from '@/typings';
-import {useFlowDataInject} from '../../hooks/flow-data';
-import {cloneDeep} from 'lodash-es';
-import {ElMessage} from 'element-plus';
+import { ElementType, FlowVariableType } from '../../types';
+import { apiService, suiteService } from '@/service';
+import { valueType } from '@/typings';
+import { cloneDeep } from 'lodash-es';
+import { ElMessage } from 'element-plus';
 
-const flowContext = useFlowDataInject();
-
-type MethodRawData = RawData & { method: MethodInfo };
+function getMethodDefaultData() {
+  return {
+    methodCode: null,
+    suiteCode: null,
+    url: '',
+    requestType: '',
+    requestContentType: '',
+    inputParamSchemas: [],
+    outputParamSchemas: [],
+    headerFillRules: [],
+    inputFillRules: [],
+    outputFillRules: [],
+  };
+}
 
 function getDefaultData() {
   return {
@@ -26,54 +35,7 @@ function getDefaultData() {
   };
 }
 
-function getMethodDefaultData() {
-  return {
-    methodCode: null,
-    suiteCode: null,
-    url: '',
-    requestType: '',
-    requestContentType: '',
-    inputParamSchemas: [],
-    outputParamSchemas:[],
-    headerFillRules: [],
-    inputFillRules: [],
-    outputFillRules: [],
-  }
-}
-
-const emit = defineEmits(['update', 'cancel']);
-const props = defineProps({
-  data: {
-    type: Object as PropType<MethodRawData>,
-    required: true,
-  },
-});
-
-const nodeData = ref(getDefaultData() as MethodRawData);
-const suiteList = ref([]);
-const suiteLoading = ref(false);
-let suiteLoaded = false;
-
-watch(
-  () => props.data,
-  val => {
-    if (val !== nodeData.value) {
-      nodeData.value = Object.assign(getDefaultData(), cloneDeep(val));
-      if (nodeData.value.method?.methodCode) {
-        initApiSourceList(nodeData.value.method.methodCode);
-      } else {
-        nodeData.value.method = getMethodDefaultData();
-      }
-    }
-  },
-  { immediate: true }
-);
-
-querySuiteList();
-
-
-
-function paramToRule(param: { dataType: string; paramKey: string; paramName: string; required?: boolean }, sourceType: valueType) {
+function paramToRule(param, sourceType) {
   return {
     source: '',
     sourceDataType: null,
@@ -85,142 +47,170 @@ function paramToRule(param: { dataType: string; paramKey: string; paramName: str
   };
 }
 
-async function initApiSourceList(apiCode: string) {
-  const res = await apiService.queryApiInfoByCode(apiCode);
-  if (res.result) {
-    const result = res.result;
-    headerSourceList.value = result.apiHeaders.map(item => ({ ...item, targetType: valueType.HEADER }));
-    inputSourceList.value = result.apiInputParams.map(item => ({ ...item, targetType: valueType.INPUT_PARAM }));
-    outputSourceList.value = result.apiOutputParams.map(item => ({ ...item, sourceType: valueType.OUTPUT_PARAM }));
-    // 默认必填 - 头参
-    const headerRequired = result.apiHeaders.filter(item => item.required);
-    headerRequiredKeys.value = headerRequired.map(item => item.paramKey);
-    // 默认必填 - 入参
-    const inputRequired = result.apiInputParams.filter(item => item.required);
-    inputRequiredKeys.value = inputRequired.map(item => item.paramKey);
-  }
-}
-
-function onSuiteChange(suiteCode:string) {
-  nodeData.value.method = {
-    ...getDefaultData().method,
-    suiteCode: suiteCode,
-  };
-}
-
-async function onApiChange(apiCode: string) {
-  console.log("apiCode=",apiCode);
-  const res = await apiService.queryApiInfoByCode(apiCode);
-  if (res.result) {
-    const result = res.result;
-    const method = nodeData.value.method;
-    method.requestType = result.apiRequestType;
-    method.requestContentType = result.apiRequestContentType;
-    method.inputParamSchemas = result.apiInputParams.map((item: InputParams) => {
-      return {
-        key: item.paramKey,
-        name: item.paramName,
-        dataType: item.dataType,
-        position: item.paramPosition,
-      };
-    });
-    method.outputParamSchemas= result.apiOutputParams.map((item: OutputParams) => {
-      return {
-        key: item.paramKey,
-        name: item.paramName,
-        dataType: item.dataType,
-      };
-    });
-    headerSourceList.value = result.apiHeaders.map(item => ({ ...item, targetType: valueType.HEADER }));
-    inputSourceList.value = result.apiInputParams.map(item => ({ ...item, targetType: valueType.INPUT_PARAM }));
-    outputSourceList.value = result.apiOutputParams.map(item => ({ ...item, sourceType: valueType.OUTPUT_PARAM }));
-    // 默认必填 - 头参
-    const headerRequired = result.apiHeaders.filter(item => item.required);
-    method.headerFillRules = headerRequired.map(item => paramToRule(item, valueType.HEADER));
-    headerRequiredKeys.value = headerRequired.map(item => item.paramKey);
-
-    // 默认必填 - 入参
-    const inputRequired = result.apiInputParams.filter(item => item.required);
-    method.inputFillRules = inputRequired.map(item => paramToRule(item, valueType.INPUT_PARAM));
-    inputRequiredKeys.value = inputRequired.map(item => item.paramKey);
-
-    method.outputFillRules = [];
-    method.url = result.apiUrl;
-  }
-}
-
-// 参数
-const headerSourceList = ref<any[]>([]);
-const inputSourceList = ref<any[]>([]);
-const outputSourceList = ref<any[]>([]);
-// 必填，不可删除
-const headerRequiredKeys = ref<string[]>([]);
-const inputRequiredKeys = ref<string[]>([]);
-
-const inputTargetList = computed(() => {
-  const flowVariables = flowContext.data.value.flowVariables;
-  return flowVariables.filter(item => [FlowVariableType.INPUT, FlowVariableType.TEMP].includes(item.variableType));
-});
-
-const outputTargetList = computed(() => {
-  const flowVariables = flowContext.data.value.flowVariables;
-  return flowVariables.filter(item => [FlowVariableType.OUTPUT, FlowVariableType.TEMP].includes(item.variableType));
-});
-
-function validateParam(param: any) {
-  if (!param.source) {
-    return false;
-  }
-  if (!param.target) {
-    return false;
-  }
-  return true;
-}
-
-function validate() {
-  if (!nodeData.value.name) {
-    ElMessage.error('节点名称不能为空');
-    return false;
-  }
-  const method = nodeData.value.method;
-  if (!method.methodCode) {
-    ElMessage.error('服务接口不能为空');
-    return false;
-  }
-  if (method.headerFillRules.length > 0 && !method.headerFillRules.every(validateParam)) {
-    ElMessage.error('请求头赋值不完整');
-    return false;
-  }
-  if (method.inputFillRules.length > 0 && !method.inputFillRules.every(validateParam)) {
-    ElMessage.error('入参赋值不完整');
-    return false;
-  }
-  if (method.outputFillRules.length > 0 && !method.outputFillRules.every(validateParam)) {
-    ElMessage.error('出参赋值不完整');
-    return false;
-  }
-  return true;
-}
-
-function onSubmit() {
-  if (!validate()) {
-    return;
-  }
-  emit('update', cloneDeep(nodeData.value));
-}
-function onCancel() {
-  emit('cancel');
-}
-
-async function querySuiteList() {
-  suiteLoading.value = true;
-  const res = await suiteService.querySuiteList();
-  if (res.success) {
-    suiteList.value = res.result;
-  }
-  suiteLoaded = true;
-  suiteLoading.value = false;
-}
+export default {
+  components: {
+    ApiSelect,
+    OutputRuleSetting,
+    InputRuleSetting,
+  },
+  props: {
+    data: {
+      type: Object,
+      required: true,
+    },
+  },
+  emits: ['update', 'cancel'],
+  data() {
+    return {
+      nodeData: getDefaultData(),
+      suiteList: [],
+      suiteLoading: false,
+      suiteLoaded: false,
+      headerSourceList: [],
+      inputSourceList: [],
+      outputSourceList: [],
+      headerRequiredKeys: [],
+      inputRequiredKeys: [],
+    };
+  },
+  computed: {
+    inputTargetList() {
+      var flowVariables = this.$store.state.flow.flowVariables;
+      return flowVariables.filter(function (item) {
+        return [FlowVariableType.INPUT, FlowVariableType.TEMP].indexOf(item.variableType) !== -1;
+      });
+    },
+    outputTargetList() {
+      var flowVariables = this.$store.state.flow.flowVariables;
+      return flowVariables.filter(function (item) {
+        return [FlowVariableType.OUTPUT, FlowVariableType.TEMP].indexOf(item.variableType) !== -1;
+      });
+    },
+  },
+  watch: {
+    data: {
+      handler(val) {
+        if (val !== this.nodeData) {
+          this.nodeData = Object.assign(getDefaultData(), cloneDeep(val));
+          if (this.nodeData.method && this.nodeData.method.methodCode) {
+            this.initApiSourceList(this.nodeData.method.methodCode);
+          } else {
+            this.nodeData.method = getMethodDefaultData();
+          }
+        }
+      },
+      immediate: true,
+    },
+  },
+  created() {
+    this.querySuiteList();
+  },
+  methods: {
+    async initApiSourceList(apiCode) {
+      var res = await apiService.queryApiInfoByCode(apiCode);
+      if (res.result) {
+        var result = res.result;
+        this.headerSourceList = result.apiHeaders.map(function (item) { return Object.assign({}, item, { targetType: valueType.HEADER }); });
+        this.inputSourceList = result.apiInputParams.map(function (item) { return Object.assign({}, item, { targetType: valueType.INPUT_PARAM }); });
+        this.outputSourceList = result.apiOutputParams.map(function (item) { return Object.assign({}, item, { sourceType: valueType.OUTPUT_PARAM }); });
+        var headerRequired = result.apiHeaders.filter(function (item) { return item.required; });
+        this.headerRequiredKeys = headerRequired.map(function (item) { return item.paramKey; });
+        var inputRequired = result.apiInputParams.filter(function (item) { return item.required; });
+        this.inputRequiredKeys = inputRequired.map(function (item) { return item.paramKey; });
+      }
+    },
+    onSuiteChange(suiteCode) {
+      this.nodeData.method = Object.assign({}, getDefaultData().method, { suiteCode: suiteCode });
+    },
+    async onApiChange(apiCode) {
+      console.log('apiCode=', apiCode);
+      var res = await apiService.queryApiInfoByCode(apiCode);
+      if (res.result) {
+        var result = res.result;
+        var method = this.nodeData.method;
+        method.requestType = result.apiRequestType;
+        method.requestContentType = result.apiRequestContentType;
+        method.inputParamSchemas = result.apiInputParams.map(function (item) {
+          return {
+            key: item.paramKey,
+            name: item.paramName,
+            dataType: item.dataType,
+            position: item.paramPosition,
+          };
+        });
+        method.outputParamSchemas = result.apiOutputParams.map(function (item) {
+          return {
+            key: item.paramKey,
+            name: item.paramName,
+            dataType: item.dataType,
+          };
+        });
+        this.headerSourceList = result.apiHeaders.map(function (item) { return Object.assign({}, item, { targetType: valueType.HEADER }); });
+        this.inputSourceList = result.apiInputParams.map(function (item) { return Object.assign({}, item, { targetType: valueType.INPUT_PARAM }); });
+        this.outputSourceList = result.apiOutputParams.map(function (item) { return Object.assign({}, item, { sourceType: valueType.OUTPUT_PARAM }); });
+        var headerRequired = result.apiHeaders.filter(function (item) { return item.required; });
+        method.headerFillRules = headerRequired.map(function (item) { return paramToRule(item, valueType.HEADER); });
+        this.headerRequiredKeys = headerRequired.map(function (item) { return item.paramKey; });
+        var inputRequired = result.apiInputParams.filter(function (item) { return item.required; });
+        method.inputFillRules = inputRequired.map(function (item) { return paramToRule(item, valueType.INPUT_PARAM); });
+        this.inputRequiredKeys = inputRequired.map(function (item) { return item.paramKey; });
+        method.outputFillRules = [];
+        method.url = result.apiUrl;
+      }
+    },
+    validateParam(param) {
+      if (!param.source) {
+        return false;
+      }
+      if (!param.target) {
+        return false;
+      }
+      return true;
+    },
+    validate() {
+      if (!this.nodeData.name) {
+        ElMessage.error('节点名称不能为空');
+        return false;
+      }
+      var method = this.nodeData.method;
+      if (!method.methodCode) {
+        ElMessage.error('服务接口不能为空');
+        return false;
+      }
+      if (method.headerFillRules.length > 0 && !method.headerFillRules.every(this.validateParam)) {
+        ElMessage.error('请求头赋值不完整');
+        return false;
+      }
+      if (method.inputFillRules.length > 0 && !method.inputFillRules.every(this.validateParam)) {
+        ElMessage.error('入参赋值不完整');
+        return false;
+      }
+      if (method.outputFillRules.length > 0 && !method.outputFillRules.every(this.validateParam)) {
+        ElMessage.error('出参赋值不完整');
+        return false;
+      }
+      return true;
+    },
+    onSubmit() {
+      if (!this.validate()) {
+        return;
+      }
+      this.$emit('update', cloneDeep(this.nodeData));
+    },
+    onCancel() {
+      this.$emit('cancel');
+    },
+    async querySuiteList() {
+      this.suiteLoading = true;
+      var res = await suiteService.querySuiteList();
+      if (res.success) {
+        this.suiteList = res.result;
+      }
+      this.suiteLoaded = true;
+      this.suiteLoading = false;
+    },
+  },
+};
 </script>
 
 <template>

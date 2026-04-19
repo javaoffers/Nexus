@@ -1,99 +1,102 @@
-<script setup lang="ts">
-import { ref, reactive, computed, nextTick } from 'vue';
-import type { FormInstance, FormRules } from 'element-plus';
+<script>
 import { ElMessage } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
-const dialogVisible = ref(false);
-const suiteFlag = ref();
-const formRef = ref<FormInstance>();
-const editItem = ref<Record<string, any>>();
-const formValue = reactive({
-  suiteImage: '',
-  suiteCode: '',
-  suiteName: '',
-  suiteDesc: '',
-});
-const rules = reactive<FormRules>({
-  suiteCode: [
-    { required: true, message: '请输入套件编码', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9_]+$/, message: '请输入大小写字母数字或下划线', trigger: 'blur' },
-  ],
-  suiteName: [{ required: true, message: '请输入套件名称', trigger: 'blur' }],
-});
 
-const emit = defineEmits(['add', 'edit']);
+export default {
+  components: {
+    Plus,
+  },
+  emits: ['add', 'edit'],
+  data() {
+    return {
+      dialogVisible: false,
+      suiteFlag: undefined,
+      editItem: undefined,
+      formValue: {
+        suiteImage: '',
+        suiteCode: '',
+        suiteName: '',
+        suiteDesc: '',
+      },
+      rules: {
+        suiteCode: [
+          { required: true, message: '请输入套件编码', trigger: 'blur' },
+          { pattern: /^[a-zA-Z0-9_]+$/, message: '请输入大小写字母数字或下划线', trigger: 'blur' },
+        ],
+        suiteName: [{ required: true, message: '请输入套件名称', trigger: 'blur' }],
+      },
+    };
+  },
+  computed: {
+    isEditMode() {
+      return !!this.editItem;
+    },
+    title() {
+      if (this.editItem) {
+        return '编辑套件';
+      }
+      return '新增套件';
+    },
+  },
+  methods: {
+    onCancel() {
+      this.dialogVisible = false;
+    },
+    async onSubmit() {
+      if (!this.$refs.formRef) return;
+      const valid = await this.$refs.formRef.validate(() => {});
+      if (!valid) {
+        return;
+      }
 
-const isEditMode = computed(() => !!editItem.value);
-
-function onCancel() {
-  dialogVisible.value = false;
-}
-
-async function onSubmit() {
-  if (!formRef.value) return;
-  const valid = await formRef.value?.validate(() => {});
-  if (!valid) {
-    return;
-  }
-
-  dialogVisible.value = false;
-  if (editItem.value) {
-    emit('edit', { ...editItem.value, ...formValue });
-  } else {
-    emit('add', formValue);
-  }
-}
-
-function open(item?: Record<string, any>) {
-  editItem.value = item;
-  dialogVisible.value = true;
-  nextTick(() => {
-    formRef.value?.resetFields();
-    suiteFlag.value = null;
-    formValue.suiteImage = '';
-    if (item) {
-      suiteFlag.value = item.suiteFlag;
-      formValue.suiteImage = item.suiteImage;
-      formValue.suiteCode = item.suiteCode;
-      formValue.suiteName = item.suiteName;
-      formValue.suiteDesc = item.suiteDesc;
-    }
-  });
-}
-
-const title = computed(() => {
-  if (editItem.value) {
-    return '编辑套件';
-  }
-  return '新增套件';
-});
-
-function beforeSuiteImageUpload(file) {
-  const isJPG = file.raw.type === 'image/jpeg';
-  const isPNG = file.raw.type === 'image/png';
-  const isLt30K = file.size / 1024 < 30;
-  if (!isJPG && !isPNG) {
-    ElMessage.error('只能上传 JPG/PNG 格式的图片');
-    return false;
-  }
-  if (!isLt30K) {
-    ElMessage.error('图片大小不能超过30KB');
-    return false;
-  }
-  convertImageToBase64(file);
-  return false;
-}
-
-function convertImageToBase64(file) {
-  const reader = new FileReader();
-  reader.readAsDataURL(file.raw);
-  reader.onload = () => {
-    const base64Data = reader.result;
-    formValue.suiteImage = base64Data as string;
-  };
-}
-
-defineExpose({ open });
+      this.dialogVisible = false;
+      if (this.editItem) {
+        this.$emit('edit', { ...this.editItem, ...this.formValue });
+      } else {
+        this.$emit('add', this.formValue);
+      }
+    },
+    open(item) {
+      this.editItem = item;
+      this.dialogVisible = true;
+      this.$nextTick(() => {
+        this.$refs.formRef?.resetFields();
+        this.suiteFlag = null;
+        this.formValue.suiteImage = '';
+        if (item) {
+          this.suiteFlag = item.suiteFlag;
+          this.formValue.suiteImage = item.suiteImage;
+          this.formValue.suiteCode = item.suiteCode;
+          this.formValue.suiteName = item.suiteName;
+          this.formValue.suiteDesc = item.suiteDesc;
+        }
+      });
+    },
+    beforeSuiteImageUpload(file) {
+      const isJPG = file.raw.type === 'image/jpeg';
+      const isPNG = file.raw.type === 'image/png';
+      const isLt30K = file.size / 1024 < 30;
+      if (!isJPG && !isPNG) {
+        ElMessage.error('只能上传 JPG/PNG 格式的图片');
+        return false;
+      }
+      if (!isLt30K) {
+        ElMessage.error('图片大小不能超过30KB');
+        return false;
+      }
+      this.convertImageToBase64(file);
+      return false;
+    },
+    convertImageToBase64(file) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file.raw);
+      reader.onload = () => {
+        const base64Data = reader.result;
+        this.formValue.suiteImage = base64Data;
+      };
+    },
+  },
+};
 </script>
 <template>
   <el-dialog v-model="dialogVisible" :title="title" width="600">
@@ -125,7 +128,7 @@ defineExpose({ open });
   </el-dialog>
 </template>
 
-<style lang="less">
+<style>
 .suite-image-uploader .avatar {
   width: 90px;
   height: 90px;

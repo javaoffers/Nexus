@@ -1,8 +1,17 @@
-<script lang="ts" setup>
-import { Coin, ShoppingBag } from '@element-plus/icons-vue';
+<script>
+import { Coin } from '@element-plus/icons-vue';
 import IconFlow from '@/components/icons/IconFlow.vue';
 import IconInterface from '@/components/icons/IconInterface.vue';
-import IconSetting from "@/components/icons/IconSetting.vue";
+import IconSetting from '@/components/icons/IconSetting.vue';
+
+export default {
+  components: {
+    Coin,
+    IconFlow,
+    IconInterface,
+    IconSetting,
+  },
+};
 </script>
 
 <template>
@@ -24,14 +33,6 @@ import IconSetting from "@/components/icons/IconSetting.vue";
         <el-icon><Coin /></el-icon>
         <span>对象</span>
       </el-menu-item>
-      <el-sub-menu index="4">
-        <template #title>
-          <el-icon><ShoppingBag /></el-icon>
-          <span>市场</span>
-        </template>
-        <el-menu-item index="/market/suite">套件市场</el-menu-item>
-        <el-menu-item index="/market/template">模板市场</el-menu-item>
-      </el-sub-menu>
       <el-sub-menu index="5">
         <template #title>
           <el-icon><IconSetting/></el-icon>
@@ -44,7 +45,7 @@ import IconSetting from "@/components/icons/IconSetting.vue";
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .layout-aside {
   height: 100%;
   border-right: 1px solid var(--nexus-border-light);
@@ -63,11 +64,11 @@ import IconSetting from "@/components/icons/IconSetting.vue";
   line-height: 40px;
   color: var(--nexus-text-secondary);
   transition: all 0.2s;
+}
 
-  &:hover {
-    background-color: var(--nexus-primary-light-9) !important;
-    color: var(--nexus-primary);
-  }
+:deep(.el-menu-item):hover {
+  background-color: var(--nexus-primary-light-9) !important;
+  color: var(--nexus-primary);
 }
 
 :deep(.el-sub-menu .el-sub-menu__title) {
@@ -75,11 +76,11 @@ import IconSetting from "@/components/icons/IconSetting.vue";
   height: 40px;
   line-height: 40px;
   color: var(--nexus-text-secondary);
+}
 
-  &:hover {
-    background-color: var(--nexus-primary-light-9) !important;
-    color: var(--nexus-primary);
-  }
+:deep(.el-sub-menu .el-sub-menu__title):hover {
+  background-color: var(--nexus-primary-light-9) !important;
+  color: var(--nexus-primary);
 }
 
 :deep(.el-menu-item.is-active) {
@@ -88,17 +89,17 @@ import IconSetting from "@/components/icons/IconSetting.vue";
   font-weight: 500;
   border-right: none;
   position: relative;
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 20px;
-    background: var(--nexus-primary);
-    border-radius: 0 2px 2px 0;
-  }
+:deep(.el-menu-item.is-active)::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: var(--nexus-primary);
+  border-radius: 0 2px 2px 0;
 }
 </style>

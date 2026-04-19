@@ -1,53 +1,58 @@
-<script lang="ts" setup>
-import { ref, computed } from 'vue';
+<script>
 import FilterGroup from '@/components/filter/FilterGroup.vue';
-import { RawData, ConditionItem } from '../types';
 import { cloneDeep } from 'lodash-es';
-import { useFlowDataInject } from '../hooks/flow-data';
-const flowContext = useFlowDataInject();
-type ConditionRawData = RawData & { conditions: ConditionItem[] };
-const visible = ref(false);
-function getDefault() {
-  return {
-    conditionName: '',
-    conditionType: 'CUSTOM',
-    expression: '',
-    outgoing: '',
-    conditionExpressions: [],
-  } as ConditionItem;
-}
-const condition = ref(getDefault());
-let openParams: {
-  data: ConditionRawData;
-  index?: number;
-  afterEdit: (val: ConditionItem) => void;
+
+export default {
+  components: {
+    FilterGroup,
+  },
+  data() {
+    return {
+      visible: false,
+      condition: this.getDefault(),
+      openParams: null,
+    };
+  },
+  computed: {
+    sourceList() {
+      return this.$store.state.flow.flowVariables.filter(function (item) {
+        return item.variableType === 1 || item.variableType === 3;
+      });
+    },
+  },
+  methods: {
+    getDefault() {
+      return {
+        conditionName: '',
+        conditionType: 'CUSTOM',
+        expression: '',
+        outgoing: '',
+        conditionExpressions: [],
+      };
+    },
+    open(params) {
+      this.openParams = params;
+      if (typeof params.index === 'number') {
+        this.condition = cloneDeep(params.data.conditions[params.index]);
+      } else {
+        this.condition = this.getDefault();
+      }
+      this.visible = true;
+    },
+    onChange(value) {
+      this.condition.conditionExpressions = value;
+    },
+    onCancel() {
+      this.visible = false;
+    },
+    onSubmit() {
+      this.visible = false;
+      if (typeof this.openParams.afterEdit === 'function') {
+        this.openParams.afterEdit(cloneDeep(this.condition));
+      }
+    },
+  },
 };
-function open(params: typeof openParams) {
-  openParams = params;
-  if (typeof params.index === 'number') {
-    condition.value = cloneDeep(params.data.conditions[params.index]);
-  } else {
-    condition.value = getDefault();
-  }
-  visible.value = true;
-}
-function onChange(value: any) {
-  condition.value.conditionExpressions = value;
-}
-function onCancel() {
-  visible.value = false;
-}
-function onSubmit() {
-  visible.value = false;
-  if (typeof openParams.afterEdit === 'function') {
-    openParams.afterEdit(cloneDeep(condition.value));
-  }
-}
-const sourceList = computed(() => {
-  // 流程入参/中间变量
-  return flowContext.data.value.flowVariables.filter(item => item.variableType === 1 || item.variableType === 3);
-});
-defineExpose({ open });
 </script>
 
 <template>
@@ -64,16 +69,14 @@ defineExpose({ open });
   </el-dialog>
 </template>
 
-<style lang="less">
-.condition-filter-modal {
-  .el-dialog__body {
-    padding-top: 10px;
-  }
-  .condition-name-label {
-    margin-bottom: 10px;
-  }
-  .condition-name-input {
-    margin-bottom: 10px;
-  }
+<style>
+.condition-filter-modal .el-dialog__body {
+  padding-top: 10px;
+}
+.condition-filter-modal .condition-name-label {
+  margin-bottom: 10px;
+}
+.condition-filter-modal .condition-name-input {
+  margin-bottom: 10px;
 }
 </style>

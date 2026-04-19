@@ -1,17 +1,21 @@
-<script lang="ts" setup>
-import { reactive } from 'vue';
-const emit = defineEmits(['search']);
-
-const formValue = reactive({
-  flowVersionStatus: '',
-});
-
-const onSubmit = () => {
-  emit('search', formValue);
-};
-
-const onReset = () => {
-  formValue.flowVersionStatus = '';
+<script>
+export default {
+  emits: ['search'],
+  data() {
+    return {
+      formValue: {
+        flowVersionStatus: '',
+      },
+    };
+  },
+  methods: {
+    onSubmit() {
+      this.$emit('search', this.formValue);
+    },
+    onReset() {
+      this.formValue.flowVersionStatus = '';
+    },
+  },
 };
 </script>
 

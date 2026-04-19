@@ -1,58 +1,55 @@
-<script setup lang="ts">
-import { useRouter } from 'vue-router';
+<script>
 import { userService } from '@/service';
 import { ElMessage } from 'element-plus';
-import { ref } from 'vue';
 
-const $router = useRouter();
-
-const userName = ref('');
-const userNameInitial = ref('');
-const aboutDialogVisible = ref(false);
-
-userName.value = window.localStorage.getItem('Nexus-userName');
-userNameInitial.value = userName.value.charAt(0);
-
-const productVersion = ref();
-
-getProductInfo();
-
-function openAboutDialog(){
-  aboutDialogVisible.value = true;
-}
-
-function aboutMe(){
-  window.open("https://nexus.plus/about_me.html", '_blank');
-}
-
-function contactMe(){
-  window.open("https://nexus.plus", '_blank');
-}
-
-async function getProductInfo() {
-  const res = await userService.getProductInfo();
-  if(res.success){
-    productVersion.value = res.result;
-  }
-}
-
-async function logout() {
-  const res = await userService.logout();
-  if (res) {
-    await $router.push('/login');
-  } else {
-    ElMessage.error('退出失败');
-  }
-}
-
-function extractColorByName(name) {
-  const temp = [];
-  temp.push('#');
-  for (let index = 0; index < name.length; index++) {
-    temp.push(parseInt(name[index].charCodeAt(0), 10).toString(16));
-  }
-  return temp.slice(0, 5).join('').slice(0, 4);
-}
+export default {
+  data() {
+    return {
+      userName: '',
+      userNameInitial: '',
+      aboutDialogVisible: false,
+      productVersion: undefined,
+    };
+  },
+  created() {
+    this.userName = window.localStorage.getItem('Nexus-userName');
+    this.userNameInitial = this.userName.charAt(0);
+    this.getProductInfo();
+  },
+  methods: {
+    openAboutDialog() {
+      this.aboutDialogVisible = true;
+    },
+    aboutMe() {
+      window.open("https://nexus.plus/about_me.html", '_blank');
+    },
+    contactMe() {
+      window.open("https://nexus.plus", '_blank');
+    },
+    async getProductInfo() {
+      const res = await userService.getProductInfo();
+      if (res.success) {
+        this.productVersion = res.result;
+      }
+    },
+    async logout() {
+      const res = await userService.logout();
+      if (res) {
+        await this.$router.push('/login');
+      } else {
+        ElMessage.error('退出失败');
+      }
+    },
+    extractColorByName(name) {
+      const temp = [];
+      temp.push('#');
+      for (let index = 0; index < name.length; index++) {
+        temp.push(parseInt(name[index].charCodeAt(0), 10).toString(16));
+      }
+      return temp.slice(0, 5).join('').slice(0, 4);
+    },
+  },
+};
 </script>
 <template>
   <el-dropdown class="app-current-userPO-dropdown">
@@ -83,7 +80,7 @@ function extractColorByName(name) {
     </template>
   </el-dialog>
 </template>
-<style lang="less" scoped>
+<style scoped>
 .app-current-userPO-dropdown {
   height: 100%;
   padding: 0 20px 0 0;
@@ -94,15 +91,13 @@ function extractColorByName(name) {
   align-items: center;
   color: var(--nexus-text-primary);
   outline: none;
-
-  .el-avatar {
-    font-size: 22px;
-    font-weight: bold;
-  }
-
-  .current-userPO-name {
-    font-size: 15px;
-    margin-left: 8px;
-  }
+}
+.app-current-userPO .el-avatar {
+  font-size: 22px;
+  font-weight: bold;
+}
+.app-current-userPO .current-userPO-name {
+  font-size: 15px;
+  margin-left: 8px;
 }
 </style>

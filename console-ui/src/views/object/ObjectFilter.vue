@@ -1,17 +1,21 @@
-<script lang="ts" setup>
-import { reactive } from 'vue';
-const emit = defineEmits(['search']);
-
-const objectFilterFormValue = reactive({
-  objectName: '',
-});
-
-const onSubmit = () => {
-  emit('search', objectFilterFormValue);
-};
-
-const onReset = () => {
-  objectFilterFormValue.objectName = '';
+<script>
+export default {
+  emits: ['search'],
+  data() {
+    return {
+      objectFilterFormValue: {
+        objectName: '',
+      },
+    };
+  },
+  methods: {
+    onSubmit() {
+      this.$emit('search', this.objectFilterFormValue);
+    },
+    onReset() {
+      this.objectFilterFormValue.objectName = '';
+    },
+  },
 };
 </script>
 

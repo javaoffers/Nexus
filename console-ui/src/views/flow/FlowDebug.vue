@@ -1,124 +1,126 @@
-<script setup lang="ts">
-import { reactive, ref } from 'vue';
-import { useRoute } from 'vue-router';
+<script>
 import { flowDefineService, flowVersionService } from '@/service';
 import { ElMessage } from 'element-plus';
 import CodeEditor from '@/components/common/CodeEditor.vue';
-import {DataType, FlowDefineInfo} from '@/typings';
 import FilterValue from '@/components/filter/FilterValue.vue';
-import {InfoFilled} from "@element-plus/icons-vue";
-import DataTypeDisplay from "@/components/common/DataTypeDisplay.vue";
-import {safeTrim} from "@/utils/CommonUtil.ts";
+import { InfoFilled } from '@element-plus/icons-vue';
+import DataTypeDisplay from '@/components/common/DataTypeDisplay.vue';
+import { safeTrim } from '@/utils/CommonUtil.js';
 
-const route = useRoute();
-let paramsData = reactive({
-  params: route.params,
-});
-
-const codeEditRef = ref<InstanceType<typeof CodeEditor>>();
-
-const debugUrl = ref('');
-let flowResponseJson = ref('');
-const flowDefine = ref<FlowDefineInfo>();
-
-const responseHeaderData = ref([]);
-
-queryFlowDefineInfo();
-
-async function queryFlowDefineInfo() {
-  const res = await flowDefineService.getDefineInfo(paramsData.params.flowDefinitionId as number);
-  if (res.success) {
-    debugUrl.value = window.location.origin + '/v1/flow/definition/debug/' + paramsData.params.flowKey;
-    flowDefine.value = res.result;
-  } else {
-    ElMessage({ type: 'error', message: res.errorMsg });
-  }
-}
-
-let timerId;
-async function sendFlowDebug() {
-  if (!validate()) {
-    return;
-  }
-  const params = {
-    flowData: getParams(),
-  };
-  const res = await flowDefineService.debugFlow(paramsData.params.flowKey as string, params);
-  if (res.success) {
-    if (flowDefine.value?.flowType === 'sync') {
-      flowResponseJson.value = JSON.stringify(res.result);
-    } else {
-      timerId = setInterval(getAsyncFlowResult, 1000, res.result.flowInstanceId);
-    }
-  } else {
-    ElMessage({ type: 'error', message: res.errorMsg });
-  }
-  responseHeaderData.value = Object.entries(res.response?.headers).map(([key, value]) => {
+export default {
+  components: {
+    CodeEditor,
+    FilterValue,
+    InfoFilled,
+    DataTypeDisplay,
+  },
+  data() {
     return {
-      headerKey: key,
-      headerValue: value,
+      debugUrl: '',
+      flowResponseJson: '',
+      flowDefine: undefined,
+      responseHeaderData: [],
+      timerId: null,
     };
-  });
-}
-
-async function getAsyncFlowResult(flowInstanceId: string) {
-  const res = await flowVersionService.getAsyncFlowResult(flowInstanceId);
-  if (res.success) {
-    if (res.result) {
-      flowResponseJson.value = JSON.stringify(res.result);
-      clearInterval(timerId);
+  },
+  created() {
+    this.queryFlowDefineInfo();
+  },
+  beforeUnmount() {
+    if (this.timerId) {
+      clearInterval(this.timerId);
     }
-  } else {
-    ElMessage({ type: 'error', message: res.errorMsg });
-  }
-}
-
-function isEmpty(val: any) {
-  return val === undefined || val === null || val === '';
-}
-
-function validate() {
-  const flowInputParams = flowDefine.value?.flowInputParams || [];
-  const errors: string[] = [];
-  flowInputParams.forEach((param: any) => {
-    if (param.required && isEmpty(param.value)) {
-      param.error = '必填字段不能为空';
-      errors.push(param.paramKey);
-    } else {
-      param.error = '';
-    }
-  });
-  return errors.length === 0;
-}
-
-function getParams() {
-  const flowInputParams = flowDefine.value?.flowInputParams || [];
-  const params: any = {};
-  flowInputParams.forEach((param: any) => {
-    const dataType: DataType = param.dataType;
-    if (!isEmpty(param.value)) {
-      if (dataType.type === 'Object' || dataType.type === 'List') {
-        params[param.paramKey] = JSON.parse(param.value);
-      }  else if(dataType.type === 'String') {
-        params[param.paramKey] = safeTrim(param.value);
+  },
+  methods: {
+    async queryFlowDefineInfo() {
+      const res = await flowDefineService.getDefineInfo(this.$route.params.flowDefinitionId);
+      if (res.success) {
+        this.debugUrl = window.location.origin + '/v1/flow/definition/debug/' + this.$route.params.flowKey;
+        this.flowDefine = res.result;
       } else {
-        params[param.paramKey] = param.value;
+        ElMessage({ type: 'error', message: res.errorMsg });
       }
-    } else {
-      if (dataType.type === 'Boolean') {
-        params[param.paramKey] = false;
+    },
+    async sendFlowDebug() {
+      if (!this.validate()) {
+        return;
       }
-    }
-  });
-  return params;
-}
-
-function resetParams() {
-  flowDefine.value?.flowInputParams.forEach((param: any) => {
-    param.value = '';
-    param.error = '';
-  });
-}
+      const params = {
+        flowData: this.getParams(),
+      };
+      const res = await flowDefineService.debugFlow(this.$route.params.flowKey, params);
+      if (res.success) {
+        if (this.flowDefine?.flowType === 'sync') {
+          this.flowResponseJson = JSON.stringify(res.result);
+        } else {
+          this.timerId = setInterval(this.getAsyncFlowResult, 1000, res.result.flowInstanceId);
+        }
+      } else {
+        ElMessage({ type: 'error', message: res.errorMsg });
+      }
+      this.responseHeaderData = Object.entries(res.response?.headers).map(([key, value]) => {
+        return {
+          headerKey: key,
+          headerValue: value,
+        };
+      });
+    },
+    async getAsyncFlowResult(flowInstanceId) {
+      const res = await flowVersionService.getAsyncFlowResult(flowInstanceId);
+      if (res.success) {
+        if (res.result) {
+          this.flowResponseJson = JSON.stringify(res.result);
+          clearInterval(this.timerId);
+        }
+      } else {
+        ElMessage({ type: 'error', message: res.errorMsg });
+      }
+    },
+    isEmpty(val) {
+      return val === undefined || val === null || val === '';
+    },
+    validate() {
+      const flowInputParams = this.flowDefine?.flowInputParams || [];
+      const errors = [];
+      flowInputParams.forEach((param) => {
+        if (param.required && this.isEmpty(param.value)) {
+          param.error = '必填字段不能为空';
+          errors.push(param.paramKey);
+        } else {
+          param.error = '';
+        }
+      });
+      return errors.length === 0;
+    },
+    getParams() {
+      const flowInputParams = this.flowDefine?.flowInputParams || [];
+      const params = {};
+      flowInputParams.forEach((param) => {
+        const dataType = param.dataType;
+        if (!this.isEmpty(param.value)) {
+          if (dataType.type === 'Object' || dataType.type === 'List') {
+            params[param.paramKey] = JSON.parse(param.value);
+          } else if (dataType.type === 'String') {
+            params[param.paramKey] = safeTrim(param.value);
+          } else {
+            params[param.paramKey] = param.value;
+          }
+        } else {
+          if (dataType.type === 'Boolean') {
+            params[param.paramKey] = false;
+          }
+        }
+      });
+      return params;
+    },
+    resetParams() {
+      this.flowDefine?.flowInputParams.forEach((param) => {
+        param.value = '';
+        param.error = '';
+      });
+    },
+  },
+};
 </script>
 
 <template>
@@ -183,37 +185,42 @@ function resetParams() {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .flow-debug {
   background-color: var(--el-bg-color-overlay);
   padding: 24px 40px;
+}
 
-  .input-param-body {
-    color: var(--nexus-text-secondary);
-  }
-  .input-param-tr {
-    display: flex;
-    font-size: 14px;
-    line-height: 28px;
-    margin-bottom: 8px;
-  }
-  .input-param-td {
-    margin-right: 12px;
-    width: 120px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    &:first-child {
-      margin: 0;
-      width: 12px;
-      color: var(--nexus-danger);
-    }
-    &.td-value {
-      width: 240px;
-    }
-    &.td-error {
-      color: var(--nexus-danger);
-    }
-  }
+.flow-debug .input-param-body {
+  color: var(--nexus-text-secondary);
+}
+
+.flow-debug .input-param-tr {
+  display: flex;
+  font-size: 14px;
+  line-height: 28px;
+  margin-bottom: 8px;
+}
+
+.flow-debug .input-param-td {
+  margin-right: 12px;
+  width: 120px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.flow-debug .input-param-td:first-child {
+  margin: 0;
+  width: 12px;
+  color: var(--nexus-danger);
+}
+
+.flow-debug .input-param-td.td-value {
+  width: 240px;
+}
+
+.flow-debug .input-param-td.td-error {
+  color: var(--nexus-danger);
 }
 </style>

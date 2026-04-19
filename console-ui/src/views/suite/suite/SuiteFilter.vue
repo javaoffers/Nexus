@@ -1,19 +1,23 @@
-<script lang="ts" setup>
-import { reactive } from 'vue';
-const emit = defineEmits(['search']);
-
-const formValue = reactive({
-  suiteName: '',
-  suiteFlag: null,
-});
-
-const onSubmit = () => {
-  emit('search', formValue);
-};
-
-const onReset = () => {
-  formValue.suiteName = '';
-  formValue.suiteFlag = null;
+<script>
+export default {
+  emits: ['search'],
+  data() {
+    return {
+      formValue: {
+        suiteName: '',
+        suiteFlag: null,
+      },
+    };
+  },
+  methods: {
+    onSubmit() {
+      this.$emit('search', this.formValue);
+    },
+    onReset() {
+      this.formValue.suiteName = '';
+      this.formValue.suiteFlag = null;
+    },
+  },
 };
 </script>
 <template>

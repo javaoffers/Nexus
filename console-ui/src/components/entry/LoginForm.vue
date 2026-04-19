@@ -1,33 +1,38 @@
-<script setup lang="ts">
-import { ref } from 'vue';
+<script>
 import { User, Lock } from '@element-plus/icons-vue';
-import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { userService } from '@/service';
-const router = useRouter();
 
-const userName = ref('');
-const password = ref('');
-const loading = ref(false);
-
-async function submit() {
-  if (!userName.value || !password.value) {
-    ElMessage.error('用户名或密码为空');
-    return;
-  }
-  loading.value = true;
-  const result = await userService.login({
-    userName: userName.value,
-    password: password.value,
-  });
-  if (result.success) {
-    await router.push({name: 'flow'});
-  } else {
-    ElMessage.error(result.errorMsg || '登录失败');
-  }
-  loading.value = false;
-}
-
+export default {
+  data() {
+    return {
+      userName: '',
+      password: '',
+      loading: false,
+      User: User,
+      Lock: Lock,
+    };
+  },
+  methods: {
+    async submit() {
+      if (!this.userName || !this.password) {
+        ElMessage.error('用户名或密码为空');
+        return;
+      }
+      this.loading = true;
+      const result = await userService.login({
+        userName: this.userName,
+        password: this.password,
+      });
+      if (result.success) {
+        await this.$router.push({ name: 'flow' });
+      } else {
+        ElMessage.error(result.errorMsg || '登录失败');
+      }
+      this.loading = false;
+    },
+  },
+};
 </script>
 
 <template>
@@ -44,11 +49,11 @@ async function submit() {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .login-form {
   margin-top: 0;
-  .login-form-item {
-    margin-bottom: 20px;
-  }
+}
+.login-form .login-form-item {
+  margin-bottom: 20px;
 }
 </style>

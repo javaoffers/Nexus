@@ -1,28 +1,37 @@
-<script setup lang="ts">
+<script>
 import { Plus, Minus } from '@element-plus/icons-vue';
-import { computed } from 'vue';
-const emit = defineEmits(['change']);
 
-const props = defineProps({
-  scale: {
-    type: Number,
-    default: 1,
+export default {
+  components: {
+    Plus,
+    Minus,
   },
-});
-
-const step = 0.1; // 缩放因子 每次10%
-
-const percent = computed(() => {
-  return `${Math.round(props.scale * 100)}%`;
-});
-
-function plus() {
-  emit('change', props.scale + step);
-}
-
-function minus() {
-  emit('change', props.scale - step);
-}
+  props: {
+    scale: {
+      type: Number,
+      default: 1,
+    },
+  },
+  emits: ['change'],
+  data() {
+    return {
+      step: 0.1,
+    };
+  },
+  computed: {
+    percent() {
+      return Math.round(this.scale * 100) + '%';
+    },
+  },
+  methods: {
+    plus() {
+      this.$emit('change', this.scale + this.step);
+    },
+    minus() {
+      this.$emit('change', this.scale - this.step);
+    },
+  },
+};
 </script>
 
 <template>
@@ -33,7 +42,7 @@ function minus() {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .zoom-tool {
   width: 112px;
   height: 28px;
@@ -46,13 +55,11 @@ function minus() {
   justify-content: space-around;
   font-size: 14px;
   user-select: none;
-
   position: absolute;
   right: 16px;
   bottom: 16px;
-
-  .el-icon {
-    cursor: pointer;
-  }
+}
+.zoom-tool .el-icon {
+  cursor: pointer;
 }
 </style>

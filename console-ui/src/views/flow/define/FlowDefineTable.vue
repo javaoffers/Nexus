@@ -1,43 +1,33 @@
-<script lang="ts" setup>
-import { useRouter } from 'vue-router';
-const router = useRouter();
-defineProps({
-  dataRows: {
-    type: Array,
-    default: [],
-  },
-  pageNum: Number,
-  pageSize: Number,
-  dataTotal: Number,
-  loading: Boolean,
-});
-const emit = defineEmits(['pageChange', 'deploy', 'edit', 'delete']);
-
-function deployFlow(row: any) {
-  emit('deploy', row);
-}
-function deleteRow(row: any, index: number) {
-  emit('delete', row, index);
-}
-
-function editRow(row: any) {
-  emit('edit', row);
-}
-
-function goDebugPage(flowDefinitionId: number, flowKey: string) {
-  router.push({
-    name: 'flow-debug',
-    params: {
-      flowDefinitionId: flowDefinitionId,
-      flowKey: flowKey,
+<script>
+export default {
+  props: ['dataRows', 'pageNum', 'pageSize', 'dataTotal', 'loading'],
+  emits: ['pageChange', 'deploy', 'edit', 'delete'],
+  methods: {
+    deployFlow(row) {
+      this.$emit('deploy', row);
     },
-  });
-}
-function goDesignPage(flowDefinitionId: number, flowKey: string) {
-  const path = "/design/"+flowDefinitionId+"/"+flowKey;
-  const { href } = router.resolve({ path })
-  window.open(href, '_blank')
-}
+    deleteRow(row, index) {
+      this.$emit('delete', row, index);
+    },
+    editRow(row) {
+      this.$emit('edit', row);
+    },
+    goDebugPage(flowDefinitionId, flowKey) {
+      this.$router.push({
+        name: 'flow-debug',
+        params: {
+          flowDefinitionId: flowDefinitionId,
+          flowKey: flowKey,
+        },
+      });
+    },
+    goDesignPage(flowDefinitionId, flowKey) {
+      const path = "/design/" + flowDefinitionId + "/" + flowKey;
+      const { href } = this.$router.resolve({ path });
+      window.open(href, '_blank');
+    },
+  },
+};
 </script>
 
 <template>
@@ -69,11 +59,10 @@ function goDesignPage(flowDefinitionId: number, flowKey: string) {
       background
       layout="total, prev, pager, next"
       :total="dataTotal"
-      @currentChange="(val: number) => $emit('pageChange', val)"
+      @currentChange="(val) => $emit('pageChange', val)"
     />
   </div>
 </template>
 
-<style lang="less" scoped>
-
+<style scoped>
 </style>

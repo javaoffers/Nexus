@@ -1,7 +1,15 @@
-<script setup lang="ts">
+<script>
 import AppLogo from './AppLogo.vue';
 import CurrentUser from './CurrentUser.vue';
 import HeaderMenu from './HeaderMenu.vue';
+
+export default {
+  components: {
+    AppLogo,
+    CurrentUser,
+    HeaderMenu,
+  },
+};
 </script>
 <template>
   <div class="layout-header">
@@ -14,7 +22,7 @@ import HeaderMenu from './HeaderMenu.vue';
     </div>
   </div>
 </template>
-<style lang="less" scoped>
+<style scoped>
 .layout-header {
   background-color: var(--nexus-bg-header);
   border-bottom: 1px solid var(--nexus-border-light);

@@ -1,67 +1,68 @@
-<script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
-import {DataTypeMap} from "@/const";
-import {DataType} from "@/typings";
-import {commonService} from "@/service";
+<script>
+import { DataTypeMap } from '@/const';
+import { commonService } from '@/service';
 
-const props = defineProps<{
-  dataType: DataType
-}>();
-
-let objectDataTypeMap = ref<Record<string, string>>({});
-
-onMounted(() => {
-  loadDataTypeList();
-});
-
-const displayName = computed(() => {
-  const dataType = props.dataType as DataType;
-  return getDataTypeDisplayName(dataType);
-});
-
-function getDataTypeDisplayName(dataType:DataType){
-  let displayName;
-  if(!dataType){
-    return ;
-  }
-  if('Object' == dataType.type){
-    displayName = objectDataTypeMap.value[dataType.objectKey];
-  } else if('List' == dataType.type){
-    const start = '列表<';
-    let itemDisplayName;
-    if(dataType.itemType){
-      itemDisplayName = getDataTypeDisplayName({
-        type: dataType.itemType,
-        objectKey: dataType.objectKey,
-        objectStructure: dataType.objectStructure
-      });
-    }
-    displayName = start + itemDisplayName +">";
-  } else {
-    displayName = DataTypeMap[dataType.type];
-  }
-  return displayName;
-}
-
-async function loadDataTypeList() {
-  const res = await commonService.dataType.getList();
-  const dataTypeList = res || [];
-  objectDataTypeMap.value = dataTypeList.filter(item => item.dataTypeClassify === 3).reduce((acc, item) => {
-    if (item.objectKey) {
-      acc[item.objectKey] = item.displayName;
-    }
-    return acc;
-  }, {} as Record<string, string>);
-}
-
+export default {
+  props: {
+    dataType: Object,
+  },
+  data() {
+    return {
+      objectDataTypeMap: {},
+    };
+  },
+  computed: {
+    displayName() {
+      return this.getDataTypeDisplayName(this.dataType);
+    },
+  },
+  mounted() {
+    this.loadDataTypeList();
+  },
+  methods: {
+    getDataTypeDisplayName(dataType) {
+      let displayName;
+      if (!dataType) {
+        return;
+      }
+      if ('Object' == dataType.type) {
+        displayName = this.objectDataTypeMap[dataType.objectKey];
+      } else if ('List' == dataType.type) {
+        const start = '列表<';
+        let itemDisplayName;
+        if (dataType.itemType) {
+          itemDisplayName = this.getDataTypeDisplayName({
+            type: dataType.itemType,
+            objectKey: dataType.objectKey,
+            objectStructure: dataType.objectStructure,
+          });
+        }
+        displayName = start + itemDisplayName + '>';
+      } else {
+        displayName = DataTypeMap[dataType.type];
+      }
+      return displayName;
+    },
+    async loadDataTypeList() {
+      const res = await commonService.dataType.getList();
+      const dataTypeList = res || [];
+      this.objectDataTypeMap = dataTypeList.filter(item => item.dataTypeClassify === 3).reduce((acc, item) => {
+        if (item.objectKey) {
+          acc[item.objectKey] = item.displayName;
+        }
+        return acc;
+      }, {});
+    },
+  },
+};
 </script>
 
 <template>
 <div :title="displayName" class="dataTypeName">{{displayName}}</div>
 </template>
 
-<style scoped lang="less">
-.dataTypeName{
+<style scoped>
+.dataTypeName {
   width: 110px;
   white-space: nowrap;
   overflow: hidden;

@@ -1,36 +1,25 @@
-<script lang="ts" setup>
-import { useRouter } from 'vue-router';
-import {PropType} from "vue";
-const router = useRouter();
-defineProps({
-  dataRows: {
-    type: Array,
-    default: [],
-  },
-  pageNum: Number,
-  pageSize: Number,
-  dataTotal: Number,
-  loading: Boolean,
-});
-const emit = defineEmits(['pageChange', 'edit', 'delete']);
-
-function deleteRow(row: any, index: number) {
-  emit('delete', row, index);
-}
-
-function editRow(row: any) {
-  emit('edit', row);
-}
-
-function goApiDebugPage(apiId: number) {
-  const routeData = router.resolve({
-    name: 'api-debug',
-    params: {
-      apiId: apiId,
+<script>
+export default {
+  props: ['dataRows', 'pageNum', 'pageSize', 'dataTotal', 'loading'],
+  emits: ['pageChange', 'edit', 'delete'],
+  methods: {
+    deleteRow(row, index) {
+      this.$emit('delete', row, index);
     },
-  });
-  window.open(routeData.href, '_blank');
-}
+    editRow(row) {
+      this.$emit('edit', row);
+    },
+    goApiDebugPage(apiId) {
+      const routeData = this.$router.resolve({
+        name: 'api-debug',
+        params: {
+          apiId: apiId,
+        },
+      });
+      window.open(routeData.href, '_blank');
+    },
+  },
+};
 </script>
 <template>
   <el-table v-loading="loading" :data="dataRows" size="large" header-cell-class-name="table-header">
@@ -55,10 +44,9 @@ function goApiDebugPage(apiId: number) {
       background
       layout="total, prev, pager, next"
       :total="dataTotal"
-      @currentChange="(val: number) => $emit('pageChange', val)"
+      @currentChange="(val) => $emit('pageChange', val)"
     />
   </div>
 </template>
-<style lang="less" scoped>
-
+<style scoped>
 </style>

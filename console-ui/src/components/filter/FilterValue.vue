@@ -1,50 +1,49 @@
-<script lang="ts" setup>
-import {computed, PropType} from 'vue';
-const props = defineProps({
-  modelValue: {
-    type: [String, Number, Boolean, Array, Object],
-    default: '',
+<script>
+export default {
+  props: {
+    modelValue: {
+      type: [String, Number, Boolean, Array, Object],
+      default: '',
+    },
+    dataType: Object,
+    size: {
+      type: String,
+      default: 'default',
+    },
+    showNumberControls: {
+      type: Boolean,
+      default: true,
+    },
   },
-  dataType: Object,
-  size: {
-    type: String as PropType<'large' | 'default' | 'small'>,
-    default: 'default',
+  emits: ['update:modelValue'],
+  computed: {
+    currentType() {
+      return this.dataType?.type;
+    },
+    innerValue: {
+      get() {
+        if (this.currentType === 'Integer' || this.currentType === 'Double') {
+          if (this.modelValue === '') {
+            return null;
+          }
+          return Number(this.modelValue);
+        }
+        return this.modelValue;
+      },
+      set(value) {
+        this.$emit('update:modelValue', value);
+      },
+    },
+    switchValue: {
+      get() {
+        return this.innerValue === true;
+      },
+      set(newValue) {
+        this.innerValue = newValue;
+      },
+    },
   },
-  showNumberControls: {
-    type: Boolean,
-    default: true,
-  },
-});
-
-const emit = defineEmits(['update:modelValue']);
-
-const innerValue = computed({
-  get: () => {
-    if (currentType.value === 'Integer' || currentType.value === 'Double') {
-      if (props.modelValue === '') {
-        return null;
-      }
-      return Number(props.modelValue);
-    }
-    return props.modelValue;
-  },
-  set: value => {
-    emit('update:modelValue', value);
-  },
-});
-
-const switchValue = computed({
-  get() {
-    return innerValue.value === true
-  },
-  set(newValue) {
-    innerValue.value = newValue
-  }
-})
-
-const currentType = computed(() => {
-  return props.dataType?.type;
-});
+};
 </script>
 
 <template>
@@ -94,17 +93,17 @@ const currentType = computed(() => {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .filter-value {
   display: flex;
-  :deep(.el-input-number) {
-    width: 100%;
-    .el-input__inner {
-      text-align: left;
-    }
-  }
-  :deep(.el-date-editor){
-    width: 100%;
-  }
+}
+.filter-value :deep(.el-input-number) {
+  width: 100%;
+}
+.filter-value :deep(.el-input-number) .el-input__inner {
+  text-align: left;
+}
+.filter-value :deep(.el-date-editor) {
+  width: 100%;
 }
 </style>

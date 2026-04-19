@@ -1,8 +1,17 @@
-<script setup lang="ts">
+<script>
 import { RouterView } from 'vue-router';
 import LayoutHeader from '../components/layout/header/LayoutHeader.vue';
 import LayoutAside from '../components/layout/aside/LayoutAside.vue';
 import MainBreadcrumb from '../components/layout/main/MainBreadcrumb.vue';
+
+export default {
+  components: {
+    RouterView,
+    LayoutHeader,
+    LayoutAside,
+    MainBreadcrumb,
+  },
+};
 </script>
 
 <template>
@@ -26,50 +35,50 @@ import MainBreadcrumb from '../components/layout/main/MainBreadcrumb.vue';
   </div>
 </template>
 
-<style lang="less">
+<style>
 .layout-view {
   height: 100%;
   background: var(--nexus-bg-page);
+}
 
-  .layout-container {
-    height: 100%;
-  }
+.layout-view .layout-container {
+  height: 100%;
+}
 
-  .layout-header {
-    padding: 0;
-    height: var(--nexus-header-height);
-  }
+.layout-view .layout-header {
+  padding: 0;
+  height: var(--nexus-header-height);
+}
 
-  .layout-body {
-    min-height: 0;
-  }
+.layout-view .layout-body {
+  min-height: 0;
+}
 
-  .layout-aside {
-    width: var(--nexus-sidebar-width);
-  }
+.layout-view .layout-aside {
+  width: var(--nexus-sidebar-width);
+}
 
-  .layout-main {
-    padding: 16px 16px 8px;
-  }
+.layout-view .layout-main {
+  padding: 16px 16px 8px;
+}
 
-  .layout-main-container {
-    height: 100%;
-  }
+.layout-view .layout-main-container {
+  height: 100%;
+}
 
-  .layout-main-header {
-    padding: 0;
-    height: 36px;
-  }
+.layout-view .layout-main-header {
+  padding: 0;
+  height: 36px;
+}
 
-  .layout-main-main {
-    padding: 0;
-    overflow: auto;
-  }
+.layout-view .layout-main-main {
+  padding: 0;
+  overflow: auto;
+}
 
-  .layout-router-view {
-    height: 100%;
-    border-radius: var(--nexus-border-radius-base);
-    overflow: auto;
-  }
+.layout-view .layout-router-view {
+  height: 100%;
+  border-radius: var(--nexus-border-radius-base);
+  overflow: auto;
 }
 </style>

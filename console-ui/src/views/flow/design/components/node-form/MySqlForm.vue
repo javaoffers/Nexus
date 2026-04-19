@@ -1,14 +1,9 @@
-<script lang="ts" setup>
-import { computed, PropType, ref, watch } from 'vue';
-import { ElementType, FlowVariableType, RawData } from '../../types';
+<script>
+import { ElementType, FlowVariableType } from '../../types';
 import { cloneDeep } from 'lodash-es';
 import { ElMessage } from 'element-plus';
 import CodeEditor from '@/components/common/CodeEditor.vue';
 import { dataSourceService } from '@/service';
-import { useFlowDataInject } from '@/views/flow/design/hooks/flow-data.ts';
-
-const flowContext = useFlowDataInject();
-type MySqlRawData = RawData & { dataSourceId: number; operationType: string; sql: string; outputVariableKey: string };
 
 function getDefaultData() {
   return {
@@ -24,67 +19,79 @@ function getDefaultData() {
     outputVariableKey: '',
   };
 }
-const dataSourceList = ref<Array<{ value: number; label: string }>>([]);
-const codeEditRef = ref<InstanceType<typeof CodeEditor>>();
-const sqlDialogVisible = ref(false);
 
-const emit = defineEmits(['update', 'cancel']);
-const props = defineProps({
-  data: {
-    type: Object as PropType<MySqlRawData>,
-    required: true,
+export default {
+  components: {
+    CodeEditor,
   },
-});
-
-const nodeData = ref(getDefaultData() as MySqlRawData);
-watch(
-  () => props.data,
-  val => {
-    if (val !== nodeData.value) {
-      nodeData.value = Object.assign(getDefaultData(), cloneDeep(val));
-    }
+  props: {
+    data: {
+      type: Object,
+      required: true,
+    },
   },
-  { immediate: true }
-);
-
-const outputVariableList = computed(() => {
-  const flowVariables = flowContext.data.value.flowVariables;
-  return flowVariables.filter(item => item.variableType !== FlowVariableType.INPUT).map((item: any) => ({ label: item.variableName, value: item.variableKey }));
-});
-
-loadDataSourceData();
-function validate() {
-  if (!nodeData.value.name) {
-    ElMessage.error('节点名称不能为空');
-    return false;
-  }
-  if (!nodeData.value.dataSourceId) {
-    ElMessage.error('数据源不能为空');
-    return false;
-  }
-  if (!nodeData.value.operationType) {
-    ElMessage.error('操作类型不能为空');
-    return false;
-  }
-  return true;
-}
-
-function onSubmit() {
-  if (!validate()) {
-    return;
-  }
-  emit('update', cloneDeep(nodeData.value));
-}
-function onCancel() {
-  emit('cancel');
-}
-
-async function loadDataSourceData() {
-  const res = await dataSourceService.queryDataSourceList();
-  if (res.success) {
-    dataSourceList.value = res.result.map((item: any) => ({ label: item.dataSourceName, value: item.id }));
-  }
-}
+  emits: ['update', 'cancel'],
+  data() {
+    return {
+      nodeData: getDefaultData(),
+      dataSourceList: [],
+      sqlDialogVisible: false,
+    };
+  },
+  computed: {
+    outputVariableList() {
+      var flowVariables = this.$store.state.flow.flowVariables;
+      return flowVariables
+        .filter(function (item) { return item.variableType !== FlowVariableType.INPUT; })
+        .map(function (item) { return { label: item.variableName, value: item.variableKey }; });
+    },
+  },
+  watch: {
+    data: {
+      handler(val) {
+        if (val !== this.nodeData) {
+          this.nodeData = Object.assign(getDefaultData(), cloneDeep(val));
+        }
+      },
+      immediate: true,
+    },
+  },
+  created() {
+    this.loadDataSourceData();
+  },
+  methods: {
+    validate() {
+      if (!this.nodeData.name) {
+        ElMessage.error('节点名称不能为空');
+        return false;
+      }
+      if (!this.nodeData.dataSourceId) {
+        ElMessage.error('数据源不能为空');
+        return false;
+      }
+      if (!this.nodeData.operationType) {
+        ElMessage.error('操作类型不能为空');
+        return false;
+      }
+      return true;
+    },
+    onSubmit() {
+      if (!this.validate()) {
+        return;
+      }
+      this.$emit('update', cloneDeep(this.nodeData));
+    },
+    onCancel() {
+      this.$emit('cancel');
+    },
+    async loadDataSourceData() {
+      var res = await dataSourceService.queryDataSourceList();
+      if (res.success) {
+        this.dataSourceList = res.result.map(function (item) { return { label: item.dataSourceName, value: item.id }; });
+      }
+    },
+  },
+};
 </script>
 
 <template>
@@ -132,8 +139,9 @@ async function loadDataSourceData() {
     </el-dialog>
   </div>
 </template>
-<style lang="less" scoped>
-.sql-btn{
+
+<style scoped>
+.sql-btn {
   padding-bottom: 5px;
   margin-left: auto;
 }

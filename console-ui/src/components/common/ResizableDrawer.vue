@@ -1,51 +1,45 @@
-<script lang="ts" setup>
-import { ref, watch } from 'vue';
-import { useResizableDrawer, getDrawerSize, setDrawerSize } from '@/hooks/useResizableDrawer'; // 确保路径正确
+<script>
+import { resizableDrawerMixin, getDrawerSize, setDrawerSize } from '@/mixins/resizableDrawer';
 
-const props = defineProps({
-  drawerKey: String,
-  size: {
-    type: Number,
-    default: 560,
+export default {
+  mixins: [resizableDrawerMixin],
+  props: {
+    drawerKey: String,
+    size: {
+      type: Number,
+      default: 560,
+    },
+    title: {
+      type: String,
+      default: '',
+    },
+    modelValue: {
+      type: Boolean,
+      default: false,
+    },
+    direction: {
+      type: String,
+      default: 'rtl',
+    },
   },
-  title: {
-    type: String,
-    default: '',
+  emits: ['update:modelValue', 'closed'],
+  data() {
+    return {
+      drawerSize: getDrawerSize(this.drawerKey, this.size),
+      visible: this.modelValue,
+    };
   },
-  modelValue: {
-    type: Boolean,
-    default: false,
+  watch: {
+    modelValue(newVal) {
+      this.visible = newVal;
+    },
+    drawerSize(newSize) {
+      if (this.drawerKey) {
+        setDrawerSize(this.drawerKey, newSize);
+      }
+    },
   },
-  direction: {
-    type: String as () => 'ltr' | 'rtl' | 'ttb' | 'btt',
-    default: 'rtl',
-  },
-});
-
-const emit = defineEmits(['update:modelValue', 'closed']);
-
-const drawerSize = ref(getDrawerSize(props.drawerKey, props.size));
-const visible = ref(props.modelValue);
-
-const {
-  resizeBar,
-  onMouseDown,
-  onClosed,
-  drawerClass,
-  resizeBarClass,
-} = useResizableDrawer(props, emit, drawerSize);
-
-// 监听父组件的 v-model 更新
-watch(() => props.modelValue, (newVal) => {
-  visible.value = newVal;
-});
-
-// 监听 drawerSize 的变化并更新 localStorage
-watch(drawerSize, (newSize) => {
-  if (props.drawerKey) {
-    setDrawerSize(props.drawerKey, newSize);
-  }
-});
+};
 </script>
 
 <template>
@@ -63,7 +57,7 @@ watch(drawerSize, (newSize) => {
   </el-drawer>
 </template>
 
-<style lang="less">
+<style>
 .el-drawer.resizable-drawer {
   transition: width, height 0s ease;
 }
@@ -72,37 +66,37 @@ watch(drawerSize, (newSize) => {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.1);
   z-index: 1;
+}
 
-  &.resize-bar-ltr,
-  &.resize-bar-rtl {
-    cursor: col-resize;
-    width: 4px;
-    height: 100%;
-    top: 0;
-  }
+.resize-bar.resize-bar-ltr,
+.resize-bar.resize-bar-rtl {
+  cursor: col-resize;
+  width: 4px;
+  height: 100%;
+  top: 0;
+}
 
-  &.resize-bar-ltr {
-    right: 0;
-  }
+.resize-bar.resize-bar-ltr {
+  right: 0;
+}
 
-  &.resize-bar-rtl {
-    left: 0;
-  }
+.resize-bar.resize-bar-rtl {
+  left: 0;
+}
 
-  &.resize-bar-ttb,
-  &.resize-bar-btt {
-    cursor: row-resize;
-    height: 4px;
-    width: 100%;
-    left: 0;
-  }
+.resize-bar.resize-bar-ttb,
+.resize-bar.resize-bar-btt {
+  cursor: row-resize;
+  height: 4px;
+  width: 100%;
+  left: 0;
+}
 
-  &.resize-bar-ttb {
-    bottom: 0;
-  }
+.resize-bar.resize-bar-ttb {
+  bottom: 0;
+}
 
-  &.resize-bar-btt {
-    top: 0;
-  }
+.resize-bar.resize-bar-btt {
+  top: 0;
 }
 </style>

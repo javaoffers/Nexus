@@ -1,26 +1,20 @@
-<script lang="ts" setup>
-import {computed, PropType, ref, watch} from 'vue';
-import {ElementType, FlowVariable, FlowVariableType, RawData} from '../../types';
+<script>
+import { ElementType, FlowVariableType } from '../../types';
 import { cloneDeep } from 'lodash-es';
 import { ElMessage } from 'element-plus';
 import { Delete } from '@element-plus/icons-vue';
-import {useFlowDataInject} from "@/views/flow/design/hooks/flow-data.ts";
-import {DataType, RuleItem, valueType} from "@/typings";
-import FilterValue from "@/components/filter/FilterValue.vue";
-import {getVariableDataType, isDataTypeEqual, isDataTypeMatch} from "@/utils/dataType.ts";
+import { valueType } from '@/typings';
+import FilterValue from '@/components/filter/FilterValue.vue';
+import { getVariableDataType, isDataTypeEqual, isDataTypeMatch } from '@/utils/dataType';
 import VariableSelect from '@/components/common/VariableSelect.vue';
-import DataTypeDisplay from "@/components/common/DataTypeDisplay.vue";
+import DataTypeDisplay from '@/components/common/DataTypeDisplay.vue';
 
-const flowContext = useFlowDataInject();
-
-type AssignRawData = RawData & { assignRules: RuleItem[]; };
-
-const assignTypeList = [
+var assignTypeList = [
   { value: valueType.CONSTANT, label: '常量' },
   { value: valueType.VARIABLE, label: '变量' },
 ];
 
-const columns = [
+var columns = [
   { name: '变量名称', prop: 'source' },
   { name: '数据类型', prop: 'sourceDataType' },
   { name: '赋值方式', prop: 'targetType' },
@@ -39,121 +33,124 @@ function getDefaultData() {
   };
 }
 
-const emit = defineEmits(['update', 'cancel']);
-const props = defineProps({
-  data: {
-    type: Object as PropType<AssignRawData>,
-    required: true,
+export default {
+  components: {
+    Delete,
+    FilterValue,
+    VariableSelect,
+    DataTypeDisplay,
   },
-});
-
-const nodeData = ref(getDefaultData() as AssignRawData);
-watch(
-  () => props.data,
-  val => {
-    if (val !== nodeData.value) {
-      nodeData.value = Object.assign(getDefaultData(), cloneDeep(val));
-    }
+  props: {
+    data: {
+      type: Object,
+      required: true,
+    },
   },
-  { immediate: true }
-);
+  emits: ['update', 'cancel'],
+  data() {
+    return {
+      nodeData: getDefaultData(),
+      assignTypeList: assignTypeList,
+      columns: columns,
+      valueType: valueType,
+    };
+  },
+  computed: {
+    targetVariableList() {
+      return this.$store.state.flow.flowVariables;
+    },
+    sourceVariableList() {
+      var flowVariables = this.$store.state.flow.flowVariables;
+      return flowVariables.filter(function (item) {
+        return [FlowVariableType.INPUT, FlowVariableType.TEMP].indexOf(item.variableType) !== -1;
+      });
+    },
+  },
+  watch: {
+    data: {
+      handler(val) {
+        if (val !== this.nodeData) {
+          this.nodeData = Object.assign(getDefaultData(), cloneDeep(val));
+        }
+      },
+      immediate: true,
+    },
+  },
+  methods: {
+    validate() {
+      if (!this.nodeData.name) {
+        ElMessage.error('节点名称不能为空');
+        return false;
+      }
+      return true;
+    },
+    onSubmit() {
+      if (!this.validate()) {
+        return;
+      }
+      this.$emit('update', cloneDeep(this.nodeData));
+    },
+    onCancel() {
+      this.$emit('cancel');
+    },
+    getAvailableTarget(target) {
+      var self = this;
+      return this.targetVariableList.filter(function (item) {
+        if (item.variableKey === target) {
+          return true;
+        }
+        return self.nodeData.assignRules.map(function (r) { return r.target; }).indexOf(item.variableKey) === -1;
+      });
+    },
+    getAvailableSource(target, targetDataType) {
+      return this.sourceVariableList.filter(function (item) {
+        if (item.variableKey === target) {
+          return false;
+        }
+        return isDataTypeMatch(item.dataType, targetDataType);
+      });
+    },
+    onTargetVariableChange(rowIndex) {
+      var target = this.nodeData.assignRules[rowIndex].target;
+      var param = this.targetVariableList.find(function (item) { return item.variableKey === target; });
+      this.nodeData.assignRules[rowIndex].source = '';
+      this.nodeData.assignRules[rowIndex].sourceDataType = param ? param.dataType : null;
+      this.nodeData.assignRules[rowIndex].targetDataType = param ? param.dataType : null;
+    },
+    onAssignTypeChange(rowIndex) {
+      this.nodeData.assignRules[rowIndex].source = '';
+    },
+    onSourceVariableChange(rowIndex) {
+      var target = this.nodeData.assignRules[rowIndex].target;
+      var targetVariable = getVariableDataType(target, this.targetVariableList);
 
-const targetVariableList = computed<FlowVariable[]>(() => {
-  return  flowContext.data.value.flowVariables;
-});
-
-const sourceVariableList = computed<FlowVariable[]>(() => {
-  const flowVariables = flowContext.data.value.flowVariables;
-  return flowVariables.filter(item => [FlowVariableType.INPUT, FlowVariableType.TEMP].includes(item.variableType));
-});
-
-function validate() {
-  if (!nodeData.value.name) {
-    ElMessage.error('节点名称不能为空');
-    return false;
-  }
-  return true;
-}
-
-function onSubmit() {
-  if (!validate()) {
-    return;
-  }
-  emit('update', cloneDeep(nodeData.value));
-}
-function onCancel() {
-  emit('cancel');
-}
-
-function getAvailableTarget(target: string) {
-  return targetVariableList.value.filter(item => {
-    // 已选参数也能选
-    if (item.variableKey === target) {
-      return item;
-    }
-    // 只能选未被选择的参数
-    return !nodeData.value.assignRules.map(item => item.target).includes(item.variableKey);
-  });
-}
-
-function getAvailableSource(target: string, targetDataType: DataType) {
-  return sourceVariableList.value.filter(item => {
-    // 不选取自己
-    if (item.variableKey === target) {
-      return false;
-    }
-
-    // 只能选与自己类型一致的和对象类型
-    return isDataTypeMatch(item.dataType, targetDataType);
-  });
-}
-
-function onTargetVariableChange(rowIndex: number) {
-  const target = nodeData.value.assignRules[rowIndex].target;
-  let param = targetVariableList.value.find(item => item.variableKey === target);
-  nodeData.value.assignRules[rowIndex].source = '';
-  nodeData.value.assignRules[rowIndex].sourceDataType = param?.dataType;
-  nodeData.value.assignRules[rowIndex].targetDataType = param?.dataType;
-}
-
-function onAssignTypeChange(rowIndex: number) {
-  nodeData.value.assignRules[rowIndex].source = '';
-  //nodeData.value.assignRules[rowIndex].sourceDataType = null;
-}
-
-function onSourceVariableChange(rowIndex: number) {
-  const target = nodeData.value.assignRules[rowIndex].target;
-  let targetVariable = getVariableDataType(target,targetVariableList.value);
-
-  const source =  nodeData.value.assignRules[rowIndex].source;
-  let sourceVariable = getVariableDataType(source,sourceVariableList.value);
-  if(!isDataTypeEqual(targetVariable.dataType,sourceVariable.dataType)){
-    ElMessage.error('所选变量的数据类型与目标变量数据类型不匹配');
-    nodeData.value.assignRules[rowIndex].source = '';
-    return;
-  }
-  //const param = sourceVariableList.value.find(item => item.variableKey === source);
-  nodeData.value.assignRules[rowIndex].sourceDataType = sourceVariable.dataType;
-}
-
-function addAssignRule() {
-  if(nodeData.value.assignRules === null){
-    nodeData.value.assignRules = [];
-  }
-  nodeData.value.assignRules.push({
-    source: '',
-    sourceDataType: null,
-    sourceType: valueType.VARIABLE,
-    target: '',
-    targetDataType: null,
-    targetType: valueType.VARIABLE,
-  });
-}
-
-function removeRule(rowIndex: number) {
-  nodeData.value.assignRules.splice(rowIndex, 1);
-}
-
+      var source = this.nodeData.assignRules[rowIndex].source;
+      var sourceVariable = getVariableDataType(source, this.sourceVariableList);
+      if (!isDataTypeEqual(targetVariable.dataType, sourceVariable.dataType)) {
+        ElMessage.error('所选变量的数据类型与目标变量数据类型不匹配');
+        this.nodeData.assignRules[rowIndex].source = '';
+        return;
+      }
+      this.nodeData.assignRules[rowIndex].sourceDataType = sourceVariable.dataType;
+    },
+    addAssignRule() {
+      if (this.nodeData.assignRules === null) {
+        this.nodeData.assignRules = [];
+      }
+      this.nodeData.assignRules.push({
+        source: '',
+        sourceDataType: null,
+        sourceType: valueType.VARIABLE,
+        target: '',
+        targetDataType: null,
+        targetType: valueType.VARIABLE,
+      });
+    },
+    removeRule(rowIndex) {
+      this.nodeData.assignRules.splice(rowIndex, 1);
+    },
+  },
+};
 </script>
 
 <template>
@@ -198,7 +195,7 @@ function removeRule(rowIndex: number) {
                   </el-select>
                 </div>
                 <div class="rule-setting-td" v-if="column.prop === 'sourceDataType'">
-                  <DataTypeDisplay :dataType="rule.targetDataType as DataType"/>
+                  <DataTypeDisplay :dataType="rule.targetDataType"/>
                 </div>
                 <div class="rule-setting-td" v-if="column.prop === 'targetType'">
                   <el-select v-model="rule.sourceType" size="small" @change="onAssignTypeChange(rowIndex)">
@@ -215,8 +212,8 @@ function removeRule(rowIndex: number) {
                       v-else
                       v-model="rule.source"
                       size="small"
-                      :options="getAvailableSource(rule.target, rule.targetDataType as DataType)"
-                      :filterDataType="rule.targetDataType as DataType"
+                      :options="getAvailableSource(rule.target, rule.targetDataType)"
+                      :filterDataType="rule.targetDataType"
                       @change="onSourceVariableChange(rowIndex)"
                   />
                 </div>
@@ -239,55 +236,49 @@ function removeRule(rowIndex: number) {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .rule-setting {
   width: 100%;
-  &-head {
-    background-color: #f2f2f2;
-    padding: 0 1px;
-  }
-  &-body {
-    border-left: 1px solid #f2f2f2;
-    border-right: 1px solid #f2f2f2;
-  }
-  &-tr {
-    display: flex;
-    border-bottom: 1px solid #f2f2f2;
-    height: 36px;
-  }
-  &-td {
-    flex: 1;
-    min-width: 0;
-    padding: 0 6px;
-    display: flex;
-    align-items: center;
-    .required {
-      color: red;
-      width: 10px;
-    }
-    &.delete-td {
-      width: 40px;
-      flex: none;
-      justify-content: center;
-    }
-    &.delete-td {
-      width: 20px;
-      margin-right: 10px;
-      & > .el-icon {
-        cursor: pointer;
-        color: #999;
-      }
-    }
-  }
-  &-foot {
-    text-align: center;
-    padding: 6px 0;
-  }
 }
-
-.rule-setting-td{
-  .dataTypeName {
-    color: var(--el-text-color-regular);
-  }
+.rule-setting-head {
+  background-color: #f2f2f2;
+  padding: 0 1px;
+}
+.rule-setting-body {
+  border-left: 1px solid #f2f2f2;
+  border-right: 1px solid #f2f2f2;
+}
+.rule-setting-tr {
+  display: flex;
+  border-bottom: 1px solid #f2f2f2;
+  height: 36px;
+}
+.rule-setting-td {
+  flex: 1;
+  min-width: 0;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+}
+.rule-setting-td .required {
+  color: red;
+  width: 10px;
+}
+.rule-setting-td.delete-td {
+  width: 20px;
+  flex: none;
+  justify-content: center;
+  margin-right: 10px;
+}
+.rule-setting-td.delete-td > .el-icon {
+  cursor: pointer;
+  color: #999;
+}
+.rule-setting-foot {
+  text-align: center;
+  padding: 6px 0;
+}
+.rule-setting-td .dataTypeName {
+  color: var(--el-text-color-regular);
 }
 </style>

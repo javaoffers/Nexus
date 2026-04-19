@@ -1,45 +1,49 @@
-<script lang="ts" setup>
-import { ref } from 'vue';
+<script>
 import { suiteService } from '@/service';
 
-const props = defineProps(['modelValue', 'auto']);
-const emit = defineEmits(['update:modelValue', 'change']);
-
-const suiteList = ref<Array<{ value: string; label: string }>>([]);
-const suiteLoading = ref(false);
-let suiteLoaded = false;
-
-if (props.auto) {
-  loadData();
-}
-
-async function loadData() {
-  suiteLoading.value = true;
-  const res = await suiteService.querySuiteList();
-  if (res.success) {
-    suiteList.value = res.result.map((item: any) => ({ label: item.suiteName, value: item.id }));
-  }
-  suiteLoaded = true;
-  suiteLoading.value = false;
-}
-
-function onVisibleChange(val: boolean) {
-  if (suiteLoaded) {
-    return;
-  }
-  if (val) {
-    loadData();
-  }
-}
-
-function onChange(val: number) {
-  emit('update:modelValue', val);
-  emit('change', val);
-}
+export default {
+  props: ['modelValue', 'auto'],
+  emits: ['update:modelValue', 'change'],
+  data() {
+    return {
+      suiteList: [],
+      suiteLoading: false,
+      suiteLoaded: false,
+    };
+  },
+  created() {
+    if (this.auto) {
+      this.loadData();
+    }
+  },
+  methods: {
+    async loadData() {
+      this.suiteLoading = true;
+      const res = await suiteService.querySuiteList();
+      if (res.success) {
+        this.suiteList = res.result.map((item) => ({ label: item.suiteName, value: item.id }));
+      }
+      this.suiteLoaded = true;
+      this.suiteLoading = false;
+    },
+    onVisibleChange(val) {
+      if (this.suiteLoaded) {
+        return;
+      }
+      if (val) {
+        this.loadData();
+      }
+    },
+    onChange(val) {
+      this.$emit('update:modelValue', val);
+      this.$emit('change', val);
+    },
+  },
+};
 </script>
 <template>
   <el-select
-    :modelValue="props.modelValue"
+    :modelValue="modelValue"
     placeholder="请选择套件"
     style="width: 100%"
     filterable
@@ -54,7 +58,7 @@ function onChange(val: number) {
     <el-option v-for="item in suiteList" :key="item.value" :label="item.label" :value="item.value" />
   </el-select>
 </template>
-<style lang="less">
+<style>
 .select-option-empty {
   display: flex;
   height: 120px;

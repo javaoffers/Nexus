@@ -1,36 +1,27 @@
-<script lang="ts" setup>
-defineProps({
-  dataRows: {
-    type: Array,
-    default: [],
+<script>
+export default {
+  props: ['dataRows', 'pageNum', 'pageSize', 'dataTotal', 'loading'],
+  emits: ['pageChange', 'flowVersionStatusChange', 'delete'],
+  methods: {
+    deleteRow(row, index) {
+      this.$emit('delete', row, index);
+    },
+    updateFlowVersionStatus(row) {
+      this.$emit('flowVersionStatusChange', row);
+    },
+    flowVersionStatusOptFormat(flowVersionStatus) {
+      if (flowVersionStatus == 0) {
+        return '启用';
+      } else {
+        return '禁用';
+      }
+    },
+    buildFullTriggerUrl(triggerUrl) {
+      const origin = window.location.origin;
+      return origin + triggerUrl;
+    },
   },
-  pageNum: Number,
-  pageSize: Number,
-  dataTotal: Number,
-  loading: Boolean,
-});
-const emit = defineEmits(['pageChange', 'flowVersionStatusChange', 'delete']);
-
-function deleteRow(row: any, index: number) {
-  emit('delete', row, index);
-}
-
-function updateFlowVersionStatus(row: any) {
-  emit('flowVersionStatusChange', row);
-}
-
-function flowVersionStatusOptFormat(flowVersionStatus: number) {
-  if (flowVersionStatus == 0) {
-    return '启用';
-  } else {
-    return '禁用';
-  }
-}
-
-function buildFullTriggerUrl(triggerUrl: string) {
-  const origin = window.location.origin;
-  return origin + triggerUrl;
-}
+};
 </script>
 
 <template>
@@ -65,11 +56,10 @@ function buildFullTriggerUrl(triggerUrl: string) {
       background
       layout="total, prev, pager, next"
       :total="dataTotal"
-      @currentChange="(val: number) => $emit('pageChange', val)"
+      @currentChange="(val) => $emit('pageChange', val)"
     />
   </div>
 </template>
 
-<style lang="less" scoped>
-
+<style scoped>
 </style>

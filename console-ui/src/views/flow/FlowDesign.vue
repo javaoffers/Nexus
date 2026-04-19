@@ -1,5 +1,4 @@
-<script setup lang="ts">
-import { onMounted, ref, shallowRef } from 'vue';
+<script>
 import {
   ZoomTool,
   FlowRenderer,
@@ -7,130 +6,147 @@ import {
   AddNodeModal,
   EditNodeDrawer,
   LeftMenu,
-  ConditionItem,
-  FlowVariable,
   ConditionFilterModal,
-  RawData,
 } from './design';
 import { flowDefineService } from '@/service';
-import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { addNode, deleteNode } from './design/operate';
-import { useFlowDataProvide } from './design/hooks/flow-data';
-import { DataBranch } from './design/data';
 import { rebuildCondition } from './design/data/generate';
 
-const flowContext = useFlowDataProvide();
-const route = useRoute();
-const flowName = ref();
-async function queryFlowDefineInfo() {
-  const res = await flowDefineService.getDefineInfo(route.params.flowDefinitionId as unknown as number);
-  if (res.success) {
-    flowName.value = res.result.flowName;
-    flowContext.update(draft => {
-      Object.assign(draft, res.result);
-      draft.flowContent = JSON.parse(res.result.flowContent);
-    });
-  } else {
-    ElMessage({ type: 'error', message: res.errorMsg });
-  }
-}
-
-const flowCanvas = shallowRef();
-const addNodeModal = shallowRef();
-const editNodeModal = shallowRef();
-const conditionFilterModalRef = shallowRef();
-let flowRenderer: FlowRenderer;
-const scale = ref(1);
-function onZoomToolChange(value: number) {
-  scale.value = flowRenderer.scaleFromTop(value);
-}
-
-onMounted(async () => {
-  try {
-    await queryFlowDefineInfo();
-  } catch (error) {
-    ElMessage({ type: 'error', message: '流程定义内容解析失败' });
-    return;
-  }
-  flowRenderer = new FlowRenderer(flowCanvas.value, {
-    flowContext: flowContext,
-    onZoom: (event: any) => {
-      scale.value = event.transform.k;
+export default {
+  components: {
+    ZoomTool,
+    AddNodeModal,
+    EditNodeDrawer,
+    LeftMenu,
+    ConditionFilterModal,
+  },
+  data() {
+    return {
+      flowName: '',
+      scale: 1,
+      flowRenderer: null,
+    };
+  },
+  computed: {
+    flowContext() {
+      var self = this;
+      return {
+        data: { value: this.$store.state.flow },
+        update: function (updater) { self.$store.commit('flow/UPDATE_FLOW_CONTENT', updater); },
+        getFlowNode: function (key) { return self.$store.getters['flow/getFlowNode'](key); },
+        getFlowNodes: function () { return self.$store.getters['flow/getFlowNodes']; },
+        updateFlowNode: function (key, data) { self.$store.commit('flow/UPDATE_FLOW_NODE', { key: key, data: data }); },
+      };
     },
-    onAdd: d => {
-      console.log(d);
-      addNodeModal.value.open({
-        afterSelect: (info: { name: string; elementType: ElementType }) => {
-          addNode({ info, prev: d.data });
-          flowRenderer.refresh();
+  },
+  mounted() {
+    this.init();
+  },
+  methods: {
+    async init() {
+      try {
+        await this.queryFlowDefineInfo();
+      } catch (error) {
+        ElMessage({ type: 'error', message: '流程定义内容解析失败' });
+        return;
+      }
+      var self = this;
+      this.flowRenderer = new FlowRenderer(this.$refs.flowCanvas, {
+        flowContext: this.flowContext,
+        onZoom: function (event) {
+          self.scale = event.transform.k;
+        },
+        onAdd: function (d) {
+          console.log(d);
+          self.$refs.addNodeModal.open({
+            afterSelect: function (info) {
+              addNode({ info: info, prev: d.data });
+              self.flowRenderer.refresh();
+            },
+          });
+        },
+        onEdit: function (d) {
+          console.log(d);
+          if (d.data.type === ElementType.BRANCH) {
+            var data = d.data;
+            var parent = data.getParent();
+            self.$refs.conditionFilterModalRef.open({
+              data: parent.raw,
+              index: data.branchIndex,
+              afterEdit: function (val) {
+                if (val) {
+                  self.$store.commit('flow/UPDATE_FLOW_CONTENT', function (state) {
+                    var parentRaw = state.flowContent.find(function (item) { return item.key === parent.key; });
+                    var branch = parentRaw && parentRaw.conditions ? parentRaw.conditions[data.branchIndex] : null;
+                    if (branch) {
+                      branch.conditionName = val.conditionName;
+                      branch.conditionExpressions = val.conditionExpressions;
+                    }
+                  });
+                  self.flowRenderer.refresh();
+                }
+              },
+            });
+          } else if (d.data.type === ElementType.CONDITION) {
+            self.$refs.editNodeModal.open({
+              data: d.data.raw,
+              afterEdit: function (oldData) {
+                rebuildCondition(self.flowContext, d.data, oldData);
+                self.flowRenderer.refresh();
+              },
+            });
+          } else {
+            self.$refs.editNodeModal.open({
+              data: d.data.raw,
+              afterEdit: function () {
+                self.flowRenderer.refresh();
+              },
+            });
+          }
+        },
+        onDelete: function (d) {
+          console.log(d);
+          deleteNode({ current: d.data });
+          self.flowRenderer.refresh();
         },
       });
     },
-    onEdit: d => {
-      console.log(d);
-      if (d.data.type === ElementType.BRANCH) {
-        const data = d.data as DataBranch;
-        const parent = data.getParent();
-        conditionFilterModalRef.value.open({
-          data: parent!.raw,
-          index: data.branchIndex,
-          afterEdit: (val: ConditionItem) => {
-            if (val) {
-              flowContext.update(draft => {
-                const parentRaw = draft.flowContent.find(item => item.key === parent.key);
-                const branch = parentRaw?.conditions?.[data.branchIndex];
-                if (branch) {
-                  branch.conditionName = val.conditionName;
-                  branch.conditionExpressions = val.conditionExpressions;
-                }
-              });
-              flowRenderer.refresh();
-            }
-          },
-        });
-      } else if (d.data.type === ElementType.CONDITION) {
-        editNodeModal.value.open({
-          data: d.data.raw,
-          afterEdit: (oldData: RawData) => {
-            rebuildCondition(flowContext, d.data, oldData);
-            flowRenderer.refresh();
-          },
+    async queryFlowDefineInfo() {
+      var self = this;
+      var res = await flowDefineService.getDefineInfo(this.$route.params.flowDefinitionId);
+      if (res.success) {
+        self.flowName = res.result.flowName;
+        self.$store.commit('flow/UPDATE_FLOW_CONTENT', function (state) {
+          Object.assign(state, res.result);
+          state.flowContent = JSON.parse(res.result.flowContent);
         });
       } else {
-        editNodeModal.value.open({
-          data: d.data.raw,
-          afterEdit: () => {
-            flowRenderer.refresh();
-          },
-        });
+        ElMessage({ type: 'error', message: res.errorMsg });
       }
     },
-    onDelete: d => {
-      console.log(d);
-      deleteNode({ current: d.data });
-      flowRenderer.refresh();
+    flowSubmit() {
+      var flowContent = this.$store.state.flow.flowContent;
+      var flowVariables = this.$store.state.flow.flowVariables;
+      this.saveFlowDefineContent(JSON.stringify(flowContent), flowVariables);
     },
-  });
-});
-
-function flowSubmit() {
-  const { flowContent, flowVariables } = flowContext.data.value;
-  saveFlowDefineContent(JSON.stringify(flowContent), flowVariables);
-}
-
-async function saveFlowDefineContent(flowContent: string, flowVariables: FlowVariable[]) {
-  const res = await flowDefineService.saveFlowContent({
-    id: route.params.flowDefinitionId as unknown as number,
-    flowContent: flowContent,
-    flowVariables: flowVariables,
-  });
-  if (res.success) {
-    ElMessage({ type: 'success', message: '保存成功' });
-  } else {
-    ElMessage({ type: 'error', message: res.errorMsg });
-  }
-}
+    async saveFlowDefineContent(flowContent, flowVariables) {
+      var res = await flowDefineService.saveFlowContent({
+        id: this.$route.params.flowDefinitionId,
+        flowContent: flowContent,
+        flowVariables: flowVariables,
+      });
+      if (res.success) {
+        ElMessage({ type: 'success', message: '保存成功' });
+      } else {
+        ElMessage({ type: 'error', message: res.errorMsg });
+      }
+    },
+    onZoomToolChange(value) {
+      this.scale = this.flowRenderer.scaleFromTop(value);
+    },
+  },
+};
 </script>
 
 <template>
@@ -152,7 +168,7 @@ async function saveFlowDefineContent(flowContent: string, flowVariables: FlowVar
   </div>
 </template>
 
-<style lang="less">
+<style>
 .layout-view .layout-router-view.page-flow-design {
   background-color: #fff;
   overflow: hidden !important;
@@ -164,44 +180,38 @@ async function saveFlowDefineContent(flowContent: string, flowVariables: FlowVar
   height: 50px;
   align-items: center;
   display: flex;
-  .el-breadcrumb {
-    margin-left: 10px;
-  }
-  .flow-submit {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
+}
+.flow-header .el-breadcrumb {
+  margin-left: 10px;
+}
+.flow-header .flow-submit {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.page-flow-design {
-  .flow-canvas {
-    width: 100%;
-    height: calc(100% - 40px);
-    overflow: hidden;
-    position: absolute;
-    font-size: 14px;
-
-    .flow-btn {
-      cursor: pointer;
-      transition: opacity 0.2s;
-      &:hover {
-        opacity: 0.85;
-      }
-    }
-    .flow-btn-edit,
-    .flow-btn-delete {
-      display: none;
-    }
-    .flow-node:hover {
-      .flow-btn-edit,
-      .flow-btn-delete {
-        display: block;
-      }
-    }
-  }
-
+.page-flow-design .flow-canvas {
+  width: 100%;
+  height: calc(100% - 40px);
+  overflow: hidden;
+  position: absolute;
+  font-size: 14px;
+}
+.page-flow-design .flow-canvas .flow-btn {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.page-flow-design .flow-canvas .flow-btn:hover {
+  opacity: 0.85;
+}
+.page-flow-design .flow-canvas .flow-btn-edit,
+.page-flow-design .flow-canvas .flow-btn-delete {
+  display: none;
+}
+.page-flow-design .flow-canvas .flow-node:hover .flow-btn-edit,
+.page-flow-design .flow-canvas .flow-node:hover .flow-btn-delete {
+  display: block;
 }
 
 .errorMsg {

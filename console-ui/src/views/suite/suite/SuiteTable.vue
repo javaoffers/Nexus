@@ -1,36 +1,25 @@
-<script lang="ts" setup>
-import { useRouter } from 'vue-router';
-
-defineProps({
-  dataRows: {
-    type: Array,
-    default: [],
-  },
-  pageNum: Number,
-  pageSize: Number,
-  dataTotal: Number,
-  loading: Boolean,
-});
-const emit = defineEmits(['pageChange', 'edit', 'delete']);
-const router = useRouter();
-
-function deleteRow(row: any, index: number) {
-  emit('delete', row, index);
-}
-
-function editRow(row: any) {
-  emit('edit', row);
-}
-
-function goApiListPage(suiteCode:string,suiteId: number) {
-  router.push({
-    name: 'api-list',
-    params: {
-      suiteCode: suiteCode,
-      suiteId: suiteId,
+<script>
+export default {
+  props: ['dataRows', 'pageNum', 'pageSize', 'dataTotal', 'loading'],
+  emits: ['pageChange', 'edit', 'delete'],
+  methods: {
+    deleteRow(row, index) {
+      this.$emit('delete', row, index);
     },
-  });
-}
+    editRow(row) {
+      this.$emit('edit', row);
+    },
+    goApiListPage(suiteCode, suiteId) {
+      this.$router.push({
+        name: 'api-list',
+        params: {
+          suiteCode: suiteCode,
+          suiteId: suiteId,
+        },
+      });
+    },
+  },
+};
 </script>
 
 <template>
@@ -66,14 +55,13 @@ function goApiListPage(suiteCode:string,suiteId: number) {
       background
       layout="total, prev, pager, next"
       :total="dataTotal"
-      @currentChange="(val: number) => $emit('pageChange', val)"
+      @currentChange="(val) => $emit('pageChange', val)"
     />
   </div>
 </template>
-<style lang="less" scoped>
-.suite-image{
+<style scoped>
+.suite-image {
   width: 40px;
   height: 40px;
 }
-
 </style>

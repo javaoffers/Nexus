@@ -1,37 +1,32 @@
-<script lang="ts" setup>
+<script>
 import { Plus } from '@element-plus/icons-vue';
 import FilterItem from './FilterItem.vue';
-import { PropType } from 'vue';
-const props = defineProps({
-  list: {
-    type: Array as PropType<any[]>,
-    required: true,
+
+export default {
+  components: {
+    FilterItem,
+    Plus,
   },
-  sourceList: {
-    type: Array as PropType<any[]>,
-    default: () => [],
+  props: ['list', 'sourceList', 'targetList'],
+  emits: ['change'],
+  methods: {
+    onDelete(index) {
+      const result = [...this.list];
+      result.splice(index, 1);
+      this.$emit('change', result);
+    },
+    onChange(item, index) {
+      const result = [...this.list];
+      result[index] = item;
+      this.$emit('change', result);
+    },
+    onAdd() {
+      const result = [...this.list];
+      result.push({});
+      this.$emit('change', result);
+    },
   },
-  targetList: {
-    type: Array as PropType<any[]>,
-    default: () => [],
-  },
-});
-const emit = defineEmits(['change']);
-function onDelete(index: number) {
-  const result = [...props.list];
-  result.splice(index, 1);
-  emit('change', result);
-}
-function onChange(item: any, index: number) {
-  const result = [...props.list];
-  result[index] = item;
-  emit('change', result);
-}
-function onAdd() {
-  const result = [...props.list];
-  result.push({});
-  emit('change', result);
-}
+};
 </script>
 
 <template>
@@ -51,7 +46,7 @@ function onAdd() {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .filter-list {
   border: 1px solid #ebeef5;
   border-radius: 4px;

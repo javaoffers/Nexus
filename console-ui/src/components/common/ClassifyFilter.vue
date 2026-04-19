@@ -1,75 +1,51 @@
-<script setup lang="ts">
-import { ref, watch } from "vue";
-
-interface OptionsProps {
-  value: string | number | null;
-  label: string;
-  icon?: string;
-}
-
-interface SelectDataProps {
-  title: string; // 列表标题
-  key: string; // 当前筛选项 key 值
-  multiple?: boolean; // 是否为多选
-  options: OptionsProps[]; // 筛选数据
-}
-
-interface SelectFilterProps {
-  data?: SelectDataProps[]; // 选择的列表数据
-  defaultValues?: { [key: string]: any }; // 默认值
-}
-
-const props = withDefaults(defineProps<SelectFilterProps>(), {
-  data: () => [],
-  defaultValues: () => ({})
-});
-
-// 重新接收默认值
-const selected = ref<{ [key: string]: any }>({});
-watch(
-    () => props.defaultValues,
-    () => {
-      props.data.forEach(item => {
-        if (item.multiple) selected.value[item.key] = props.defaultValues[item.key] ?? [""];
-        else selected.value[item.key] = props.defaultValues[item.key] ?? "";
-      });
+<script>
+export default {
+  props: {
+    data: {
+      type: Array,
+      default: () => [],
     },
-    { deep: true, immediate: true }
-);
-
-// emit
-const emit = defineEmits<{
-  change: [value: any];
-}>();
-
-/**
- * @description 选择筛选项
- * @param {Object} item 选中的哪项列表
- * @param {Object} option 选中的值
- * @return void
- * */
-const select = (item: SelectDataProps, option: OptionsProps) => {
-  if (!item.multiple) {
-    // * 单选
-    if (selected.value[item.key] !== option.value) selected.value[item.key] = option.value;
-  } else {
-    // * 多选
-    // 如果选中的是第一个值，则直接设置
-    if (item.options[0].value === option.value) selected.value[item.key] = [option.value];
-    // 如果选择的值已经选中了，则删除选中的值
-    if (selected.value[item.key].includes(option.value)) {
-      let currentIndex = selected.value[item.key].findIndex((s: any) => s === option.value);
-      selected.value[item.key].splice(currentIndex, 1);
-      // 当全部删光时，把第第一个值选中
-      if (selected.value[item.key].length == 0) selected.value[item.key] = [item.options[0].value];
-    } else {
-      // 未选中点击值的时候，追加选中值
-      selected.value[item.key].push(option.value);
-      // 单选中全部并且点击到了未选中的值，把第一个值删除掉
-      if (selected.value[item.key].includes(item.options[0].value)) selected.value[item.key].splice(0, 1);
-    }
-  }
-  emit("change", selected.value);
+    defaultValues: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  emits: ['change'],
+  data() {
+    return {
+      selected: {},
+    };
+  },
+  watch: {
+    defaultValues: {
+      handler() {
+        this.data.forEach(item => {
+          if (item.multiple) this.selected[item.key] = this.defaultValues[item.key] ?? [''];
+          else this.selected[item.key] = this.defaultValues[item.key] ?? '';
+        });
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
+  methods: {
+    select(item, option) {
+      if (!item.multiple) {
+        if (this.selected[item.key] !== option.value) this.selected[item.key] = option.value;
+      } else {
+        if (item.options[0].value === option.value) this.selected[item.key] = [option.value];
+        if (this.selected[item.key].includes(option.value)) {
+          let currentIndex = this.selected[item.key].findIndex((s) => s === option.value);
+          this.selected[item.key].splice(currentIndex, 1);
+          if (this.selected[item.key].length == 0) this.selected[item.key] = [item.options[0].value];
+        } else {
+          this.selected[item.key].push(option.value);
+          if (this.selected[item.key].includes(item.options[0].value)) this.selected[item.key].splice(0, 1);
+        }
+      }
+      this.$emit('change', this.selected);
+    },
+  },
 };
 </script>
 
@@ -77,7 +53,7 @@ const select = (item: SelectDataProps, option: OptionsProps) => {
   <div class="classify-filter">
     <div v-for="item in data" :key="item.key" class="classify-filter-item">
       <div class="classify-filter-item-title">
-        <span>{{ item.title }} ：</span>
+        <span>{{ item.title }} :</span>
       </div>
       <span v-if="!item.options.length" class="classify-filter-notData">暂无数据 ~</span>
       <el-scrollbar>
@@ -105,70 +81,68 @@ const select = (item: SelectDataProps, option: OptionsProps) => {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped>
 .classify-filter {
   width: 100%;
-  .classify-filter-item {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px dashed var(--el-border-color-light);
-    &:last-child {
-      border-bottom: none;
-    }
-    .classify-filter-item-title {
-      margin-top: -2px;
-      span {
-        font-size: 14px;
-        color: var(--el-text-color-regular);
-        white-space: nowrap;
-      }
-    }
-    .classify-filter-notData {
-      margin: 18px 0;
-      font-size: 14px;
-      color: var(--el-text-color-regular);
-    }
-    .classify-filter-list {
-      display: flex;
-      flex: 1;
-      padding: 0;
-      margin: 13px 0;
-      li {
-        display: flex;
-        align-items: center;
-        padding: 5px 15px;
-        margin-right: 16px;
-        font-size: 13px;
-        color: var(--el-color-primary);
-        list-style: none;
-        cursor: pointer;
-        background: var(--el-color-primary-light-9);
-        border: 1px solid var(--el-color-primary-light-5);
-        border-radius: 32px;
-        &:hover {
-          color: #ffffff;
-          background: var(--el-color-primary);
-          border-color: var(--el-color-primary);
-          transition: 0.1s;
-        }
-        &.active {
-          font-weight: bold;
-          color: #ffffff;
-          background: var(--el-color-primary);
-          border-color: var(--el-color-primary);
-        }
-        .el-icon {
-          margin-right: 4px;
-          font-size: 16px;
-          font-weight: bold;
-        }
-        span {
-          white-space: nowrap;
-        }
-      }
-    }
-  }
 }
-
-
+.classify-filter .classify-filter-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px dashed var(--el-border-color-light);
+}
+.classify-filter .classify-filter-item:last-child {
+  border-bottom: none;
+}
+.classify-filter .classify-filter-item .classify-filter-item-title {
+  margin-top: -2px;
+}
+.classify-filter .classify-filter-item .classify-filter-item-title span {
+  font-size: 14px;
+  color: var(--el-text-color-regular);
+  white-space: nowrap;
+}
+.classify-filter .classify-filter-item .classify-filter-notData {
+  margin: 18px 0;
+  font-size: 14px;
+  color: var(--el-text-color-regular);
+}
+.classify-filter .classify-filter-item .classify-filter-list {
+  display: flex;
+  flex: 1;
+  padding: 0;
+  margin: 13px 0;
+}
+.classify-filter .classify-filter-item .classify-filter-list li {
+  display: flex;
+  align-items: center;
+  padding: 5px 15px;
+  margin-right: 16px;
+  font-size: 13px;
+  color: var(--el-color-primary);
+  list-style: none;
+  cursor: pointer;
+  background: var(--el-color-primary-light-9);
+  border: 1px solid var(--el-color-primary-light-5);
+  border-radius: 32px;
+}
+.classify-filter .classify-filter-item .classify-filter-list li:hover {
+  color: #ffffff;
+  background: var(--el-color-primary);
+  border-color: var(--el-color-primary);
+  transition: 0.1s;
+}
+.classify-filter .classify-filter-item .classify-filter-list li.active {
+  font-weight: bold;
+  color: #ffffff;
+  background: var(--el-color-primary);
+  border-color: var(--el-color-primary);
+}
+.classify-filter .classify-filter-item .classify-filter-list li .el-icon {
+  margin-right: 4px;
+  font-size: 16px;
+  font-weight: bold;
+}
+.classify-filter .classify-filter-item .classify-filter-list li span {
+  white-space: nowrap;
+}
 </style>

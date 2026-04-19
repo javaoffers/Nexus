@@ -1,81 +1,90 @@
-<script lang="ts" setup>
-import { shallowRef, computed, ref } from 'vue';
+<script>
 import { Edit, Delete, Search } from '@element-plus/icons-vue';
 import ParamSettingModal from './ParamSettingModal.vue';
-import { useFlowDataInject } from '../../hooks/flow-data';
 import { cloneDeep } from 'lodash-es';
-const flowContext = useFlowDataInject();
-const searchValue = ref('');
-const treeData = computed(() => {
-  const flowVariables = flowContext.data.value.flowVariables.map(v => ({
-    ...v,
-    label: v.variableName,
-  }));
-  return [
-    {
-      label: '入参变量',
-      variableKey: 'in',
-      children: flowVariables.filter(v => v.variableType === 1),
+
+export default {
+  components: {
+    Edit,
+    Delete,
+    Search,
+    ParamSettingModal,
+  },
+  data() {
+    return {
+      searchValue: '',
+    };
+  },
+  computed: {
+    treeData() {
+      var flowVariables = this.$store.state.flow.flowVariables.map(function (v) {
+        return Object.assign({}, v, { label: v.variableName });
+      });
+      return [
+        {
+          label: '入参变量',
+          variableKey: 'in',
+          children: flowVariables.filter(function (v) { return v.variableType === 1; }),
+        },
+        {
+          label: '出参变量',
+          variableKey: 'out',
+          children: flowVariables.filter(function (v) { return v.variableType === 2; }),
+        },
+        {
+          label: '中间变量',
+          variableKey: 'temp',
+          children: flowVariables.filter(function (v) { return v.variableType === 3; }),
+        },
+      ];
     },
-    {
-      label: '出参变量',
-      variableKey: 'out',
-      children: flowVariables.filter(v => v.variableType === 2),
+    maxId() {
+      var ids = this.$store.state.flow.flowVariables.map(function (v) { return v.id; });
+      return Math.max.apply(null, ids.concat([0]));
     },
-    {
-      label: '中间变量',
-      variableKey: 'temp',
-      children: flowVariables.filter(v => v.variableType === 3),
+  },
+  methods: {
+    onAddOpen() {
+      this.$refs.paramSettingModalRef.add(this.maxId + 1);
     },
-  ];
-});
-const maxId = computed(() => {
-  return Math.max(...flowContext.data.value.flowVariables.map(v => v.id), 0);
-});
-
-const paramSettingModalRef = shallowRef();
-
-function onAddOpen() {
-  paramSettingModalRef.value.add(maxId.value + 1);
-}
-function onEditOpen(data: any) {
-  paramSettingModalRef.value.edit(data);
-}
-function onAdd(data: any) {
-  flowContext.update(draft => {
-    const index = draft.flowVariables.findIndex(item => item.id === data.id);
-    if (index === -1) {
-      draft.flowVariables.push(cloneDeep(data));
-    }
-  });
-}
-function onEdit(data: any) {
-  flowContext.update(draft => {
-    const index = draft.flowVariables.findIndex(item => item.id === data.id);
-    if (index > -1) {
-      draft.flowVariables.splice(index, 1,cloneDeep(data));
-    }
-  });
-}
-function onDelete(data: any) {
-  flowContext.update(draft => {
-    const index = draft.flowVariables.findIndex(item => item.variableKey === data.variableKey);
-    if (index > -1) {
-      draft.flowVariables.splice(index, 1);
-    }
-  });
-}
-
-const treeRef = ref();
-
-function searchVariable(value: any) {
-  treeRef.value?.filter(value);
-}
-
-function filterNode(value: any, data: any) {
-  if (!value) return true;
-  return data.label.includes(value) || data.variableKey.includes(value);
-}
+    onEditOpen(data) {
+      this.$refs.paramSettingModalRef.edit(data);
+    },
+    onAdd(data) {
+      var cloned = cloneDeep(data);
+      this.$store.commit('flow/UPDATE_FLOW_CONTENT', function (state) {
+        var index = state.flowVariables.findIndex(function (item) { return item.id === cloned.id; });
+        if (index === -1) {
+          state.flowVariables.push(cloned);
+        }
+      });
+    },
+    onEdit(data) {
+      var cloned = cloneDeep(data);
+      this.$store.commit('flow/UPDATE_FLOW_CONTENT', function (state) {
+        var index = state.flowVariables.findIndex(function (item) { return item.id === cloned.id; });
+        if (index > -1) {
+          state.flowVariables.splice(index, 1, cloned);
+        }
+      });
+    },
+    onDelete(data) {
+      this.$store.commit('flow/UPDATE_FLOW_CONTENT', function (state) {
+        var index = state.flowVariables.findIndex(function (item) { return item.variableKey === data.variableKey; });
+        if (index > -1) {
+          state.flowVariables.splice(index, 1);
+        }
+      });
+    },
+    searchVariable(value) {
+      this.$refs.treeRef.filter(value);
+    },
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.label.includes(value) || data.variableKey.includes(value);
+    },
+  },
+};
 </script>
 
 <template>
@@ -114,50 +123,52 @@ function filterNode(value: any, data: any) {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .flow-variable-setting {
   height: 100%;
   display: flex;
   flex-direction: column;
-  .variable-head {
-    display: flex;
-    flex-direction: column;
-    padding: 16px 12px 8px;
-  }
-  .variable-body {
-    flex: 1;
-    overflow: auto;
-    min-height: 0;
-  }
-  .add-temp-variable {
-    margin-bottom: 12px;
-  }
-  .custom-tree-node {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 13px;
-    padding-right: 8px;
-    min-width: 0;
-  }
-  .custom-tree-node-label {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .custom-tree-node-name {
-    font-size: 12px;
-    color: #999;
-    margin-left: 6px;
-  }
-  .tree-node-action {
-    display: none;
-  }
-  .el-tree-node__content:hover .tree-node-action {
-    display: flex;
-  }
+}
+.flow-variable-setting .variable-head {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px 8px;
+}
+.flow-variable-setting .variable-body {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+.flow-variable-setting .add-temp-variable {
+  margin-bottom: 12px;
+}
+.flow-variable-setting .custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  padding-right: 8px;
+  min-width: 0;
+}
+.flow-variable-setting .custom-tree-node-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.flow-variable-setting .custom-tree-node-name {
+  font-size: 12px;
+  color: #999;
+  margin-left: 6px;
+}
+.flow-variable-setting .tree-node-action {
+  display: none;
+}
+</style>
+<style>
+.flow-variable-setting .el-tree-node__content:hover .tree-node-action {
+  display: flex;
 }
 </style>

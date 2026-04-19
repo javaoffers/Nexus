@@ -1,87 +1,85 @@
-<script lang="ts" setup>
-import { reactive, ref } from 'vue';
+<script>
 import DataTypeSelect from '@/components/form/DataTypeSelect.vue';
-import { FormInstance, FormRules } from 'element-plus';
-import { useFlowDataInject } from '../../hooks/flow-data';
-const flowContext = useFlowDataInject();
-type ParamItem = {
-  variableKey: string;
-  variableName: string;
-  dataType: any;
-  variableType: number;
-  id: number;
-};
-const emit = defineEmits(['add', 'edit']);
-const formRef = ref<FormInstance>();
-const form = reactive<ParamItem>({
-  variableKey: '',
-  variableName: '',
-  dataType: null,
-  variableType: 3,
-  id: 0,
-});
-const rules = reactive<FormRules>({
-  variableKey: [
-    { required: true, message: '请输入变量编码', trigger: 'blur' },
-    { pattern: /^[a-zA-Z0-9_]+$/, message: '请输入大小写字母或下划线', trigger: 'blur' },
-    {
-      validator: (_, value, callback) => {
-        // 校验唯一性
-        // 未改变时不校验
-        if (value === _originalData.variableKey) {
-          callback();
-          return;
-        }
-        const item = flowContext.data.value.flowVariables.find(item => item.variableKey === value);
-        if (item) {
-          callback(new Error('变量编码已存在'));
-          return;
-        }
-        callback();
+
+export default {
+  components: {
+    DataTypeSelect,
+  },
+  emits: ['add', 'edit'],
+  data() {
+    var self = this;
+    return {
+      visible: false,
+      isEdit: false,
+      _originalData: null,
+      form: {
+        variableKey: '',
+        variableName: '',
+        dataType: null,
+        variableType: 3,
+        id: 0,
       },
-      trigger: 'blur',
+      rules: {
+        variableKey: [
+          { required: true, message: '请输入变量编码', trigger: 'blur' },
+          { pattern: /^[a-zA-Z0-9_]+$/, message: '请输入大小写字母或下划线', trigger: 'blur' },
+          {
+            validator: function (_, value, callback) {
+              if (self._originalData && value === self._originalData.variableKey) {
+                callback();
+                return;
+              }
+              var item = self.$store.state.flow.flowVariables.find(function (item) { return item.variableKey === value; });
+              if (item) {
+                callback(new Error('变量编码已存在'));
+                return;
+              }
+              callback();
+            },
+            trigger: 'blur',
+          },
+        ],
+        variableName: [{ required: true, message: '请输入变量名称', trigger: 'blur' }],
+        dataType: [{ required: true, message: '请选择数据类型', trigger: 'blur' }],
+      },
+    };
+  },
+  methods: {
+    add(maxId) {
+      this.isEdit = false;
+      this.form.variableKey = '';
+      this.form.variableName = '';
+      this.form.dataType = null;
+      this.form.variableType = 3;
+      this.form.id = maxId;
+      this._originalData = Object.assign({}, this.form);
+      this.visible = true;
     },
-  ],
-  variableName: [{ required: true, message: '请输入变量名称', trigger: 'blur' }],
-  dataType: [{ required: true, message: '请选择数据类型', trigger: 'blur' }],
-});
-const visible = ref(false);
-const isEdit = ref(false);
-const add = (maxId: number) => {
-  isEdit.value = false;
-  form.variableKey = '';
-  form.variableName = '';
-  form.dataType = null;
-  form.variableType = 3;
-  form.id = maxId;
-  _originalData = { ...form };
-  visible.value = true;
+    edit(data) {
+      this.isEdit = true;
+      Object.assign(this.form, data);
+      this._originalData = Object.assign({}, this.form);
+      this.visible = true;
+    },
+    onCancel() {
+      this.visible = false;
+    },
+    async onSubmit() {
+      if (!this.$refs.formRef) return;
+      var valid = await this.$refs.formRef.validate().catch(function () { return false; });
+      if (!valid) {
+        return;
+      }
+      this.visible = false;
+      var result = Object.assign({}, this.form);
+      if (this.isEdit) {
+        this.$emit('edit', result);
+      } else {
+        this.$emit('add', result);
+      }
+    },
+  },
 };
-let _originalData: ParamItem;
-const edit = (data: ParamItem) => {
-  isEdit.value = true;
-  Object.assign(form, data);
-  _originalData = { ...form };
-  visible.value = true;
-};
-function onCancel() {
-  visible.value = false;
-}
-async function onSubmit() {
-  if (!formRef.value) return;
-  const valid = await formRef.value?.validate(() => {});
-  if (!valid) {
-    return;
-  }
-  visible.value = false;
-  const result = { ...form };
-  if (isEdit.value) {
-    emit('edit', result);
-  } else {
-    emit('add', result);
-  }
-}
-defineExpose({ add, edit });
 </script>
 
 <template>

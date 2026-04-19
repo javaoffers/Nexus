@@ -1,105 +1,109 @@
-<script lang="ts" setup>
-import {getDataTypeObject, getVariableDataType, isDataTypeEqual} from '@/utils/dataType';
+<script>
+import { getDataTypeObject, getVariableDataType, isDataTypeEqual } from '@/utils/dataType';
 import { Delete } from '@element-plus/icons-vue';
-import { PropType, computed } from 'vue';
 import { DataTypeOperatorMap, BaseDataType, OperatorNameMap, Operator } from './config';
 import FilterValue from './FilterValue.vue';
-import VariableSelect from "@/components/common/VariableSelect.vue";
-import {FlowVariable} from "@/views/flow/design";
+import VariableSelect from '@/components/common/VariableSelect.vue';
 
-enum FilterAssignType {
-  Constant = 'CONSTANT',
-  Variable = 'VARIABLE',
-}
+const FilterAssignType = {
+  Constant: 'CONSTANT',
+  Variable: 'VARIABLE',
+};
 
-const emit = defineEmits(['change', 'delete']);
-
-const props = defineProps({
-  item: {
-    type: Object as PropType<any>,
-    required: true,
+export default {
+  components: {
+    FilterValue,
+    VariableSelect,
+    Delete,
   },
-  sourceList: {
-    type: Array as PropType<FlowVariable[]>,
-    default: () => [],
+  props: {
+    item: {
+      type: Object,
+      required: true,
+    },
+    sourceList: {
+      type: Array,
+      default: () => [],
+    },
+    targetList: {
+      type: Array,
+      default: () => [],
+    },
   },
-  targetList: {
-    type: Array as PropType<any[]>,
-    default: () => [],
-  },
-});
-
-const sourceModel = computed({
-  get: () => props.item.variableKey,
-  set: value => {
-    /*const current = props.sourceList.find(item => item.variableKey === value);*/
-    const current = getVariableDataType(value,props.sourceList as FlowVariable[]);
-    emit('change', { variableKey: value, dataType: current.dataType });
-  },
-});
-
-const operatorModel = computed({
-  get: () => props.item.operator,
-  set: value => {
-    emit('change', { ...props.item, operator: value, assignType: FilterAssignType.Constant, value: null });
-  },
-});
-
-const assignTypeModel = computed({
-  get: () => props.item.assignType,
-  set: value => {
-    emit('change', { ...props.item, assignType: value, value: null });
-  },
-});
-
-const targetModel = computed({
-  get: () => props.item.value,
-  set: value => {
-    emit('change', { ...props.item, value: value });
-  },
-});
-
-const isConstant = computed(() => {
-  return props.item.assignType === FilterAssignType.Constant;
-});
-
-const isVariable = computed(() => {
-  return props.item.assignType === FilterAssignType.Variable;
-});
-
-const operatorList = computed(() => {
-  const dataType = getDataTypeObject(props.item.dataType)?.type as BaseDataType;
-  const operators = DataTypeOperatorMap[dataType] || [];
-  return operators.map(operator => {
+  emits: ['change', 'delete'],
+  data() {
     return {
-      value: operator,
-      label: OperatorNameMap[operator],
+      FilterAssignType,
     };
-  });
-});
-
-const isNoValueOperator = computed(() => {
-  return !props.item.operator || [Operator.Empty, Operator.NotEmpty].includes(props.item.operator);
-});
-
-const filteredTargetList = computed(() => {
-  return props.targetList.filter((item: any) => {
-    // 不选取自己
-    if (item.variableKey === props.item.variableKey) {
-      return false;
-    }
-    // 只能选与自己类型一致的
-    return isDataTypeEqual(item.dataType, props.item.dataType);
-  });
-});
+  },
+  computed: {
+    sourceModel: {
+      get() {
+        return this.item.variableKey;
+      },
+      set(value) {
+        const current = getVariableDataType(value, this.sourceList);
+        this.$emit('change', { variableKey: value, dataType: current.dataType });
+      },
+    },
+    operatorModel: {
+      get() {
+        return this.item.operator;
+      },
+      set(value) {
+        this.$emit('change', { ...this.item, operator: value, assignType: FilterAssignType.Constant, value: null });
+      },
+    },
+    assignTypeModel: {
+      get() {
+        return this.item.assignType;
+      },
+      set(value) {
+        this.$emit('change', { ...this.item, assignType: value, value: null });
+      },
+    },
+    targetModel: {
+      get() {
+        return this.item.value;
+      },
+      set(value) {
+        this.$emit('change', { ...this.item, value: value });
+      },
+    },
+    isConstant() {
+      return this.item.assignType === FilterAssignType.Constant;
+    },
+    isVariable() {
+      return this.item.assignType === FilterAssignType.Variable;
+    },
+    operatorList() {
+      const dataType = getDataTypeObject(this.item.dataType)?.type;
+      const operators = DataTypeOperatorMap[dataType] || [];
+      return operators.map(operator => {
+        return {
+          value: operator,
+          label: OperatorNameMap[operator],
+        };
+      });
+    },
+    isNoValueOperator() {
+      return !this.item.operator || [Operator.Empty, Operator.NotEmpty].includes(this.item.operator);
+    },
+    filteredTargetList() {
+      return this.targetList.filter((item) => {
+        if (item.variableKey === this.item.variableKey) {
+          return false;
+        }
+        return isDataTypeEqual(item.dataType, this.item.dataType);
+      });
+    },
+  },
+};
 </script>
 
 <template>
   <div class="filter-item">
     <div class="filter-item-key">
-<!--      <el-select placeholder="请选择" v-model="sourceModel">
-        <el-option v-for="source in sourceList" :key="source.variableKey" :value="source.variableKey" :label="source.variableName" />
-      </el-select>-->
       <VariableSelect
           v-model="sourceModel"
           :options="sourceList"
@@ -120,7 +124,7 @@ const filteredTargetList = computed(() => {
     </div>
     <div class="filter-item-value">
       <template v-if="!isNoValueOperator">
-        <FilterValue v-if="isConstant" v-model="targetModel" :dataType="props.item.dataType" />
+        <FilterValue v-if="isConstant" v-model="targetModel" :dataType="item.dataType" />
         <el-select v-else-if="isVariable" placeholder="请选择" v-model="targetModel">
           <el-option v-for="source in filteredTargetList" :key="source.variableKey" :value="source.variableKey" :label="source.variableName" />
         </el-select>
@@ -132,29 +136,29 @@ const filteredTargetList = computed(() => {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .filter-item {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
-  .filter-item-key {
-    width: 120px;
-    margin-right: 10px;
-  }
-  .filter-item-operator {
-    width: 120px;
-    margin-right: 10px;
-  }
-  .filter-item-assign-type {
-    width: 90px;
-    margin-right: 10px;
-  }
-  .filter-item-value {
-    flex: 1;
-    margin-right: 10px;
-  }
-  .filter-item-action {
-    width: 24px;
-  }
+}
+.filter-item .filter-item-key {
+  width: 120px;
+  margin-right: 10px;
+}
+.filter-item .filter-item-operator {
+  width: 120px;
+  margin-right: 10px;
+}
+.filter-item .filter-item-assign-type {
+  width: 90px;
+  margin-right: 10px;
+}
+.filter-item .filter-item-value {
+  flex: 1;
+  margin-right: 10px;
+}
+.filter-item .filter-item-action {
+  width: 24px;
 }
 </style>

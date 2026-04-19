@@ -1,145 +1,143 @@
-<script setup lang="ts">
-import { reactive, ref } from 'vue';
-import { useRoute } from 'vue-router';
+<script>
 import { apiService } from '@/service';
 import { ElMessage } from 'element-plus';
-import {ApiInfo, DataType, InputParams} from '@/typings';
 import FilterValue from '@/components/filter/FilterValue.vue';
 import { InfoFilled } from '@element-plus/icons-vue';
-import DataTypeDisplay from "@/components/common/DataTypeDisplay.vue";
-import {safeTrim} from "@/utils/CommonUtil.ts";
+import DataTypeDisplay from '@/components/common/DataTypeDisplay.vue';
+import { safeTrim } from '@/utils/CommonUtil.js';
 import VueJsonPretty from 'vue-json-pretty';
 
-const route = useRoute();
-let paramsData = reactive({
-  params: route.params,
-});
-
-const loading = ref(false);
-
-let flowResponseJson = ref();
-const apiInfo = ref<ApiInfo>({
-  id: null,
-  suiteId: null,
-  suiteFlag: null,
-  apiCode: '',
-  apiUrl: '',
-  apiName: '',
-  apiDesc: '',
-  apiRequestType: '',
-  apiRequestContentType: '',
-  apiHeaders: [],
-  apiInputParams: [],
-  apiOutputParams: [],
-});
-
-const responseHeaderData = ref([]);
-
-queryApiInfo();
-
-async function queryApiInfo() {
-  const res = await apiService.queryApiInfo(paramsData.params.apiId as number);
-  if (res.success) {
-    apiInfo.value = res.result;
-  } else {
-    ElMessage({ type: 'error', message: res.errorMsg });
-  }
-}
-
-async function sendApiDebug() {
-  if (!validate()) {
-    return;
-  }
-  loading.value = true;
-  const params = {
-    headerData: getHeaders(),
-    inputParamData: getParams(),
-  };
-  const res = await apiService.debugApi(paramsData.params.apiId as number, params);
-  if (res.success) {
-    flowResponseJson.value = res.result;
-  } else {
-    ElMessage({ type: 'error', message: res.errorMsg });
-  }
-  responseHeaderData.value = Object.entries(res.response?.headers).map(([key, value]) => {
+export default {
+  components: {
+    FilterValue,
+    InfoFilled,
+    DataTypeDisplay,
+    VueJsonPretty,
+  },
+  data() {
     return {
-      headerKey: key,
-      headerValue: value,
+      loading: false,
+      flowResponseJson: undefined,
+      apiInfo: {
+        id: null,
+        suiteId: null,
+        suiteFlag: null,
+        apiCode: '',
+        apiUrl: '',
+        apiName: '',
+        apiDesc: '',
+        apiRequestType: '',
+        apiRequestContentType: '',
+        apiHeaders: [],
+        apiInputParams: [],
+        apiOutputParams: [],
+      },
+      responseHeaderData: [],
     };
-  });
-  loading.value = false;
-}
-
-function isEmpty(val: any) {
-  return val === undefined || val === null || val === '';
-}
-
-function validate() {
-  const apiHeaders = apiInfo.value?.apiHeaders || [];
-  const apiInputParams = apiInfo.value?.apiInputParams || [];
-  const errors: string[] = [];
-  apiHeaders.forEach((param: any) => {
-    if (param.required && isEmpty(param.value)) {
-      param.error = '必填字段不能为空';
-      errors.push(param.paramKey);
-    } else {
-      param.error = '';
-    }
-  });
-  apiInputParams.forEach((param: any) => {
-    if (param.required && isEmpty(param.value)) {
-      param.error = '必填字段不能为空';
-      errors.push(param.paramKey);
-    } else {
-      param.error = '';
-    }
-  });
-  return errors.length === 0;
-}
-
-function getHeaders() {
-  const apiHeaders = apiInfo.value?.apiHeaders || [];
-  const params: any = {};
-  apiHeaders.forEach((param: any) => {
-    if (!isEmpty(param.value)) {
-      params[param.paramKey] = param.value;
-    }
-  });
-  return params;
-}
-
-function getParams() {
-  const apiInputParams = apiInfo.value?.apiInputParams || [];
-  const params: any = {};
-  apiInputParams.forEach((param: any) => {
-    const dataType: DataType = param.dataType;
-    if (!isEmpty(param.value)) {
-      if (dataType.type === 'Object' || dataType.type === 'List') {
-        params[param.paramKey] = JSON.parse(param.value);
-      } else if(dataType.type === 'String') {
-        params[param.paramKey] = safeTrim(param.value);
+  },
+  created() {
+    this.queryApiInfo();
+  },
+  methods: {
+    async queryApiInfo() {
+      const res = await apiService.queryApiInfo(this.$route.params.apiId);
+      if (res.success) {
+        this.apiInfo = res.result;
       } else {
-        params[param.paramKey] = param.value;
+        ElMessage({ type: 'error', message: res.errorMsg });
       }
-    } else {
-      if (dataType.type === 'Boolean') {
-        params[param.paramKey] = false;
+    },
+    async sendApiDebug() {
+      if (!this.validate()) {
+        return;
       }
-    }
-  });
-  return params;
-}
-
-function resetParams() {
-  apiInfo.value?.apiHeaders.forEach((param: any) => {
-    param.value = '';
-    param.error = '';
-  });
-  apiInfo.value?.apiInputParams.forEach((param: any) => {
-    param.value = '';
-    param.error = '';
-  });
-}
+      this.loading = true;
+      const params = {
+        headerData: this.getHeaders(),
+        inputParamData: this.getParams(),
+      };
+      const res = await apiService.debugApi(this.$route.params.apiId, params);
+      if (res.success) {
+        this.flowResponseJson = res.result;
+      } else {
+        ElMessage({ type: 'error', message: res.errorMsg });
+      }
+      this.responseHeaderData = Object.entries(res.response?.headers).map(([key, value]) => {
+        return {
+          headerKey: key,
+          headerValue: value,
+        };
+      });
+      this.loading = false;
+    },
+    isEmpty(val) {
+      return val === undefined || val === null || val === '';
+    },
+    validate() {
+      const apiHeaders = this.apiInfo?.apiHeaders || [];
+      const apiInputParams = this.apiInfo?.apiInputParams || [];
+      const errors = [];
+      apiHeaders.forEach((param) => {
+        if (param.required && this.isEmpty(param.value)) {
+          param.error = '必填字段不能为空';
+          errors.push(param.paramKey);
+        } else {
+          param.error = '';
+        }
+      });
+      apiInputParams.forEach((param) => {
+        if (param.required && this.isEmpty(param.value)) {
+          param.error = '必填字段不能为空';
+          errors.push(param.paramKey);
+        } else {
+          param.error = '';
+        }
+      });
+      return errors.length === 0;
+    },
+    getHeaders() {
+      const apiHeaders = this.apiInfo?.apiHeaders || [];
+      const params = {};
+      apiHeaders.forEach((param) => {
+        if (!this.isEmpty(param.value)) {
+          params[param.paramKey] = param.value;
+        }
+      });
+      return params;
+    },
+    getParams() {
+      const apiInputParams = this.apiInfo?.apiInputParams || [];
+      const params = {};
+      apiInputParams.forEach((param) => {
+        const dataType = param.dataType;
+        if (!this.isEmpty(param.value)) {
+          if (dataType.type === 'Object' || dataType.type === 'List') {
+            params[param.paramKey] = JSON.parse(param.value);
+          } else if (dataType.type === 'String') {
+            params[param.paramKey] = safeTrim(param.value);
+          } else {
+            params[param.paramKey] = param.value;
+          }
+        } else {
+          if (dataType.type === 'Boolean') {
+            params[param.paramKey] = false;
+          }
+        }
+      });
+      return params;
+    },
+    resetParams() {
+      this.apiInfo?.apiHeaders.forEach((param) => {
+        param.value = '';
+        param.error = '';
+      });
+      this.apiInfo?.apiInputParams.forEach((param) => {
+        param.value = '';
+        param.error = '';
+      });
+    },
+  },
+};
 </script>
 
 <template>
@@ -178,7 +176,7 @@ function resetParams() {
               </div>
             </div>
             <div class="input-param-body">
-              <div class="input-param-tr" v-for="header in apiInfo?.apiHeaders as InputParams[]" :key="header.paramKey">
+              <div class="input-param-tr" v-for="header in apiInfo?.apiHeaders" :key="header.paramKey">
                 <div class="input-param-td">
                   <template v-if="header.required">*</template>
                 </div>
@@ -257,53 +255,58 @@ function resetParams() {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .flow-debug {
   background-color: var(--el-bg-color-overlay);
   padding: 24px 40px;
+}
 
-  .flow-debug-content {
-    width: 70%;
-    margin-left: 210px;
-  }
+.flow-debug .flow-debug-content {
+  width: 70%;
+  margin-left: 210px;
+}
 
-  .input-param-body {
-    color: var(--nexus-text-secondary);
-  }
-  .debug-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.flow-debug .input-param-body {
+  color: var(--nexus-text-secondary);
+}
 
-    .debug-url{
-      width: 704px;
-      margin-right: 14px;
-    }
-  }
+.flow-debug .debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .input-param-tr {
-    display: flex;
-    font-size: 14px;
-    line-height: 28px;
-    margin-bottom: 8px;
-  }
-  .input-param-td {
-    margin-right: 12px;
-    width: 130px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-    &:first-child {
-      margin: 0;
-      width: 12px;
-      color: var(--nexus-danger);
-    }
-    &.td-value {
-      width: 240px;
-    }
-    &.td-error {
-      color: var(--nexus-danger);
-    }
-  }
+.flow-debug .debug-header .debug-url {
+  width: 704px;
+  margin-right: 14px;
+}
+
+.flow-debug .input-param-tr {
+  display: flex;
+  font-size: 14px;
+  line-height: 28px;
+  margin-bottom: 8px;
+}
+
+.flow-debug .input-param-td {
+  margin-right: 12px;
+  width: 130px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.flow-debug .input-param-td:first-child {
+  margin: 0;
+  width: 12px;
+  color: var(--nexus-danger);
+}
+
+.flow-debug .input-param-td.td-value {
+  width: 240px;
+}
+
+.flow-debug .input-param-td.td-error {
+  color: var(--nexus-danger);
 }
 </style>

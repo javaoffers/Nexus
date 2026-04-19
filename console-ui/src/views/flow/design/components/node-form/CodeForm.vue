@@ -1,11 +1,16 @@
-<script lang="ts" setup>
-import { PropType, ref, watch } from 'vue';
-import { ElementType, RawData } from '../../types';
+<script>
+import { ElementType } from '../../types';
 import { cloneDeep } from 'lodash-es';
 import { ElMessage } from 'element-plus';
 import CodeEditor from '@/components/common/CodeEditor.vue';
 
-type CodeRawData = RawData & { language: string; content: string };
+var groovyDemoCode =
+  "// 获取变量\n" +
+  "// const variable_name = $var.getVariableValue('变量key');\n" +
+  "// 设置变量\n" +
+  "// $var.setVariableValue('变量key',值);\n" +
+  "// 打印变量\n" +
+  "// println(variable_name);\n";
 
 function getDefaultData() {
   return {
@@ -19,70 +24,64 @@ function getDefaultData() {
     content: groovyDemoCode,
   };
 }
-const codeEditRef = ref<InstanceType<typeof CodeEditor>>();
-const codeDialogVisible = ref(false);
 
-const emit = defineEmits(['update', 'cancel']);
-const props = defineProps({
-  data: {
-    type: Object as PropType<CodeRawData>,
-    required: true,
+export default {
+  components: {
+    CodeEditor,
   },
-});
-
-const nodeData = ref(getDefaultData() as CodeRawData);
-watch(
-  () => props.data,
-  val => {
-    if (val !== nodeData.value) {
-      nodeData.value = Object.assign(getDefaultData(), cloneDeep(val));
-    }
+  props: {
+    data: {
+      type: Object,
+      required: true,
+    },
   },
-  { immediate: true }
-);
-
-const groovyDemoCode =
-    "// 获取变量\n" +
-    "// const variable_name = $var.getVariableValue('变量key');\n" +
-    "// 设置变量\n" +
-    "// $var.setVariableValue('变量key',值);\n" +
-    "// 打印变量\n" +
-    "// println(variable_name);\n";
-
-function validate() {
-  if (!nodeData.value.name) {
-    ElMessage.error('节点名称不能为空');
-    return false;
-  }
-  return true;
-}
-
-/**
- * 切换语言类型，给出不同的实例代码
- * @param languageType 语言类型
- */
-function changeLanguageType(languageType){
-
-  if("groovy" === languageType){
-    nodeData.value.content = groovyDemoCode;
-  }else if("javascript" === languageType){
-    nodeData.value.content =
-        "// 获取变量\n" +
-        "// const variable_name = $var.getVariableValue('变量key');\n" +
-        "// 设置变量\n" +
-        "// $var.setVariableValue('变量key',值);\n";
-  }
-}
-
-function onSubmit() {
-  if (!validate()) {
-    return;
-  }
-  emit('update', cloneDeep(nodeData.value));
-}
-function onCancel() {
-  emit('cancel');
-}
+  emits: ['update', 'cancel'],
+  data() {
+    return {
+      nodeData: getDefaultData(),
+      codeDialogVisible: false,
+    };
+  },
+  watch: {
+    data: {
+      handler(val) {
+        if (val !== this.nodeData) {
+          this.nodeData = Object.assign(getDefaultData(), cloneDeep(val));
+        }
+      },
+      immediate: true,
+    },
+  },
+  methods: {
+    validate() {
+      if (!this.nodeData.name) {
+        ElMessage.error('节点名称不能为空');
+        return false;
+      }
+      return true;
+    },
+    changeLanguageType(languageType) {
+      if ('groovy' === languageType) {
+        this.nodeData.content = groovyDemoCode;
+      } else if ('javascript' === languageType) {
+        this.nodeData.content =
+          "// 获取变量\n" +
+          "// const variable_name = $var.getVariableValue('变量key');\n" +
+          "// 设置变量\n" +
+          "// $var.setVariableValue('变量key',值);\n";
+      }
+    },
+    onSubmit() {
+      if (!this.validate()) {
+        return;
+      }
+      this.$emit('update', cloneDeep(this.nodeData));
+    },
+    onCancel() {
+      this.$emit('cancel');
+    },
+  },
+};
 </script>
 
 <template>
@@ -118,8 +117,8 @@ function onCancel() {
   </div>
 </template>
 
-<style lang="less" scoped>
-.code-btn{
+<style scoped>
+.code-btn {
   padding-bottom: 5px;
   margin-left: auto;
 }

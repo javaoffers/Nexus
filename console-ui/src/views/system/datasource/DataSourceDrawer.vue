@@ -1,102 +1,103 @@
-<script setup lang="ts">
-import { ref, reactive, computed, nextTick } from 'vue';
-import type { FormInstance, FormRules } from 'element-plus';
+<script>
 import { dataSourceService } from '@/service';
-import { DataSource } from '@/service/module/dataSource.ts';
-import ResizableDrawer from "@/components/common/ResizableDrawer.vue";
+import ResizableDrawer from '@/components/common/ResizableDrawer.vue';
 
-const dialogVisible = ref(false);
-const dataSourceFormRef = ref<FormInstance>();
-const editItem = ref<Record<string, any>>();
-function getDefault() {
-  return {
-    id: null,
-    dataSourceName: '',
-    dataSourceType: '',
-    dataSourceDesc: '',
-    address: '',
-    port: '',
-    userName: '',
-    password: '',
-    databaseName: '',
-    connectExtInfo: '',
-    minPoolSize: 5,
-    maxPoolSize: 5,
-    queryTimeout: 30,
-  };
-}
-const formValue = reactive<DataSource>(getDefault());
-const rules = reactive<FormRules>({
-  dataSourceName: [{ required: true, message: '请输入数据源名称', trigger: 'blur' }],
-  dataSourceType: [{ required: true, message: '请选择数据源类型', trigger: 'blur' }],
-  address: [{ required: true, message: '请输入连接地址', trigger: 'blur' }],
-  port: [
-    { required: true, message: '请输入连接端口', trigger: 'blur' },
-    { pattern: /^[0-9_]+$/, message: '请输入数字', trigger: 'blur' },
-  ],
-  userName: [{ required: true, message: '请输入连接账号', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入连接密码', trigger: 'blur' }],
-  databaseName: [{ required: true, message: '请输入连接数据库名', trigger: 'blur' }],
-});
-
-const emit = defineEmits(['add', 'edit']);
-
-function onCancel() {
-  dialogVisible.value = false;
-}
-
-async function onSubmit() {
-  if (!dataSourceFormRef.value) return;
-  const valid = await dataSourceFormRef.value?.validate(() => {});
-  if (!valid) {
-    return;
-  }
-
-  dialogVisible.value = false;
-  if (editItem.value) {
-    emit('edit', { ...editItem.value, ...formValue });
-  } else {
-    emit('add', formValue);
-  }
-}
-
-function open(item?: Record<string, any>) {
-  editItem.value = item;
-  dialogVisible.value = true;
-  nextTick(async () => {
-    dataSourceFormRef.value?.resetFields();
-    if (item) {
-      const res = await dataSourceService.queryDataSourceInfo(item.id);
-      if (res.success) {
-        formValue.id = res.result.id;
-        formValue.dataSourceName = res.result.dataSourceName;
-        formValue.dataSourceType = res.result.dataSourceType;
-        formValue.dataSourceDesc = res.result.dataSourceDesc;
-        formValue.address = res.result.address;
-        formValue.port = res.result.port;
-        formValue.userName = res.result.userName;
-        formValue.password = res.result.password;
-        formValue.databaseName = res.result.databaseName;
-        formValue.connectExtInfo = res.result.connectExtInfo;
-        formValue.minPoolSize = res.result.minPoolSize;
-        formValue.maxPoolSize = res.result.maxPoolSize;
-        formValue.queryTimeout = res.result.queryTimeout;
+export default {
+  components: {
+    ResizableDrawer,
+  },
+  emits: ['add', 'edit'],
+  data() {
+    return {
+      dialogVisible: false,
+      editItem: undefined,
+      formValue: this.getDefault(),
+      rules: {
+        dataSourceName: [{ required: true, message: '请输入数据源名称', trigger: 'blur' }],
+        dataSourceType: [{ required: true, message: '请选择数据源类型', trigger: 'blur' }],
+        address: [{ required: true, message: '请输入连接地址', trigger: 'blur' }],
+        port: [
+          { required: true, message: '请输入连接端口', trigger: 'blur' },
+          { pattern: /^[0-9_]+$/, message: '请输入数字', trigger: 'blur' },
+        ],
+        userName: [{ required: true, message: '请输入连接账号', trigger: 'blur' }],
+        password: [{ required: true, message: '请输入连接密码', trigger: 'blur' }],
+        databaseName: [{ required: true, message: '请输入连接数据库名', trigger: 'blur' }],
+      },
+    };
+  },
+  computed: {
+    title() {
+      if (this.editItem) {
+        return '编辑数据源';
       }
-    } else {
-      // 清空
-      Object.assign(formValue, getDefault());
-    }
-  });
-}
+      return '新增数据源';
+    },
+  },
+  methods: {
+    getDefault() {
+      return {
+        id: null,
+        dataSourceName: '',
+        dataSourceType: '',
+        dataSourceDesc: '',
+        address: '',
+        port: '',
+        userName: '',
+        password: '',
+        databaseName: '',
+        connectExtInfo: '',
+        minPoolSize: 5,
+        maxPoolSize: 5,
+        queryTimeout: 30,
+      };
+    },
+    onCancel() {
+      this.dialogVisible = false;
+    },
+    async onSubmit() {
+      if (!this.$refs.dataSourceFormRef) return;
+      const valid = await this.$refs.dataSourceFormRef.validate(() => {});
+      if (!valid) {
+        return;
+      }
 
-const title = computed(() => {
-  if (editItem.value) {
-    return '编辑数据源';
-  }
-  return '新增数据源';
-});
-
-defineExpose({ open });
+      this.dialogVisible = false;
+      if (this.editItem) {
+        this.$emit('edit', { ...this.editItem, ...this.formValue });
+      } else {
+        this.$emit('add', this.formValue);
+      }
+    },
+    open(item) {
+      this.editItem = item;
+      this.dialogVisible = true;
+      this.$nextTick(async () => {
+        this.$refs.dataSourceFormRef?.resetFields();
+        if (item) {
+          const res = await dataSourceService.queryDataSourceInfo(item.id);
+          if (res.success) {
+            this.formValue.id = res.result.id;
+            this.formValue.dataSourceName = res.result.dataSourceName;
+            this.formValue.dataSourceType = res.result.dataSourceType;
+            this.formValue.dataSourceDesc = res.result.dataSourceDesc;
+            this.formValue.address = res.result.address;
+            this.formValue.port = res.result.port;
+            this.formValue.userName = res.result.userName;
+            this.formValue.password = res.result.password;
+            this.formValue.databaseName = res.result.databaseName;
+            this.formValue.connectExtInfo = res.result.connectExtInfo;
+            this.formValue.minPoolSize = res.result.minPoolSize;
+            this.formValue.maxPoolSize = res.result.maxPoolSize;
+            this.formValue.queryTimeout = res.result.queryTimeout;
+          }
+        } else {
+          Object.assign(this.formValue, this.getDefault());
+        }
+      });
+    },
+  },
+};
 </script>
 <template>
   <ResizableDrawer v-model="dialogVisible" :size="480" :title="title" destroyOnClose drawer-key="DATA_SOURCE">

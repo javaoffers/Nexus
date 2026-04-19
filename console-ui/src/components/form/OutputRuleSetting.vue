@@ -1,97 +1,95 @@
-<script lang="ts" setup>
-import { ref, watch, PropType } from 'vue';
-import {valueType, RuleItem, DataType} from '@/typings';
+<script>
+import { valueType } from '@/typings';
 import { Delete } from '@element-plus/icons-vue';
 import { isDataTypeEqual } from '@/utils/dataType';
-import DataTypeDisplay from "@/components/common/DataTypeDisplay.vue";
+import DataTypeDisplay from '@/components/common/DataTypeDisplay.vue';
 
-const props = defineProps({
-  modelValue: Array as PropType<RuleItem[]>,
-  addText: String,
-  sourceList: {
-    type: Array as PropType<any[]>,
-    default: () => [],
+export default {
+  components: {
+    DataTypeDisplay,
+    Delete,
   },
-  targetList: {
-    type: Array as PropType<any[]>,
-    default: () => [],
+  props: {
+    modelValue: Array,
+    addText: String,
+    sourceList: {
+      type: Array,
+      default: () => [],
+    },
+    targetList: {
+      type: Array,
+      default: () => [],
+    },
   },
-});
-const emit = defineEmits(['update:modelValue']);
-const rules = ref<RuleItem[]>([...(props.modelValue || [])]);
-
-watch(
-  () => props.modelValue,
-  (val: any) => {
-    if (val !== rules.value) {
-      rules.value = [...val];
-    }
-  }
-);
-
-const columns = [
-  { name: '参数描述', prop: 'source' },
-  { name: '数据类型', prop: 'sourceDataType' },
-  { name: '赋值', prop: 'target' },
-];
-
-function addRule() {
-  rules.value.push({
-    source: '',
-    sourceDataType: null,
-    sourceType: valueType.INPUT_PARAM,
-    target: '',
-    targetDataType: null,
-    targetType: valueType.VARIABLE,
-    required: false,
-  });
-  onChange();
-}
-
-function removeRule(rowIndex: number) {
-  rules.value.splice(rowIndex, 1);
-  onChange();
-}
-
-function onChange() {
-  emit('update:modelValue', rules.value);
-}
-
-function onTargetVarChange(rowIndex: number) {
-  const target = rules.value[rowIndex].target;
-  const param = props.targetList!.find(item => item.variableKey === target);
-  rules.value[rowIndex].targetDataType = param.dataType;
-  onChange();
-}
-
-function getAvailableSource(source: string) {
-  return props.sourceList!.filter(item => {
-    // 已选参数也能选
-    if (item.paramKey === source) {
-      return item;
-    }
-    // 只能选未被选择的参数
-    return !rules.value.map(item => item.source).includes(item.paramKey);
-  });
-}
-function getAvailableTarget(source: string, sourceDataType: DataType) {
-  return props.targetList!.filter(item => {
-    // 不选取自己
-    if (item.variableKey === source) {
-      return false;
-    }
-    // 只能选与自己类型一致的
-    return isDataTypeEqual(item.dataType, sourceDataType);
-  });
-}
-
-function onSourceChange(rowIndex: number) {
-  const source = rules.value[rowIndex].source;
-  const param = props.sourceList!.find(item => item.paramKey === source);
-  rules.value[rowIndex].target = '';
-  rules.value[rowIndex].sourceDataType = param.dataType;
-  rules.value[rowIndex].sourceType = param.sourceType;
-}
+  emits: ['update:modelValue'],
+  data() {
+    return {
+      rules: [...(this.modelValue || [])],
+      columns: [
+        { name: '参数描述', prop: 'source' },
+        { name: '数据类型', prop: 'sourceDataType' },
+        { name: '赋值', prop: 'target' },
+      ],
+    };
+  },
+  watch: {
+    modelValue(val) {
+      if (val !== this.rules) {
+        this.rules = [...val];
+      }
+    },
+  },
+  methods: {
+    addRule() {
+      this.rules.push({
+        source: '',
+        sourceDataType: null,
+        sourceType: valueType.INPUT_PARAM,
+        target: '',
+        targetDataType: null,
+        targetType: valueType.VARIABLE,
+        required: false,
+      });
+      this.onChange();
+    },
+    removeRule(rowIndex) {
+      this.rules.splice(rowIndex, 1);
+      this.onChange();
+    },
+    onChange() {
+      this.$emit('update:modelValue', this.rules);
+    },
+    onTargetVarChange(rowIndex) {
+      const target = this.rules[rowIndex].target;
+      const param = this.targetList.find(item => item.variableKey === target);
+      this.rules[rowIndex].targetDataType = param.dataType;
+      this.onChange();
+    },
+    getAvailableSource(source) {
+      return this.sourceList.filter(item => {
+        if (item.paramKey === source) {
+          return item;
+        }
+        return !this.rules.map(item => item.source).includes(item.paramKey);
+      });
+    },
+    getAvailableTarget(source, sourceDataType) {
+      return this.targetList.filter(item => {
+        if (item.variableKey === source) {
+          return false;
+        }
+        return isDataTypeEqual(item.dataType, sourceDataType);
+      });
+    },
+    onSourceChange(rowIndex) {
+      const source = this.rules[rowIndex].source;
+      const param = this.sourceList.find(item => item.paramKey === source);
+      this.rules[rowIndex].target = '';
+      this.rules[rowIndex].sourceDataType = param.dataType;
+      this.rules[rowIndex].sourceType = param.sourceType;
+    },
+  },
+};
 </script>
 
 <template>
@@ -119,13 +117,13 @@ function onSourceChange(rowIndex: number) {
             </el-select>
           </div>
           <div class="rule-setting-td" v-if="column.prop === 'sourceDataType'">
-            <DataTypeDisplay :dataType="rule.sourceDataType as DataType"/>
+            <DataTypeDisplay :dataType="rule.sourceDataType"/>
           </div>
           <div class="rule-setting-td" v-if="column.prop === 'target'">
             <!-- 变量 -->
             <el-select v-model="rule.target" size="small" @change="onTargetVarChange(rowIndex)">
               <el-option
-                v-for="item in getAvailableTarget(rule.source, rule.sourceDataType as DataType)"
+                v-for="item in getAvailableTarget(rule.source, rule.sourceDataType)"
                 :key="item.variableKey"
                 :value="item.variableKey"
                 :label="item.variableName"
@@ -150,52 +148,49 @@ function onSourceChange(rowIndex: number) {
   </div>
 </template>
 
-<style lang="less" scoped>
+<style scoped>
 .rule-setting {
   width: 100%;
-  &-head {
-    background-color: #f2f2f2;
-    padding: 0 1px;
-  }
-  &-body {
-    border-left: 1px solid #f2f2f2;
-    border-right: 1px solid #f2f2f2;
-  }
-  &-tr {
-    display: flex;
-    border-bottom: 1px solid #f2f2f2;
-    height: 36px;
-  }
-  &-td {
-    flex: 1;
-    min-width: 0;
-    padding: 0 6px;
-    display: flex;
-    align-items: center;
-    &.delete-td,
-    &.required-td {
-      width: 40px;
-      flex: none;
-      justify-content: center;
-    }
-    &.delete-td {
-      width: 20px;
-      margin-right: 10px;
-      & > .el-icon {
-        cursor: pointer;
-        color: #999;
-      }
-    }
-  }
-  &-foot {
-    text-align: center;
-    padding: 6px 0;
-  }
 }
-
-.rule-setting-td{
-  .dataTypeName {
-    color: var(--el-text-color-regular);
-  }
+.rule-setting-head {
+  background-color: #f2f2f2;
+  padding: 0 1px;
+}
+.rule-setting-body {
+  border-left: 1px solid #f2f2f2;
+  border-right: 1px solid #f2f2f2;
+}
+.rule-setting-tr {
+  display: flex;
+  border-bottom: 1px solid #f2f2f2;
+  height: 36px;
+}
+.rule-setting-td {
+  flex: 1;
+  min-width: 0;
+  padding: 0 6px;
+  display: flex;
+  align-items: center;
+}
+.rule-setting-td.delete-td,
+.rule-setting-td.required-td {
+  width: 40px;
+  flex: none;
+  justify-content: center;
+}
+.rule-setting-td.delete-td {
+  width: 20px;
+  margin-right: 10px;
+}
+.rule-setting-td.delete-td > .el-icon {
+  cursor: pointer;
+  color: #999;
+}
+.rule-setting-foot {
+  text-align: center;
+  padding: 6px 0;
+}
+.rule-setting-td .dataTypeName {
+  color: var(--el-text-color-regular);
 }
 </style>

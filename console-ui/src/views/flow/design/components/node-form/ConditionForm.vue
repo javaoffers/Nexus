@@ -1,21 +1,9 @@
-<script lang="ts" setup>
-import { PropType, ref, watch, shallowRef } from 'vue';
-import { RawData, ConditionItem, ElementType } from '../../types';
+<script>
 import { Delete, Edit, Top, Bottom } from '@element-plus/icons-vue';
 import ConditionFilterModal from '../ConditionFilterModal.vue';
+import { ElementType } from '../../types';
 import { cloneDeep } from 'lodash-es';
 import { ElMessage } from 'element-plus';
-
-type ConditionRawData = RawData & { conditions: ConditionItem[] };
-
-const emit = defineEmits(['update', 'cancel']);
-const props = defineProps({
-  data: {
-    type: Object as PropType<ConditionRawData>,
-    required: true,
-  },
-});
-const conditionFilterModalRef = shallowRef();
 
 function getDefaultData() {
   return {
@@ -29,93 +17,110 @@ function getDefaultData() {
   };
 }
 
-const nodeData = ref(getDefaultData() as ConditionRawData);
-watch(
-  () => props.data,
-  val => {
-    if (val !== nodeData.value) {
-      nodeData.value = Object.assign(getDefaultData(), cloneDeep(val));
-    }
-    // 确保else在最后
-    const elseItemIndex = nodeData.value.conditions?.findIndex(item => item.conditionType === 'DEFAULT');
-    const elseItem = nodeData.value.conditions?.[elseItemIndex];
-    if (elseItemIndex > -1 && elseItemIndex !== nodeData.value.conditions.length - 1) {
-      nodeData.value.conditions.splice(elseItemIndex, 1);
-      nodeData.value.conditions.push(elseItem);
-    }
+export default {
+  components: {
+    Delete,
+    Edit,
+    Top,
+    Bottom,
+    ConditionFilterModal,
   },
-  { immediate: true }
-);
-
-function validate() {
-  if (!nodeData.value.name) {
-    ElMessage.error('节点名称不能为空');
-    return false;
-  }
-  return true;
-}
-
-function edit(index: number) {
-  conditionFilterModalRef.value.open({
-    data: nodeData.value,
-    index: index,
-    afterEdit: (val: ConditionItem) => {
-      if (val) {
-        if (!val.outgoing) {
-          val.outgoing = props.data.outgoings[0];
-        }
-        nodeData.value.conditions.splice(index, 1, val);
-      }
+  props: {
+    data: {
+      type: Object,
+      required: true,
     },
-  });
-}
-
-function sortUp(index: number) {
-  const current = nodeData.value.conditions[index];
-  if (index === 0) {
-    return;
-  }
-  nodeData.value.conditions.splice(index, 1);
-  nodeData.value.conditions.splice(index - 1, 0, current);
-}
-
-function sortDown(index: number) {
-  if (index === nodeData.value.conditions.length - 1) {
-    return;
-  }
-  const current = nodeData.value.conditions[index];
-  nodeData.value.conditions.splice(index, 1);
-  nodeData.value.conditions.splice(index + 1, 0, current);
-}
-
-function remove(index: number) {
-  nodeData.value.conditions.splice(index, 1);
-}
-
-function addCondition() {
-  conditionFilterModalRef.value.open({
-    data: nodeData.value,
-    afterEdit: (val: ConditionItem) => {
-      if (val) {
-        if (!val.outgoing) {
-          val.outgoing = props.data.outgoings[0];
+  },
+  emits: ['update', 'cancel'],
+  data() {
+    return {
+      nodeData: getDefaultData(),
+    };
+  },
+  watch: {
+    data: {
+      handler(val) {
+        if (val !== this.nodeData) {
+          this.nodeData = Object.assign(getDefaultData(), cloneDeep(val));
         }
-        const conditionSize = nodeData.value.conditions.length;
-        nodeData.value.conditions.splice(conditionSize - 1, 0, val);
-      }
+        var elseItemIndex = this.nodeData.conditions ? this.nodeData.conditions.findIndex(function (item) { return item.conditionType === 'DEFAULT'; }) : -1;
+        var elseItem = this.nodeData.conditions ? this.nodeData.conditions[elseItemIndex] : null;
+        if (elseItemIndex > -1 && elseItemIndex !== this.nodeData.conditions.length - 1) {
+          this.nodeData.conditions.splice(elseItemIndex, 1);
+          this.nodeData.conditions.push(elseItem);
+        }
+      },
+      immediate: true,
     },
-  });
-}
-
-function onSubmit() {
-  if (!validate()) {
-    return;
-  }
-  emit('update', cloneDeep(nodeData.value));
-}
-function onCancel() {
-  emit('cancel');
-}
+  },
+  methods: {
+    validate() {
+      if (!this.nodeData.name) {
+        ElMessage.error('节点名称不能为空');
+        return false;
+      }
+      return true;
+    },
+    edit(index) {
+      var self = this;
+      this.$refs.conditionFilterModalRef.open({
+        data: self.nodeData,
+        index: index,
+        afterEdit: function (val) {
+          if (val) {
+            if (!val.outgoing) {
+              val.outgoing = self.data.outgoings[0];
+            }
+            self.nodeData.conditions.splice(index, 1, val);
+          }
+        },
+      });
+    },
+    sortUp(index) {
+      var current = this.nodeData.conditions[index];
+      if (index === 0) {
+        return;
+      }
+      this.nodeData.conditions.splice(index, 1);
+      this.nodeData.conditions.splice(index - 1, 0, current);
+    },
+    sortDown(index) {
+      if (index === this.nodeData.conditions.length - 1) {
+        return;
+      }
+      var current = this.nodeData.conditions[index];
+      this.nodeData.conditions.splice(index, 1);
+      this.nodeData.conditions.splice(index + 1, 0, current);
+    },
+    remove(index) {
+      this.nodeData.conditions.splice(index, 1);
+    },
+    addCondition() {
+      var self = this;
+      this.$refs.conditionFilterModalRef.open({
+        data: self.nodeData,
+        afterEdit: function (val) {
+          if (val) {
+            if (!val.outgoing) {
+              val.outgoing = self.data.outgoings[0];
+            }
+            var conditionSize = self.nodeData.conditions.length;
+            self.nodeData.conditions.splice(conditionSize - 1, 0, val);
+          }
+        },
+      });
+    },
+    onSubmit() {
+      if (!this.validate()) {
+        return;
+      }
+      this.$emit('update', cloneDeep(this.nodeData));
+    },
+    onCancel() {
+      this.$emit('cancel');
+    },
+  },
+};
 </script>
 
 <template>
@@ -160,44 +165,40 @@ function onCancel() {
   </div>
 </template>
 
-<style lang="less" scoped>
-.node-condition-form {
-  .condition-list {
-    width: 100%;
-    .condition-item {
-      padding: 5px 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
-    .condition-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      .condition-title {
-        font-size: 14px;
-      }
-      .condition-action {
-        .el-button {
-          padding: 0;
-          width: 30px;
-          height: 30px;
-          line-height: 30px;
-          border-radius: 50%;
-          font-size: 14px;
-        }
-        .el-button + .el-button {
-          margin-left: 4px;
-        }
-      }
-    }
-    .condition-body {
-      border-top: 1px solid #ccc;
-      margin-top: 4px;
-    }
-    .condition-add {
-      text-align: center;
-    }
-  }
+<style scoped>
+.node-condition-form .condition-list {
+  width: 100%;
+}
+.node-condition-form .condition-list .condition-item {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.node-condition-form .condition-list .condition-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.node-condition-form .condition-list .condition-head .condition-title {
+  font-size: 14px;
+}
+.node-condition-form .condition-list .condition-head .condition-action .el-button {
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 50%;
+  font-size: 14px;
+}
+.node-condition-form .condition-list .condition-head .condition-action .el-button + .el-button {
+  margin-left: 4px;
+}
+.node-condition-form .condition-list .condition-body {
+  border-top: 1px solid #ccc;
+  margin-top: 4px;
+}
+.node-condition-form .condition-list .condition-add {
+  text-align: center;
 }
 </style>

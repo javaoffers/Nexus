@@ -1,31 +1,33 @@
-<script setup lang="ts">
-import { ref } from 'vue';
+<script>
 import { useClipboard } from '@vueuse/core';
 import { ElMessage } from 'element-plus';
 
-const { copy, isSupported } = useClipboard({ legacy: true });
-const tokenSuccessVisible = ref(false);
-const tokenValue = ref('');
-
-function copyToken() {
-  if (!isSupported) {
-    ElMessage({ type: 'error', message: '当前浏览器不知道复制API' });
-    return;
-  }
-  copy(tokenValue.value);
-  ElMessage({ type: 'success', message: '复制成功' });
-}
-
-function open(value: string) {
-  tokenSuccessVisible.value = true;
-  tokenValue.value = value;
-}
-
-function close() {
-  tokenSuccessVisible.value = false;
-}
-
-defineExpose({ open });
+export default {
+  data() {
+    return {
+      tokenSuccessVisible: false,
+      tokenValue: '',
+    };
+  },
+  methods: {
+    copyToken() {
+      const { copy, isSupported } = useClipboard({ legacy: true });
+      if (!isSupported) {
+        ElMessage({ type: 'error', message: '当前浏览器不知道复制API' });
+        return;
+      }
+      copy(this.tokenValue);
+      ElMessage({ type: 'success', message: '复制成功' });
+    },
+    open(value) {
+      this.tokenSuccessVisible = true;
+      this.tokenValue = value;
+    },
+    close() {
+      this.tokenSuccessVisible = false;
+    },
+  },
+};
 </script>
 <template>
   <el-dialog v-model="tokenSuccessVisible" title="令牌生成提示" :close-on-click-modal="false" width="400">

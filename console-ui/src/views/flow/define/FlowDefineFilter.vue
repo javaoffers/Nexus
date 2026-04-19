@@ -1,19 +1,23 @@
-<script lang="ts" setup>
-import { reactive } from 'vue';
-const emit = defineEmits(['search']);
-
-const formValue = reactive({
-  flowName: '',
-  flowType: '',
-});
-
-const onSubmit = () => {
-  emit('search', formValue);
-};
-
-const onReset = () => {
-  formValue.flowName = '';
-  formValue.flowType = '';
+<script>
+export default {
+  emits: ['search'],
+  data() {
+    return {
+      formValue: {
+        flowName: '',
+        flowType: '',
+      },
+    };
+  },
+  methods: {
+    onSubmit() {
+      this.$emit('search', this.formValue);
+    },
+    onReset() {
+      this.formValue.flowName = '';
+      this.formValue.flowType = '';
+    },
+  },
 };
 </script>
 
