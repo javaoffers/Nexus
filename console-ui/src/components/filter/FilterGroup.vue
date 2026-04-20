@@ -11,7 +11,7 @@ export default {
   emits: ['change'],
   methods: {
     onChange(item, index) {
-      let result = [...this.value];
+      let result = [...(this.value || [])];
       result[index] = item;
       result = result.filter((item, index) => index === 0 || item.length > 0);
       if (result.length === 0) {
@@ -20,7 +20,7 @@ export default {
       this.$emit('change', result);
     },
     onAdd() {
-      const result = [...this.value];
+      const result = [...(this.value || [])];
       result.push([{}]);
       this.$emit('change', result);
     },
@@ -31,7 +31,7 @@ export default {
 <template>
   <div class="filter-condition">
     <FilterList
-      v-for="(list, index) in value"
+      v-for="(list, index) in (value || [])"
       :key="index"
       :list="list"
       :sourceList="sourceList"

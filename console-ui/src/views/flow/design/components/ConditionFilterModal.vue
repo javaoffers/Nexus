@@ -34,6 +34,9 @@ export default {
       this.openParams = params;
       if (typeof params.index === 'number') {
         this.condition = cloneDeep(params.data.conditions[params.index]);
+        if (!Array.isArray(this.condition.conditionExpressions)) {
+          this.condition.conditionExpressions = [];
+        }
       } else {
         this.condition = this.getDefault();
       }

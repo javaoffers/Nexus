@@ -1,0 +1,142 @@
+<script>
+import { Handle, Position } from '@vue-flow/core';
+
+export default {
+  components: { Handle },
+  props: {
+    data: { type: Object, required: true },
+  },
+  setup() {
+    return { Position };
+  },
+  computed: {
+    nodeName() {
+      return this.data.dataNode?.raw?.name || '判断节点';
+    },
+  },
+  methods: {
+    onEdit() {
+      if (this.data.onEdit) this.data.onEdit(this.data.dataNode);
+    },
+    onDelete() {
+      if (this.data.onDelete) this.data.onDelete(this.data.dataNode);
+    },
+    onAdd() {
+      if (this.data.onAdd) this.data.onAdd(this.data.dataNode);
+    },
+  },
+};
+</script>
+
+<template>
+  <div class="condition-node">
+    <Handle type="target" :position="Position.Top" />
+    <div class="node-card">
+      <div class="node-header">
+        <span class="type-dot"></span>
+        <span class="type-name">判断节点</span>
+      </div>
+      <div class="node-body">
+        <span class="node-name">{{ nodeName }}</span>
+      </div>
+      <div class="hover-actions">
+        <div class="action-btn edit-btn" @click.stop="onEdit" title="Edit">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M10.5 1.5l2 2L4.5 11.5H2.5v-2l8-8z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="action-btn delete-btn" @click.stop="onDelete" title="Delete">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 3.5l1 8.5h6l1-8.5M2 3.5h10M5.5 1.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <Handle type="source" :position="Position.Bottom" />
+  </div>
+</template>
+
+<style scoped>
+.condition-node {
+  position: relative;
+}
+.node-card {
+  width: 220px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e8e8e8;
+  border-top: 4px solid #faad14;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s, border-color 0.2s;
+  overflow: hidden;
+  position: relative;
+}
+.condition-node:hover .node-card {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  border-color: #faad14;
+}
+.node-header {
+  padding: 8px 12px 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.type-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #faad14;
+  flex-shrink: 0;
+}
+.type-name {
+  font-size: 11px;
+  color: #86909c;
+  font-weight: 500;
+}
+.node-body {
+  padding: 4px 12px 10px;
+}
+.node-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1d2129;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hover-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: none;
+  gap: 4px;
+}
+.condition-node:hover .hover-actions {
+  display: flex;
+}
+.action-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.edit-btn {
+  color: #5b5fe6;
+  background: rgba(91, 95, 230, 0.08);
+}
+.edit-btn:hover {
+  background: rgba(91, 95, 230, 0.18);
+}
+.delete-btn {
+  color: #f53f3f;
+  background: rgba(245, 63, 63, 0.08);
+}
+.delete-btn:hover {
+  background: rgba(245, 63, 63, 0.18);
+}
+</style>
