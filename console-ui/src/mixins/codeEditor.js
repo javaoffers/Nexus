@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor';
-import { nextTick } from 'vue';
+import { nextTick, markRaw } from 'vue';
 
 /**
  * Mixin that wraps a Monaco code editor instance.
@@ -31,7 +31,7 @@ export const codeEditorMixin = {
 
       const language = this.language || 'javascript';
 
-      this._monacoEditor = monaco.editor.create(el, {
+      this._monacoEditor = markRaw(monaco.editor.create(el, {
         model: monaco.editor.createModel('', language),
         minimap: { enabled: false },
         roundedSelection: true,
@@ -47,7 +47,7 @@ export const codeEditorMixin = {
         autoIndent: 'advanced',
         automaticLayout: true,
         ...editorOption,
-      });
+      }));
 
       return this._monacoEditor;
     },

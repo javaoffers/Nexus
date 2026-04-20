@@ -2,6 +2,9 @@ package engine
 
 // ExecutionContext holds the state during flow execution.
 type ExecutionContext struct {
+	/**
+	 * instance id.
+	 */
 	InstanceID string
 	ElementMap map[string]*FlowElement
 	Variables  *VariableManager

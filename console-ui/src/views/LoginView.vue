@@ -12,7 +12,10 @@ export default {
   <div class="entry-view">
     <div class="entry-view-left">
       <div class="brand-content">
-        <img src="@/assets/logo.png" alt="Nexus Logo" class="brand-logo" />
+        <svg class="brand-logo" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="6" fill="rgba(255,255,255,0.15)"/>
+          <path d="M8 24V8h3.5l9 12V8H24v16h-3.5l-9-12v12H8z" fill="#fff"/>
+        </svg>
         <h1 class="brand-title">NEXUS</h1>
         <p class="brand-subtitle">零码 + 低码 + AI 的微服务编排与系统集成平台</p>
       </div>

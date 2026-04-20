@@ -40,13 +40,7 @@ export default {
           icon: IconCode,
         },
       ],
-      flowDataNodes: [
-        {
-          name: 'MySql节点',
-          type: ElementType.MYSQL,
-          icon: IconMysql,
-        },
-      ],
+      flowDataNodes: [],
       flowOtherNodes: [],
     };
   },
@@ -74,24 +68,11 @@ export default {
 
 <template>
   <el-dialog v-model="visible" title="" class="design-add-node-modal" :width="500" :show-close="false" align-center>
-    <el-anchor :offset="70" :container="$refs.containerRef" direction="horizontal" @click="handleClick">
-      <el-anchor-link href="#baseNodes" title="基础节点" />
-      <el-anchor-link href="#dataNodes" title="数据节点" />
-    </el-anchor>
     <el-row>
       <el-col>
-        <div ref="containerRef" style="height: 300px; overflow-y: auto">
-          <div id="baseNodes" class="node-types">
-            <div class="node-type-name">基础节点</div>
+        <div style="height: 300px; overflow-y: auto; padding: 16px;">
+          <div class="node-types">
             <div class="node-type" v-for="item in flowNodes" :key="item.type" @click="addNode(item)">
-              <span class="node-icon"><el-icon :size="25"><component :is="item.icon"></component></el-icon></span>
-              <span class="node-text">{{ item.name }}</span>
-            </div>
-          </div>
-
-          <div id="dataNodes" class="node-types">
-            <div class="node-type-name">数据节点</div>
-            <div class="node-type" v-for="item in flowDataNodes" :key="item.type" @click="addNode(item)">
               <span class="node-icon"><el-icon :size="25"><component :is="item.icon"></component></el-icon></span>
               <span class="node-text">{{ item.name }}</span>
             </div>

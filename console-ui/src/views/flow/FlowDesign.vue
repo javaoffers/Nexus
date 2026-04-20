@@ -1,8 +1,20 @@
 <script>
+import { VueFlow } from '@vue-flow/core';
+import { Background } from '@vue-flow/background';
+import '@vue-flow/core/dist/style.css';
+import '@vue-flow/core/dist/theme-default.css';
+import { markRaw } from 'vue';
+import StartNode from './design/components/flow-nodes/StartNode.vue';
+import EndNode from './design/components/flow-nodes/EndNode.vue';
+import NormalNode from './design/components/flow-nodes/NormalNode.vue';
+import ConditionNode from './design/components/flow-nodes/ConditionNode.vue';
+import BranchLabelNode from './design/components/flow-nodes/BranchLabelNode.vue';
+import { computeFlowLayout } from './design/layout/flowLayoutAdapter';
+import { generateDataTree, rebuildCondition } from './design/data/generate';
+import { addNode, deleteNode } from './design/operate';
+import { ElementType } from './design/types';
 import {
   ZoomTool,
-  FlowRenderer,
-  ElementType,
   AddNodeModal,
   EditNodeDrawer,
   LeftMenu,
@@ -10,11 +22,21 @@ import {
 } from './design';
 import { flowDefineService } from '@/service';
 import { ElMessage } from 'element-plus';
-import { addNode, deleteNode } from './design/operate';
-import { rebuildCondition } from './design/data/generate';
+
+// Invisible merge-point component
+const MergePoint = markRaw({
+  template: '<div style="width:2px;height:2px;"></div>',
+});
 
 export default {
   components: {
+    VueFlow,
+    Background,
+    StartNode,
+    EndNode,
+    NormalNode,
+    ConditionNode,
+    BranchLabelNode,
     ZoomTool,
     AddNodeModal,
     EditNodeDrawer,
@@ -25,7 +47,17 @@ export default {
     return {
       flowName: '',
       scale: 1,
-      flowRenderer: null,
+      nodes: [],
+      edges: [],
+      nodeTypes: {
+        startNode: markRaw(StartNode),
+        endNode: markRaw(EndNode),
+        normalNode: markRaw(NormalNode),
+        conditionNode: markRaw(ConditionNode),
+        branchLabel: markRaw(BranchLabelNode),
+        mergePoint: MergePoint,
+      },
+      dataRoot: null,
     };
   },
   computed: {
@@ -51,66 +83,21 @@ export default {
         ElMessage({ type: 'error', message: '流程定义内容解析失败' });
         return;
       }
+      this.refreshFlow();
+    },
+    refreshFlow() {
+      this.dataRoot = generateDataTree(this.flowContext);
+      const layout = computeFlowLayout(this.dataRoot);
+      // Inject callbacks into each node's data
       var self = this;
-      this.flowRenderer = new FlowRenderer(this.$refs.flowCanvas, {
-        flowContext: this.flowContext,
-        onZoom: function (event) {
-          self.scale = event.transform.k;
-        },
-        onAdd: function (d) {
-          console.log(d);
-          self.$refs.addNodeModal.open({
-            afterSelect: function (info) {
-              addNode({ info: info, prev: d.data });
-              self.flowRenderer.refresh();
-            },
-          });
-        },
-        onEdit: function (d) {
-          console.log(d);
-          if (d.data.type === ElementType.BRANCH) {
-            var data = d.data;
-            var parent = data.getParent();
-            self.$refs.conditionFilterModalRef.open({
-              data: parent.raw,
-              index: data.branchIndex,
-              afterEdit: function (val) {
-                if (val) {
-                  self.$store.commit('flow/UPDATE_FLOW_CONTENT', function (state) {
-                    var parentRaw = state.flowContent.find(function (item) { return item.key === parent.key; });
-                    var branch = parentRaw && parentRaw.conditions ? parentRaw.conditions[data.branchIndex] : null;
-                    if (branch) {
-                      branch.conditionName = val.conditionName;
-                      branch.conditionExpressions = val.conditionExpressions;
-                    }
-                  });
-                  self.flowRenderer.refresh();
-                }
-              },
-            });
-          } else if (d.data.type === ElementType.CONDITION) {
-            self.$refs.editNodeModal.open({
-              data: d.data.raw,
-              afterEdit: function (oldData) {
-                rebuildCondition(self.flowContext, d.data, oldData);
-                self.flowRenderer.refresh();
-              },
-            });
-          } else {
-            self.$refs.editNodeModal.open({
-              data: d.data.raw,
-              afterEdit: function () {
-                self.flowRenderer.refresh();
-              },
-            });
-          }
-        },
-        onDelete: function (d) {
-          console.log(d);
-          deleteNode({ current: d.data });
-          self.flowRenderer.refresh();
-        },
+      layout.nodes.forEach(function (node) {
+        node.data.onAdd = function (dataNode) { self.onAdd(dataNode); };
+        node.data.onEdit = function (dataNode) { self.onEdit(dataNode); };
+        node.data.onDelete = function (dataNode) { self.onDelete(dataNode); };
+        node.data.onEditBranch = function (dataNode) { self.onEditBranch(dataNode); };
       });
+      this.nodes = layout.nodes;
+      this.edges = layout.edges;
     },
     async queryFlowDefineInfo() {
       var self = this;
@@ -123,6 +110,71 @@ export default {
         });
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
+      }
+    },
+    onAdd(dataNode) {
+      var self = this;
+      this.$refs.addNodeModal.open({
+        afterSelect: function (info) {
+          addNode({ info: info, prev: dataNode });
+          self.refreshFlow();
+        },
+      });
+    },
+    onEdit(dataNode) {
+      var self = this;
+      if (dataNode.type === ElementType.CONDITION) {
+        this.$refs.editNodeModal.open({
+          data: dataNode.raw,
+          afterEdit: function (oldData) {
+            rebuildCondition(self.flowContext, dataNode, oldData);
+            self.refreshFlow();
+          },
+        });
+      } else {
+        this.$refs.editNodeModal.open({
+          data: dataNode.raw,
+          afterEdit: function () {
+            self.refreshFlow();
+          },
+        });
+      }
+    },
+    onEditBranch(dataNode) {
+      var self = this;
+      var parent = dataNode.getParent();
+      this.$refs.conditionFilterModalRef.open({
+        data: parent.raw,
+        index: dataNode.branchIndex,
+        afterEdit: function (val) {
+          if (val) {
+            self.$store.commit('flow/UPDATE_FLOW_CONTENT', function (state) {
+              var parentRaw = state.flowContent.find(function (item) { return item.key === parent.key; });
+              var branch = parentRaw && parentRaw.conditions ? parentRaw.conditions[dataNode.branchIndex] : null;
+              if (branch) {
+                branch.conditionName = val.conditionName;
+                branch.conditionExpressions = val.conditionExpressions;
+              }
+            });
+            self.refreshFlow();
+          }
+        },
+      });
+    },
+    onDelete(dataNode) {
+      deleteNode({ current: dataNode });
+      this.refreshFlow();
+    },
+    onViewportChange(event) {
+      if (event && event.zoom !== undefined) {
+        this.scale = event.zoom;
+      }
+    },
+    onZoomToolChange(value) {
+      const vf = this.$refs.vueFlowRef;
+      if (vf && vf.zoomTo) {
+        vf.zoomTo(value);
+        this.scale = value;
       }
     },
     flowSubmit() {
@@ -142,9 +194,6 @@ export default {
         ElMessage({ type: 'error', message: res.errorMsg });
       }
     },
-    onZoomToolChange(value) {
-      this.scale = this.flowRenderer.scaleFromTop(value);
-    },
   },
 };
 </script>
@@ -158,7 +207,23 @@ export default {
       </el-breadcrumb>
       <el-button class="flow-submit" type="primary" @click="flowSubmit">保存</el-button>
     </div>
-    <div class="flow-canvas" ref="flowCanvas">
+    <div class="flow-canvas">
+      <VueFlow
+        ref="vueFlowRef"
+        :nodes="nodes"
+        :edges="edges"
+        :node-types="nodeTypes"
+        :default-viewport="{ x: 0, y: 0, zoom: 1 }"
+        :min-zoom="0.5"
+        :max-zoom="2"
+        :nodes-draggable="false"
+        :nodes-connectable="false"
+        :edges-updatable="false"
+        :fit-view-on-init="true"
+        @viewport-change="onViewportChange"
+      >
+        <Background :gap="20" :size="1" pattern-color="#e0e0e0" />
+      </VueFlow>
       <ZoomTool :scale="scale" @change="onZoomToolChange" />
     </div>
     <LeftMenu />
@@ -180,6 +245,7 @@ export default {
   height: 50px;
   align-items: center;
   display: flex;
+  z-index: 10;
 }
 .flow-header .el-breadcrumb {
   margin-left: 10px;
@@ -193,35 +259,31 @@ export default {
 
 .page-flow-design .flow-canvas {
   width: 100%;
-  height: calc(100% - 40px);
-  overflow: hidden;
+  height: calc(100% - 50px);
   position: absolute;
-  font-size: 14px;
-}
-.page-flow-design .flow-canvas .flow-btn {
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.page-flow-design .flow-canvas .flow-btn:hover {
-  opacity: 0.85;
-}
-.page-flow-design .flow-canvas .flow-btn-edit,
-.page-flow-design .flow-canvas .flow-btn-delete {
-  display: none;
-}
-.page-flow-design .flow-canvas .flow-node:hover .flow-btn-edit,
-.page-flow-design .flow-canvas .flow-node:hover .flow-btn-delete {
-  display: block;
+  top: 50px;
+  left: 0;
 }
 
-.errorMsg {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #d9d9d9;
-  border-radius: 5px;
-  padding: 5px;
-  font-size: 12px;
-  z-index: 100;
-  display: none;
+/* Vue Flow container must have explicit dimensions */
+.page-flow-design .flow-canvas .vue-flow {
+  width: 100%;
+  height: 100%;
+}
+
+/* Remove default Vue Flow node styling for our custom nodes */
+.page-flow-design .vue-flow__node {
+  cursor: default;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Edge styling */
+.page-flow-design .vue-flow__edge-path {
+  stroke: #b1b5bb;
+  stroke-width: 1.5;
 }
 </style>
