@@ -1,0 +1,27 @@
+server:
+  port: 9127
+
+database:
+  driver: sqlite
+  sqlite:
+    path: ./data/nexus.db
+  mysql:
+    host: 127.0.0.1
+    port: 3306
+    database: nexus
+    username: root
+    password: "123456"
+
+auth:
+  jwt-secret: "www.javaoffers.com####www.nexus.plus"
+  jwt-expire: 7200
+
+cache:
+  type: memory
+  redis:
+    addr: "127.0.0.1:6379"
+    password: ""
+
+nexus:
+  api-key: ""
+  open-server-addr: "https://open.nexus.plus"
