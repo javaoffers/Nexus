@@ -10,11 +10,11 @@ RUN npm run build
 FROM golang:1.21-alpine AS go-builder
 RUN apk add --no-cache gcc musl-dev
 WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
+COPY server/go.mod server/go.sum ./server/
+RUN cd server && go mod download
+COPY server/ ./server/
 COPY --from=frontend-builder /app/console-ui/dist ./console-ui/dist
-RUN CGO_ENABLED=1 GOOS=linux go build -o nexus-server .
+RUN cd server && CGO_ENABLED=1 GOOS=linux go build -o /app/nexus-server .
 
 # Stage 3: Runtime
 FROM alpine:3.19
@@ -23,7 +23,7 @@ ENV TZ=Asia/Shanghai
 
 WORKDIR /home/nexus
 COPY --from=go-builder /app/nexus-server .
-COPY --from=go-builder /app/config/config.yaml ./config/
+COPY --from=go-builder /app/server/config/config.yaml ./config/
 
 RUN mkdir -p data
 

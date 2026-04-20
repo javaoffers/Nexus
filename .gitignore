@@ -1,5 +1,5 @@
 # Go
-nexus-server
+server/nexus-server
 *.exe
 *.test
 *.out
