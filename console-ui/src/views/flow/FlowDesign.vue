@@ -10,7 +10,7 @@ import NormalNode from './design/components/flow-nodes/NormalNode.vue';
 import ConditionNode from './design/components/flow-nodes/ConditionNode.vue';
 import BranchLabelNode from './design/components/flow-nodes/BranchLabelNode.vue';
 import { computeFlowLayout } from './design/layout/flowLayoutAdapter';
-import { generateDataTree, rebuildCondition } from './design/data/generate';
+import { generateDataTree, rebuildCondition } from './design/data/generate';//cmj
 import { addNode, deleteNode } from './design/operate';
 import { ElementType } from './design/types';
 import {
