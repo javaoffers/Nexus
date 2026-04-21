@@ -15,12 +15,12 @@ export default {
 
 <template>
   <el-table v-loading="loading" :data="dataRows" size="large" header-cell-class-name="table-header">
-    <el-table-column prop="tokenDesc" label="令牌描述" />
-    <el-table-column prop="createdAt" label="创建时间" width="180" />
-    <el-table-column label="操作" width="180">
+    <el-table-column prop="tokenDesc" :label="$t('system.tokenDesc')" />
+    <el-table-column prop="createdAt" :label="$t('common.createTime')" width="180" />
+    <el-table-column :label="$t('common.operation')" width="180">
       <template #default="scope">
-        <el-button link type="primary" size="small" @click.prevent="editRow(scope.row)"> 编辑 </el-button>
-        <el-button link type="primary" size="small" @click.prevent="deleteRow(scope.row, scope.$index)"> 删除 </el-button>
+        <el-button link type="primary" size="small" @click.prevent="editRow(scope.row)"> {{ $t('common.edit') }} </el-button>
+        <el-button link type="primary" size="small" @click.prevent="deleteRow(scope.row, scope.$index)"> {{ $t('common.delete') }} </el-button>
       </template>
     </el-table-column>
   </el-table>

@@ -55,10 +55,10 @@ export default {
       this.$refs.formRef.open(row);
     },
     openDelete(row) {
-      ElMessageBox.confirm(`确定删除'${row.apiName}'吗?`, '操作确认', {
+      ElMessageBox.confirm(this.$t('suite.confirmDeleteApi', { name: row.apiName }), this.$t('common.operationConfirm'), {
         type: 'warning',
-        cancelButtonText: '取消',
-        confirmButtonText: '确定',
+        cancelButtonText: this.$t('common.cancel'),
+        confirmButtonText: this.$t('common.confirm'),
       }).then(() => {
           this.deleteApiItem(row);
         })
@@ -68,7 +68,7 @@ export default {
       row.suiteId = Number(this.$route.params.suiteId);
       const res = await apiService.listAdd(row);
       if (res.success) {
-        ElMessage({ type: 'success', message: '新建成功' });
+        ElMessage({ type: 'success', message: this.$t('common.createSuccess') });
         await this.queryPage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -77,7 +77,7 @@ export default {
     async editApiItem(row) {
       const res = await apiService.listUpdate(row);
       if (res.success) {
-        ElMessage({ type: 'success', message: '编辑成功' });
+        ElMessage({ type: 'success', message: this.$t('common.editSuccess') });
         await this.queryPage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -86,7 +86,7 @@ export default {
     async deleteApiItem(row) {
       const res = await apiService.listDelete(row.id);
       if (res.success) {
-        ElMessage({ type: 'success', message: '删除成功' });
+        ElMessage({ type: 'success', message: this.$t('common.deleteSuccess') });
         await this.queryPage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -100,7 +100,7 @@ export default {
     <el-container class="table-container">
       <el-header class="page-header">
         <ListFilter @search="onSearch" />
-        <el-button :icon="Plus" type="primary" @click="openAdd">新建</el-button>
+        <el-button :icon="Plus" type="primary" @click="openAdd">{{ $t('common.create') }}</el-button>
       </el-header>
       <el-main class="page-body">
         <ListTable

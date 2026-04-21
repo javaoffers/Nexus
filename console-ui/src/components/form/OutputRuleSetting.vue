@@ -3,6 +3,7 @@ import { valueType } from '@/typings';
 import { Delete } from '@element-plus/icons-vue';
 import { isDataTypeEqual } from '@/utils/dataType';
 import DataTypeDisplay from '@/components/common/DataTypeDisplay.vue';
+import i18n from '@/i18n';
 
 export default {
   components: {
@@ -26,9 +27,9 @@ export default {
     return {
       rules: [...(this.modelValue || [])],
       columns: [
-        { name: '参数描述', prop: 'source' },
-        { name: '数据类型', prop: 'sourceDataType' },
-        { name: '赋值', prop: 'target' },
+        { get name() { return i18n.global.t('common.paramDesc'); }, prop: 'source' },
+        { get name() { return i18n.global.t('common.dataType'); }, prop: 'sourceDataType' },
+        { get name() { return i18n.global.t('common.assign'); }, prop: 'target' },
       ],
     };
   },
@@ -143,7 +144,7 @@ export default {
       </div>
     </div>
     <div class="rule-setting-foot">
-      <el-button size="small" type="info" @click="addRule">{{ addText || '新增入参' }}</el-button>
+      <el-button size="small" type="info" @click="addRule">{{ addText || $t('common.addInput') }}</el-button>
     </div>
   </div>
 </template>

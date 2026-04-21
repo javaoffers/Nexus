@@ -16,7 +16,7 @@ export default {
   <el-breadcrumb separator="/">
     <template v-for="item in matched" :key="item.path">
       <el-breadcrumb-item :to="{ path: item.path }" v-if="item.name !== 'home'">
-        {{ item.meta.name }}
+        {{ $t(item.meta.name) }}
       </el-breadcrumb-item>
     </template>
   </el-breadcrumb>

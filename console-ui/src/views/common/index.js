@@ -7,18 +7,18 @@ export const CommonRoutes = [
     path: 'about',
     name: 'about',
     component: AboutView,
-    meta: { name: '关于' },
+    meta: { name: 'route.about' },
   },
   {
     path: 'setting',
     name: 'setting',
     component: SettingView,
-    meta: { name: '设置' },
+    meta: { name: 'route.setting' },
   },
   {
     path: 'user',
     name: 'user',
     component: UserView,
-    meta: { name: '用户' },
+    meta: { name: 'route.user' },
   },
 ];

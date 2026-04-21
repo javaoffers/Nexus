@@ -37,10 +37,10 @@ export default {
 };
 </script>
 <template>
-  <el-select :modelValue="modelValue" placeholder="请选择接口" style="width: 100%" filterable @change="onChange">
+  <el-select :modelValue="modelValue" :placeholder="$t('design.selectApi')" style="width: 100%" filterable @change="onChange">
     <template v-slot:empty>
       <div class="select-option-empty" v-loading="apiLoading">
-        <span v-if="!apiLoading">无数据</span>
+        <span v-if="!apiLoading">{{ $t('design.noData') }}</span>
       </div>
     </template>
     <el-option v-for="item in apiList" :key="item.apiCode" :label="item.apiName" :value="item.apiCode" />

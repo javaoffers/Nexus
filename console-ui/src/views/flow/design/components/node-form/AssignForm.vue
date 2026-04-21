@@ -10,15 +10,15 @@ import VariableSelect from '@/components/common/VariableSelect.vue';
 import DataTypeDisplay from '@/components/common/DataTypeDisplay.vue';
 
 var assignTypeList = [
-  { value: valueType.CONSTANT, label: '常量' },
-  { value: valueType.VARIABLE, label: '变量' },
+  { value: valueType.CONSTANT, labelKey: 'common.constant' },
+  { value: valueType.VARIABLE, labelKey: 'common.variable' },
 ];
 
 var columns = [
-  { name: '变量名称', prop: 'source' },
-  { name: '数据类型', prop: 'sourceDataType' },
-  { name: '赋值方式', prop: 'targetType' },
-  { name: '赋值', prop: 'target' },
+  { nameKey: 'design.varName2', prop: 'source' },
+  { nameKey: 'common.dataType', prop: 'sourceDataType' },
+  { nameKey: 'common.assignMethod', prop: 'targetType' },
+  { nameKey: 'common.assign', prop: 'target' },
 ];
 
 function getDefaultData() {
@@ -79,7 +79,7 @@ export default {
   methods: {
     validate() {
       if (!this.nodeData.name) {
-        ElMessage.error('节点名称不能为空');
+        ElMessage.error(this.$t('design.nodeNameRequired'));
         return false;
       }
       return true;
@@ -127,7 +127,7 @@ export default {
       var source = this.nodeData.assignRules[rowIndex].source;
       var sourceVariable = getVariableDataType(source, this.sourceVariableList);
       if (!isDataTypeEqual(targetVariable.dataType, sourceVariable.dataType)) {
-        ElMessage.error('所选变量的数据类型与目标变量数据类型不匹配');
+        ElMessage.error(this.$t('common.typeMismatch'));
         this.nodeData.assignRules[rowIndex].source = '';
         return;
       }
@@ -156,21 +156,21 @@ export default {
 <template>
   <div class="node-method-form">
     <el-form label-position="top">
-      <el-form-item label="节点编码">
+      <el-form-item :label="$t('design.nodeCode')">
         <span>{{ nodeData.key }}</span>
       </el-form-item>
-      <el-form-item label="节点名称">
-        <el-input v-model="nodeData.name" maxlength="16" placeholder="请输入"></el-input>
+      <el-form-item :label="$t('design.nodeName')">
+        <el-input v-model="nodeData.name" maxlength="16" :placeholder="$t('common.pleaseInput')"></el-input>
       </el-form-item>
-      <el-form-item label="节点描述">
-        <el-input v-model="nodeData.desc" maxlength="60" placeholder="请输入" :rows="2" type="textarea"></el-input>
+      <el-form-item :label="$t('design.nodeDesc')">
+        <el-input v-model="nodeData.desc" maxlength="60" :placeholder="$t('common.pleaseInput')" :rows="2" type="textarea"></el-input>
       </el-form-item>
-      <el-form-item label="赋值规则">
+      <el-form-item :label="$t('design.assignRule')">
         <div class="rule-setting">
           <div class="rule-setting-head">
             <div class="rule-setting-tr">
               <template v-for="column in columns" :key="column.prop">
-                <div class="rule-setting-td">{{ column.name }}</div>
+                <div class="rule-setting-td">{{ $t(column.nameKey) }}</div>
               </template>
               <div class="rule-setting-td delete-td"></div>
             </div>
@@ -199,7 +199,7 @@ export default {
                 </div>
                 <div class="rule-setting-td" v-if="column.prop === 'targetType'">
                   <el-select v-model="rule.sourceType" size="small" @change="onAssignTypeChange(rowIndex)">
-                    <el-option v-for="item in assignTypeList" :key="item.value" :value="item.value" :label="item.label" />
+                    <el-option v-for="item in assignTypeList" :key="item.value" :value="item.value" :label="$t(item.labelKey)" />
                   </el-select>
                 </div>
                 <div class="rule-setting-td" v-if="column.prop === 'target'">
@@ -224,13 +224,13 @@ export default {
             </div>
           </div>
           <div class="rule-setting-foot">
-            <el-button size="small" type="info" @click="addAssignRule">新增赋值</el-button>
+            <el-button size="small" type="info" @click="addAssignRule">{{ $t('design.addAssign') }}</el-button>
           </div>
         </div>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
-        <el-button @click="onCancel">取消</el-button>
+        <el-button type="primary" @click="onSubmit">{{ $t('common.confirm') }}</el-button>
+        <el-button @click="onCancel">{{ $t('common.cancel') }}</el-button>
       </el-form-item>
     </el-form>
   </div>

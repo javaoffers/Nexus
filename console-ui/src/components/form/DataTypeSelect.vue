@@ -27,17 +27,17 @@ export default {
       const objectTypeList = this.dataTypeList.filter(item => item.dataTypeClassify === DataTypeEnum.Object);
       const basicNode = {
         value: 'Basic',
-        label: '基础类型',
+        label: this.$t('dataTypeGroup.basic'),
         children: basicTypeList.map(item => ({ value: item.type, label: item.displayName })),
       };
       const objectNode = {
         value: 'Object',
-        label: '对象类型',
+        label: this.$t('dataTypeGroup.object'),
         children: objectTypeList.map(item => ({ value: item.objectKey, label: item.displayName })),
       };
       const listNode = {
         value: 'List',
-        label: '列表类型',
+        label: this.$t('dataTypeGroup.list'),
         children: [basicNode, objectNode].map(node => {
           return {
             ...node,

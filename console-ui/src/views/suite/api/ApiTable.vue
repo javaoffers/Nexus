@@ -23,17 +23,17 @@ export default {
 </script>
 <template>
   <el-table v-loading="loading" :data="dataRows" size="large" header-cell-class-name="table-header">
-    <el-table-column prop="apiName" label="接口名称" width="150" />
-    <el-table-column prop="apiUrl" label="接口地址" width="270" show-overflow-tooltip />
-    <el-table-column prop="suiteName" label="套件" width="150" />
-    <el-table-column prop="apiRequestType" label="请求类型" width="90" />
-    <el-table-column prop="apiDesc" label="接口描述" min-width="50" show-overflow-tooltip />
-    <el-table-column prop="createdAt" label="创建时间" width="110" />
-    <el-table-column fixed="right" label="操作" width="150">
+    <el-table-column prop="apiName" :label="$t('suite.apiName')" width="150" />
+    <el-table-column prop="apiUrl" :label="$t('suite.apiUrl')" width="270" show-overflow-tooltip />
+    <el-table-column prop="suiteName" :label="$t('menu.suite')" width="150" />
+    <el-table-column prop="apiRequestType" :label="$t('suite.requestType')" width="90" />
+    <el-table-column prop="apiDesc" :label="$t('suite.apiDesc')" min-width="50" show-overflow-tooltip />
+    <el-table-column prop="createdAt" :label="$t('common.createTime')" width="110" />
+    <el-table-column fixed="right" :label="$t('common.operation')" width="150">
       <template #default="scope">
-        <el-button link type="primary" size="small" @click.prevent="goApiDebugPage(scope.row.id)"> 调试 </el-button>
-        <el-button link type="primary" size="small" @click.prevent="editRow(scope.row)"> 编辑 </el-button>
-        <el-button link type="primary" size="small" @click.prevent="deleteRow(scope.row, scope.$index)"> 删除 </el-button>
+        <el-button link type="primary" size="small" @click.prevent="goApiDebugPage(scope.row.id)"> {{ $t('flow.debug') }} </el-button>
+        <el-button link type="primary" size="small" @click.prevent="editRow(scope.row)"> {{ $t('common.edit') }} </el-button>
+        <el-button link type="primary" size="small" @click.prevent="deleteRow(scope.row, scope.$index)"> {{ $t('common.delete') }} </el-button>
       </template>
     </el-table-column>
   </el-table>

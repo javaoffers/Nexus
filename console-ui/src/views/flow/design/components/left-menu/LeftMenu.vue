@@ -10,14 +10,18 @@ export default {
   data() {
     return {
       activeItem: '',
-      menuItems: [
+    };
+  },
+  computed: {
+    menuItems() {
+      return [
         {
           key: 'variable',
           icon: '[x]',
-          name: '变量',
+          name: this.$t('design.variables'),
         },
-      ],
-    };
+      ];
+    },
   },
   methods: {
     switchItem(key) {

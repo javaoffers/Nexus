@@ -22,17 +22,17 @@ export default {
       });
       return [
         {
-          label: '入参变量',
+          label: this.$t('design.inputVars'),
           variableKey: 'in',
           children: flowVariables.filter(function (v) { return v.variableType === 1; }),
         },
         {
-          label: '出参变量',
+          label: this.$t('design.outputVars'),
           variableKey: 'out',
           children: flowVariables.filter(function (v) { return v.variableType === 2; }),
         },
         {
-          label: '中间变量',
+          label: this.$t('design.tempVars'),
           variableKey: 'temp',
           children: flowVariables.filter(function (v) { return v.variableType === 3; }),
         },
@@ -90,11 +90,11 @@ export default {
 <template>
   <div class="flow-variable-setting">
     <div class="variable-head">
-      <el-button type="primary" size="small" class="add-temp-variable" @click="onAddOpen">新增中间变量</el-button>
+      <el-button type="primary" size="small" class="add-temp-variable" @click="onAddOpen">{{ $t('design.addTempVar') }}</el-button>
       <el-input
         v-model="searchValue"
         :prefix-icon="Search"
-        placeholder="搜索变量"
+        :placeholder="$t('design.searchVar')"
         class="variable-search-input"
         size="small"
         @input="searchVariable"

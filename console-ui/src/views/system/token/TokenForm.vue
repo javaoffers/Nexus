@@ -9,16 +9,16 @@ export default {
         tokenDesc: '',
       },
       rules: {
-        tokenDesc: [{ required: true, message: '请输入令牌描述', trigger: 'blur' }],
+        tokenDesc: [{ required: true, message: this.$t('system.inputTokenDesc'), trigger: 'blur' }],
       },
     };
   },
   computed: {
     title() {
       if (this.editItem) {
-        return '编辑令牌';
+        return this.$t('system.editToken');
       }
-      return '新增令牌';
+      return this.$t('system.addToken');
     },
   },
   methods: {
@@ -56,15 +56,15 @@ export default {
   <el-dialog v-model="dialogVisible" :title="title" width="400">
     <div class="form">
       <el-form ref="formRef" label-position="top" :model="formValue" :rules="rules">
-        <el-form-item label="令牌描述" prop="tokenDesc">
+        <el-form-item :label="$t('system.tokenDesc')" prop="tokenDesc">
           <el-input v-model="formValue.tokenDesc" maxlength="120" />
         </el-form-item>
       </el-form>
     </div>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="onCancel">取消</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button @click="onCancel">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="onSubmit">{{ $t('common.confirm') }}</el-button>
       </span>
     </template>
   </el-dialog>

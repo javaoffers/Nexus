@@ -1,3 +1,3 @@
 <template>
-  <div>用户</div>
+  <div>{{ $t('commonViews.user') }}</div>
 </template>

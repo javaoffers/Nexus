@@ -1,3 +1,3 @@
 <template>
-  <div>设置</div>
+  <div>{{ $t('commonViews.settings') }}</div>
 </template>

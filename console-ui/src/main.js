@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import ElementPlus from 'element-plus'
+import i18n from './i18n'
 import 'vue-json-pretty/lib/styles.css'
 import 'element-plus/dist/index.css'
 import './assets/theme.css'
@@ -11,6 +12,7 @@ import { userService } from './service'
 
 const app = createApp(App)
 
+app.use(i18n)
 app.use(ElementPlus)
 app.use(router)
 app.use(store)

@@ -79,7 +79,7 @@ export default {
       const errors = [];
       apiHeaders.forEach((param) => {
         if (param.required && this.isEmpty(param.value)) {
-          param.error = '必填字段不能为空';
+          param.error = this.$t('common.requiredEmpty');
           errors.push(param.paramKey);
         } else {
           param.error = '';
@@ -87,7 +87,7 @@ export default {
       });
       apiInputParams.forEach((param) => {
         if (param.required && this.isEmpty(param.value)) {
-          param.error = '必填字段不能为空';
+          param.error = this.$t('common.requiredEmpty');
           errors.push(param.paramKey);
         } else {
           param.error = '';
@@ -143,7 +143,7 @@ export default {
 <template>
   <div class="flow-debug"
        v-loading="loading"
-       element-loading-text="接口请求中">
+       :element-loading-text="$t('suite.apiRequesting')">
     <div class="flow-debug-content">
        <div class="debug-header">
           <div class="debug-url">
@@ -159,20 +159,20 @@ export default {
             </el-input>
           </div>
           <div class="debug-actions">
-            <el-button type="primary" @click="sendApiDebug">发送</el-button>
-            <el-button @click="resetParams">重置</el-button>
+            <el-button type="primary" @click="sendApiDebug">{{ $t('common.send') }}</el-button>
+            <el-button @click="resetParams">{{ $t('common.reset') }}</el-button>
           </div>
         </div>
        <div class="debug-inputParam">
         <el-tabs model-value="inputParam">
-          <el-tab-pane label="请求头" name="headerParam">
+          <el-tab-pane :label="$t('suite.requestHeaders')" name="headerParam">
             <div class="input-param-head">
               <div class="input-param-tr">
                 <div class="input-param-td"></div>
-                <div class="input-param-td">参数名称</div>
-                <div class="input-param-td">参数描述</div>
-                <div class="input-param-td">参数类型</div>
-                <div class="input-param-td td-value">参数值</div>
+                <div class="input-param-td">{{ $t('common.paramName') }}</div>
+                <div class="input-param-td">{{ $t('common.paramDesc') }}</div>
+                <div class="input-param-td">{{ $t('common.paramType') }}</div>
+                <div class="input-param-td td-value">{{ $t('common.paramValue') }}</div>
               </div>
             </div>
             <div class="input-param-body">
@@ -197,14 +197,14 @@ export default {
               </div>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="请求参数" name="inputParam">
+          <el-tab-pane :label="$t('suite.inputParams')" name="inputParam">
             <div class="input-param-head">
               <div class="input-param-tr">
                 <div class="input-param-td"></div>
-                <div class="input-param-td">参数名称</div>
-                <div class="input-param-td">参数描述</div>
-                <div class="input-param-td">参数类型</div>
-                <div class="input-param-td td-value">参数值</div>
+                <div class="input-param-td">{{ $t('common.paramName') }}</div>
+                <div class="input-param-td">{{ $t('common.paramDesc') }}</div>
+                <div class="input-param-td">{{ $t('common.paramType') }}</div>
+                <div class="input-param-td td-value">{{ $t('common.paramValue') }}</div>
               </div>
             </div>
             <div class="input-param-body">
@@ -233,7 +233,7 @@ export default {
       </div>
        <div class="debug-result">
         <el-tabs model-value="result">
-          <el-tab-pane label="响应内容" name="result">
+          <el-tab-pane :label="$t('flow.responseContent')" name="result">
             <div style="width: 80%">
               <vue-json-pretty
                   :data="flowResponseJson"
@@ -243,10 +243,10 @@ export default {
               />
             </div>
           </el-tab-pane>
-          <el-tab-pane label="响应头" name="responseHeader">
+          <el-tab-pane :label="$t('flow.responseHeaders')" name="responseHeader">
             <el-table :data="responseHeaderData" style="width: 80%">
-              <el-table-column prop="headerKey" label="响应头" width="350" />
-              <el-table-column prop="headerValue" label="值" />
+              <el-table-column prop="headerKey" :label="$t('flow.responseHeaders')" width="350" />
+              <el-table-column prop="headerValue" :label="$t('flow.value')" />
             </el-table>
           </el-tab-pane>
         </el-tabs>

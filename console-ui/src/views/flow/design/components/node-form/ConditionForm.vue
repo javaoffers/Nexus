@@ -56,7 +56,7 @@ export default {
   methods: {
     validate() {
       if (!this.nodeData.name) {
-        ElMessage.error('节点名称不能为空');
+        ElMessage.error(this.$t('design.nodeNameRequired'));
         return false;
       }
       return true;
@@ -126,39 +126,39 @@ export default {
 <template>
   <div class="node-condition-form">
     <el-form label-position="top">
-      <el-form-item label="节点编码">
+      <el-form-item :label="$t('design.nodeCode')">
         <span>{{ nodeData.key }}</span>
       </el-form-item>
-      <el-form-item label="节点名称" required>
-        <el-input v-model="nodeData.name" maxlength="16" placeholder="请输入"></el-input>
+      <el-form-item :label="$t('design.nodeName')" required>
+        <el-input v-model="nodeData.name" maxlength="16" :placeholder="$t('common.pleaseInput')"></el-input>
       </el-form-item>
-      <el-form-item label="节点描述">
-        <el-input v-model="nodeData.desc" maxlength="60" placeholder="请输入" :rows="2" type="textarea"></el-input>
+      <el-form-item :label="$t('design.nodeDesc')">
+        <el-input v-model="nodeData.desc" maxlength="60" :placeholder="$t('common.pleaseInput')" :rows="2" type="textarea"></el-input>
       </el-form-item>
-      <el-form-item label="条件表达式">
+      <el-form-item :label="$t('design.conditionExpr')">
         <div class="condition-list">
           <div class="condition-item" v-for="(item, index) in nodeData.conditions" :key="index">
             <div class="condition-head">
               <div class="condition-title">{{ item.conditionName }}</div>
               <div class="condition-action">
                 <template v-if="item.conditionType === 'CUSTOM'">
-                  <el-button link :icon="Top" v-if="index > 0" @click="sortUp(index)" title="升序"></el-button>
-                  <el-button link :icon="Bottom" v-if="index < nodeData.conditions.length - 2" @click="sortDown(index)" title="降序"></el-button>
-                  <el-button link :icon="Edit" @click="edit(index)" title="编辑"></el-button>
-                  <el-button link :icon="Delete" @click="remove(index)" title="删除"></el-button>
+                  <el-button link :icon="Top" v-if="index > 0" @click="sortUp(index)" :title="$t('design.ascending')"></el-button>
+                  <el-button link :icon="Bottom" v-if="index < nodeData.conditions.length - 2" @click="sortDown(index)" :title="$t('design.descending')"></el-button>
+                  <el-button link :icon="Edit" @click="edit(index)" :title="$t('common.edit')"></el-button>
+                  <el-button link :icon="Delete" @click="remove(index)" :title="$t('common.delete')"></el-button>
                 </template>
               </div>
             </div>
             <div class="condition-body" v-if="item.expression">{{ item.expression }}</div>
           </div>
           <div class="condition-add">
-            <el-button size="small" type="info" @click="addCondition">新增分支</el-button>
+            <el-button size="small" type="info" @click="addCondition">{{ $t('design.addBranch') }}</el-button>
           </div>
         </div>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
-        <el-button @click="onCancel">取消</el-button>
+        <el-button type="primary" @click="onSubmit">{{ $t('common.confirm') }}</el-button>
+        <el-button @click="onCancel">{{ $t('common.cancel') }}</el-button>
       </el-form-item>
     </el-form>
     <ConditionFilterModal ref="conditionFilterModalRef" />

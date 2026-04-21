@@ -55,7 +55,7 @@ export default {
       <div class="classify-filter-item-title">
         <span>{{ item.title }} :</span>
       </div>
-      <span v-if="!item.options.length" class="classify-filter-notData">暂无数据 ~</span>
+      <span v-if="!item.options.length" class="classify-filter-notData">{{ $t('common.noData') }}</span>
       <el-scrollbar>
         <ul class="classify-filter-list">
           <li

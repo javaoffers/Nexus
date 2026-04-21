@@ -169,24 +169,24 @@ export default {
     },
     validate() {
       if (!this.nodeData.name) {
-        ElMessage.error('节点名称不能为空');
+        ElMessage.error(this.$t('design.nodeNameRequired'));
         return false;
       }
       var method = this.nodeData.method;
       if (!method.methodCode) {
-        ElMessage.error('服务接口不能为空');
+        ElMessage.error(this.$t('design.serviceApiRequired'));
         return false;
       }
       if (method.headerFillRules.length > 0 && !method.headerFillRules.every(this.validateParam)) {
-        ElMessage.error('请求头赋值不完整');
+        ElMessage.error(this.$t('design.headerAssignIncomplete'));
         return false;
       }
       if (method.inputFillRules.length > 0 && !method.inputFillRules.every(this.validateParam)) {
-        ElMessage.error('入参赋值不完整');
+        ElMessage.error(this.$t('design.inputAssignIncomplete'));
         return false;
       }
       if (method.outputFillRules.length > 0 && !method.outputFillRules.every(this.validateParam)) {
-        ElMessage.error('出参赋值不完整');
+        ElMessage.error(this.$t('design.outputAssignIncomplete'));
         return false;
       }
       return true;
@@ -216,65 +216,65 @@ export default {
 <template>
   <div class="node-method-form">
     <el-form label-position="top">
-      <el-form-item label="节点编码">
+      <el-form-item :label="$t('design.nodeCode')">
         <span>{{ nodeData.key }}</span>
       </el-form-item>
-      <el-form-item label="节点名称" required>
-        <el-input v-model="nodeData.name" maxlength="16" placeholder="请输入"></el-input>
+      <el-form-item :label="$t('design.nodeName')" required>
+        <el-input v-model="nodeData.name" maxlength="16" :placeholder="$t('common.pleaseInput')"></el-input>
       </el-form-item>
-      <el-form-item label="节点描述">
-        <el-input v-model="nodeData.desc" maxlength="60" placeholder="请输入" :rows="2" type="textarea"></el-input>
+      <el-form-item :label="$t('design.nodeDesc')">
+        <el-input v-model="nodeData.desc" maxlength="60" :placeholder="$t('common.pleaseInput')" :rows="2" type="textarea"></el-input>
       </el-form-item>
-      <el-form-item label="套件" required>
+      <el-form-item :label="$t('design.suite')" required>
         <el-select
             :modelValue="nodeData.method.suiteCode"
-            placeholder="请选择套件"
+            :placeholder="$t('design.selectSuite')"
             style="width: 100%"
             filterable
             @change="onSuiteChange"
         >
           <template v-slot:empty>
             <div class="select-option-empty" v-loading="suiteLoading">
-              <span v-if="!suiteLoading">无数据</span>
+              <span v-if="!suiteLoading">{{ $t('design.noData') }}</span>
             </div>
           </template>
           <el-option v-for="item in suiteList" :key="item.suiteCode" :label="item.suiteName" :value="item.suiteCode" />
         </el-select>
       </el-form-item>
-      <el-form-item label="服务接口" required>
+      <el-form-item :label="$t('design.serviceApi')" required>
         <ApiSelect v-model="nodeData.method.methodCode" :suiteCode="nodeData.method.suiteCode" @change="onApiChange" />
       </el-form-item>
-      <el-form-item label="请求头赋值">
+      <el-form-item :label="$t('design.headerAssign')">
         <InputRuleSetting
           v-model="nodeData.method.headerFillRules"
-          addText="新增请求头赋值"
+          :addText="$t('design.addHeaderAssign')"
           showRequired
           :sourceList="headerSourceList"
           :targetList="inputTargetList"
           :requiredKeys="headerRequiredKeys"
         />
       </el-form-item>
-      <el-form-item label="入参赋值">
+      <el-form-item :label="$t('design.inputAssign')">
         <InputRuleSetting
           v-model="nodeData.method.inputFillRules"
-          addText="新增入参赋值"
+          :addText="$t('design.addInputAssign')"
           showRequired
           :sourceList="inputSourceList"
           :targetList="inputTargetList"
           :requiredKeys="inputRequiredKeys"
         />
       </el-form-item>
-      <el-form-item label="出参赋值">
+      <el-form-item :label="$t('design.outputAssign')">
         <OutputRuleSetting
           v-model="nodeData.method.outputFillRules"
-          addText="新增出参赋值"
+          :addText="$t('design.addOutputAssign')"
           :sourceList="outputSourceList"
           :targetList="outputTargetList"
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
-        <el-button @click="onCancel">取消</el-button>
+        <el-button type="primary" @click="onSubmit">{{ $t('common.confirm') }}</el-button>
+        <el-button @click="onCancel">{{ $t('common.cancel') }}</el-button>
       </el-form-item>
     </el-form>
   </div>

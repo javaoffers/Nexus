@@ -1,3 +1,5 @@
+import i18n from '@/i18n';
+
 export const BaseDataType = {
   String: 'String',
   Integer: 'Integer',
@@ -22,18 +24,24 @@ export const Operator = {
   NotContains: 'notContains',
 };
 
-export const OperatorNameMap = {
-  [Operator.Empty]: '为空',
-  [Operator.NotEmpty]: '不为空',
-  [Operator.Equal]: '等于',
-  [Operator.NotEqual]: '不等于',
-  [Operator.GreaterThan]: '大于',
-  [Operator.LessThan]: '小于',
-  [Operator.GreaterThanOrEqual]: '大于等于',
-  [Operator.LessThanOrEqual]: '小于等于',
-  [Operator.Contains]: '包含',
-  [Operator.NotContains]: '不包含',
-};
+export const OperatorNameMap = new Proxy({}, {
+  get(target, prop) {
+    const t = i18n.global.t;
+    const map = {
+      [Operator.Empty]: t('filter.empty'),
+      [Operator.NotEmpty]: t('filter.notEmpty'),
+      [Operator.Equal]: t('filter.equal'),
+      [Operator.NotEqual]: t('filter.notEqual'),
+      [Operator.GreaterThan]: t('filter.greaterThan'),
+      [Operator.LessThan]: t('filter.lessThan'),
+      [Operator.GreaterThanOrEqual]: t('filter.greaterThanOrEqual'),
+      [Operator.LessThanOrEqual]: t('filter.lessThanOrEqual'),
+      [Operator.Contains]: t('filter.contains'),
+      [Operator.NotContains]: t('filter.notContains'),
+    };
+    return map[prop];
+  },
+});
 
 export const DataTypeOperatorMap = {
   [BaseDataType.String]: [Operator.Equal, Operator.NotEqual, Operator.Empty, Operator.NotEmpty, Operator.Contains, Operator.NotContains],

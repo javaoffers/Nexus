@@ -8,19 +8,19 @@ export const SystemRoutes = [
     name: 'system',
     component: RouterNest,
     redirect: () => ({ name: 'api-token' }),
-    meta: { name: '设置' },
+    meta: { name: 'route.settings' },
     children: [
       {
         path: 'token',
         name: 'token-list',
         component: TokenList,
-        meta: { name: '令牌' },
+        meta: { name: 'route.token' },
       },
       {
         path: 'datasource',
         name: 'datasource-list',
         component: DataSourceList,
-        meta: { name: '数据源' },
+        meta: { name: 'route.dataSource' },
       },
     ],
   },

@@ -7,9 +7,11 @@ import DataTypeDisplay from '@/components/common/DataTypeDisplay.vue';
 import VariableSelect from '@/components/common/VariableSelect.vue';
 import { ElMessage } from 'element-plus';
 
+import i18n from '@/i18n';
+
 const assignTypeList = [
-  { value: valueType.CONSTANT, label: '常量' },
-  { value: valueType.VARIABLE, label: '变量' },
+  { value: valueType.CONSTANT, get label() { return i18n.global.t('common.constant'); } },
+  { value: valueType.VARIABLE, get label() { return i18n.global.t('common.variable'); } },
 ];
 
 export default {
@@ -48,10 +50,10 @@ export default {
     return {
       rules: [...(this.modelValue || [])],
       columns: [
-        { name: '参数描述', prop: 'source' },
-        { name: '数据类型', prop: 'sourceDataType' },
-        { name: '赋值方式', prop: 'targetType' },
-        { name: '赋值', prop: 'target' },
+        { get name() { return i18n.global.t('common.paramDesc'); }, prop: 'source' },
+        { get name() { return i18n.global.t('common.dataType'); }, prop: 'sourceDataType' },
+        { get name() { return i18n.global.t('common.assignMethod'); }, prop: 'targetType' },
+        { get name() { return i18n.global.t('common.assign'); }, prop: 'target' },
       ],
       assignTypeList,
       valueType,
@@ -96,7 +98,7 @@ export default {
       const source = this.rules[rowIndex].source;
       let sourceVariable = getVariableDataType(source, this.targetList);
       if (!isDataTypeEqual(targetVariable.dataType, sourceVariable.dataType)) {
-        ElMessage.error('所选变量的数据类型与目标变量数据类型不匹配');
+        ElMessage.error(this.$t('common.typeMismatch'));
         this.rules[rowIndex].source = '';
         return;
       }
@@ -191,7 +193,7 @@ export default {
       </div>
     </div>
     <div class="rule-setting-foot">
-      <el-button size="small" type="info" @click="addRule">{{ addText || '新增入参' }}</el-button>
+      <el-button size="small" type="info" @click="addRule">{{ addText || $t('common.addInput') }}</el-button>
     </div>
   </div>
 </template>

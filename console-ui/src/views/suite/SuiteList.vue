@@ -53,9 +53,9 @@ export default {
       this.$refs.formRef.open(row);
     },
     openDelete(row) {
-      ElMessageBox.confirm(`确定删除'${row.suiteName}'套件吗?`, '操作确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      ElMessageBox.confirm(this.$t('suite.confirmDelete', { name: row.suiteName }), this.$t('common.operationConfirm'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning',
       })
         .then(() => {
@@ -66,7 +66,7 @@ export default {
     async addSuiteItem(row) {
       const res = await suiteService.addSuite(row);
       if (res.result) {
-        ElMessage({ type: 'success', message: '新建成功' });
+        ElMessage({ type: 'success', message: this.$t('common.createSuccess') });
         await this.querySuitePage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -75,7 +75,7 @@ export default {
     async editSuiteItem(row) {
       const res = await suiteService.updateSuite(row);
       if (res.result) {
-        ElMessage({ type: 'success', message: '编辑成功' });
+        ElMessage({ type: 'success', message: this.$t('common.editSuccess') });
         await this.querySuitePage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -84,7 +84,7 @@ export default {
     async deleteSuiteItem(row) {
       const res = await suiteService.deleteSuite(row.id);
       if (res.result) {
-        ElMessage({ type: 'success', message: '删除成功' });
+        ElMessage({ type: 'success', message: this.$t('common.deleteSuccess') });
         await this.querySuitePage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -100,7 +100,7 @@ export default {
     </div>
     <el-container class="table-container">
       <el-header class="page-header">
-        <el-button :icon="Plus" type="primary" @click="openAdd">新建</el-button>
+        <el-button :icon="Plus" type="primary" @click="openAdd">{{ $t('common.create') }}</el-button>
       </el-header>
       <el-main class="page-body">
         <SuiteTable
