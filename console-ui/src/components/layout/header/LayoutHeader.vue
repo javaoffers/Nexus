@@ -36,4 +36,9 @@ export default {
   align-items: stretch;
   color: var(--nexus-text-primary);
 }
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
 </style>

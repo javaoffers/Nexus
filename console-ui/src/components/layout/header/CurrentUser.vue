@@ -82,11 +82,9 @@ export default {
 </template>
 <style scoped>
 .app-current-userPO-dropdown {
-  height: 100%;
   padding: 0 20px 0 0;
 }
 .app-current-userPO {
-  height: 100%;
   display: flex;
   align-items: center;
   color: var(--nexus-text-primary);
