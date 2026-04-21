@@ -1,5 +1,4 @@
-import { FlowContext } from '../hooks/flow-data';
-import { ElementType, MyOptional, RawData } from '../types';
+import { ElementType, FlowContext, MyOptional, RawData } from '../types';
 import { DataNode, DataBranch } from './DataNode';
 
 export function generateDataTree(flowContext: FlowContext) {
