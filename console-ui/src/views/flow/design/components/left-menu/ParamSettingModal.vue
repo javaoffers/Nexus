@@ -21,8 +21,8 @@ export default {
       },
       rules: {
         variableKey: [
-          { required: true, message: '请输入变量编码', trigger: 'blur' },
-          { pattern: /^[a-zA-Z0-9_]+$/, message: '请输入大小写字母或下划线', trigger: 'blur' },
+          { required: true, message: self.$t('design.inputVarKey'), trigger: 'blur' },
+          { pattern: /^[a-zA-Z0-9_]+$/, message: self.$t('design.varKeyFormat'), trigger: 'blur' },
           {
             validator: function (_, value, callback) {
               if (self._originalData && value === self._originalData.variableKey) {
@@ -31,7 +31,7 @@ export default {
               }
               var item = self.$store.state.flow.flowVariables.find(function (item) { return item.variableKey === value; });
               if (item) {
-                callback(new Error('变量编码已存在'));
+                callback(new Error(self.$t('design.varKeyExists')));
                 return;
               }
               callback();
@@ -39,8 +39,8 @@ export default {
             trigger: 'blur',
           },
         ],
-        variableName: [{ required: true, message: '请输入变量名称', trigger: 'blur' }],
-        dataType: [{ required: true, message: '请选择数据类型', trigger: 'blur' }],
+        variableName: [{ required: true, message: self.$t('design.inputVarName'), trigger: 'blur' }],
+        dataType: [{ required: true, message: self.$t('design.selectDataType'), trigger: 'blur' }],
       },
     };
   },
@@ -83,22 +83,22 @@ export default {
 </script>
 
 <template>
-  <el-dialog :title="isEdit ? '编辑变量' : '新增中间变量'" v-model="visible" append-to-body :width="400">
+  <el-dialog :title="isEdit ? $t('design.editVar') : $t('design.addTempVar')" v-model="visible" append-to-body :width="400">
     <el-form labelPosition="top" ref="formRef" :model="form" :rules="rules">
-      <el-form-item label="变量键" prop="variableKey">
-        <el-input v-model="form.variableKey" placeholder="请输入" maxlength="30" />
+      <el-form-item :label="$t('design.varKey')" prop="variableKey">
+        <el-input v-model="form.variableKey" :placeholder="$t('common.pleaseInput')" maxlength="30" />
       </el-form-item>
-      <el-form-item label="变量名" prop="variableName">
-        <el-input v-model="form.variableName" placeholder="请输入" maxlength="30" />
+      <el-form-item :label="$t('design.varName')" prop="variableName">
+        <el-input v-model="form.variableName" :placeholder="$t('common.pleaseInput')" maxlength="30" />
       </el-form-item>
-      <el-form-item label="变量类型" prop="dataType">
+      <el-form-item :label="$t('design.varType')" prop="dataType">
         <DataTypeSelect v-model="form.dataType" />
       </el-form-item>
     </el-form>
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="onCancel">取消</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button @click="onCancel">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="onSubmit">{{ $t('common.confirm') }}</el-button>
       </span>
     </template>
   </el-dialog>

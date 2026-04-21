@@ -11,7 +11,7 @@ export default {
   },
   computed: {
     nodeName() {
-      return this.data.dataNode?.raw?.name || '判断节点';
+      return this.data.dataNode?.raw?.name || this.$t('design.conditionNode');
     },
   },
   methods: {
@@ -34,7 +34,7 @@ export default {
     <div class="node-card">
       <div class="node-header">
         <span class="type-dot"></span>
-        <span class="type-name">判断节点</span>
+        <span class="type-name">{{ $t('design.conditionNode') }}</span>
       </div>
       <div class="node-body">
         <span class="node-name">{{ nodeName }}</span>

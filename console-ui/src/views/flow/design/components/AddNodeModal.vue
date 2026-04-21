@@ -18,31 +18,35 @@ export default {
     return {
       visible: false,
       openParams: null,
-      flowNodes: [
+      flowDataNodes: [],
+      flowOtherNodes: [],
+    };
+  },
+  computed: {
+    flowNodes() {
+      return [
         {
-          name: '方法节点',
+          name: this.$t('design.methodNode'),
           type: ElementType.METHOD,
           icon: IconMethod,
         },
         {
-          name: '判断节点',
+          name: this.$t('design.conditionNode'),
           type: ElementType.CONDITION,
           icon: IconCondition,
         },
         {
-          name: '赋值节点',
+          name: this.$t('design.assignNode'),
           type: ElementType.ASSIGN,
           icon: IconAssign,
         },
         {
-          name: '代码节点',
+          name: this.$t('design.codeNode'),
           type: ElementType.CODE,
           icon: IconCode,
         },
-      ],
-      flowDataNodes: [],
-      flowOtherNodes: [],
-    };
+      ];
+    },
   },
   methods: {
     open(params) {

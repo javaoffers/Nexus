@@ -56,9 +56,9 @@ export default {
       this.$refs.formRef.open(row);
     },
     openDelete(row) {
-      ElMessageBox.confirm(`确定删除'${row.objectName}'吗?`, '操作确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      ElMessageBox.confirm(this.$t('object.confirmDelete', { name: row.objectName }), this.$t('common.operationConfirm'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning',
       })
         .then(() => {
@@ -80,7 +80,7 @@ export default {
       }
       const res = await objectService.addObject(row);
       if (res.success) {
-        ElMessage({ type: 'success', message: '新建成功' });
+        ElMessage({ type: 'success', message: this.$t('common.createSuccess') });
         await this.queryObjectPage();
         commonService.dataType.clearList();
       } else {
@@ -101,7 +101,7 @@ export default {
       }
       const res = await objectService.updateObject(row);
       if (res.success) {
-        ElMessage({ type: 'success', message: '编辑成功' });
+        ElMessage({ type: 'success', message: this.$t('common.editSuccess') });
         await this.queryObjectPage();
         commonService.dataType.clearList();
       } else {
@@ -111,7 +111,7 @@ export default {
     async deleteItem(row) {
       const res = await objectService.deleteObject(row.id);
       if (res.success) {
-        ElMessage({ type: 'success', message: '删除成功' });
+        ElMessage({ type: 'success', message: this.$t('common.deleteSuccess') });
         await this.queryObjectPage();
         commonService.dataType.clearList();
       } else {
@@ -128,7 +128,7 @@ export default {
     </div>
     <el-container class="table-container">
       <el-header class="page-header">
-        <el-button :icon="Plus" type="primary" @click="openObjectAdd">新建</el-button>
+        <el-button :icon="Plus" type="primary" @click="openObjectAdd">{{ $t('common.create') }}</el-button>
       </el-header>
       <el-main class="page-body">
         <ObjectTable

@@ -110,22 +110,22 @@ export default {
       />
     </div>
     <div class="filter-item-operator">
-      <el-select placeholder="请选择" v-model="operatorModel">
+      <el-select :placeholder="$t('common.pleaseSelect')" v-model="operatorModel">
         <el-option v-for="operator in operatorList" :key="operator.value" :value="operator.value" :label="operator.label" />
       </el-select>
     </div>
     <div class="filter-item-assign-type">
       <template v-if="!isNoValueOperator">
-        <el-select placeholder="请选择" v-model="assignTypeModel">
-          <el-option :value="FilterAssignType.Constant" label="常量" />
-          <el-option :value="FilterAssignType.Variable" label="变量" />
+        <el-select :placeholder="$t('common.pleaseSelect')" v-model="assignTypeModel">
+          <el-option :value="FilterAssignType.Constant" :label="$t('common.constant')" />
+          <el-option :value="FilterAssignType.Variable" :label="$t('common.variable')" />
         </el-select>
       </template>
     </div>
     <div class="filter-item-value">
       <template v-if="!isNoValueOperator">
         <FilterValue v-if="isConstant" v-model="targetModel" :dataType="item.dataType" />
-        <el-select v-else-if="isVariable" placeholder="请选择" v-model="targetModel">
+        <el-select v-else-if="isVariable" :placeholder="$t('common.pleaseSelect')" v-model="targetModel">
           <el-option v-for="source in filteredTargetList" :key="source.variableKey" :value="source.variableKey" :label="source.variableName" />
         </el-select>
       </template>

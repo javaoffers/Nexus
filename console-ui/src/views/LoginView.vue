@@ -17,7 +17,7 @@ export default {
           <path d="M8 24V8h3.5l9 12V8H24v16h-3.5l-9-12v12H8z" fill="#fff"/>
         </svg>
         <h1 class="brand-title">NEXUS</h1>
-        <p class="brand-subtitle">零码 + 低码 + AI 的微服务编排与系统集成平台</p>
+        <p class="brand-subtitle">{{ $t('brand.subtitle') }}</p>
       </div>
       <div class="brand-decoration">
         <div class="deco-circle deco-circle-1"></div>
@@ -27,8 +27,8 @@ export default {
     </div>
     <div class="entry-view-right">
       <div class="entry-view-form-wrapper">
-        <h2 class="form-title">登录</h2>
-        <p class="form-subtitle">欢迎回来，请登录您的账号</p>
+        <h2 class="form-title">{{ $t('login.title') }}</h2>
+        <p class="form-subtitle">{{ $t('login.subtitle') }}</p>
         <LoginForm />
       </div>
     </div>

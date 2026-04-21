@@ -93,23 +93,24 @@ func GetDataTypeOptions() (interface{}, error) {
 	}
 
 	basicTypes := []map[string]interface{}{
-		{"type": "String", "displayName": "字符串"},
-		{"type": "Integer", "displayName": "整数"},
-		{"type": "Double", "displayName": "小数"},
-		{"type": "Boolean", "displayName": "布尔"},
-		{"type": "Date", "displayName": "日期"},
-		{"type": "Time", "displayName": "时间"},
-		{"type": "List", "displayName": "列表"},
+		{"type": "String", "displayName": "字符串", "dataTypeClassify": 1},
+		{"type": "Integer", "displayName": "整数", "dataTypeClassify": 1},
+		{"type": "Double", "displayName": "小数", "dataTypeClassify": 1},
+		{"type": "Boolean", "displayName": "布尔", "dataTypeClassify": 1},
+		{"type": "Date", "displayName": "日期", "dataTypeClassify": 1},
+		{"type": "Time", "displayName": "时间", "dataTypeClassify": 1},
+		{"type": "List", "displayName": "列表", "dataTypeClassify": 2},
 	}
 
 	objectTypes := make([]map[string]interface{}, 0, len(objects))
 	for _, o := range objects {
 		props, _ := repository.ListParametersBySource("object", o.ID)
 		objectTypes = append(objectTypes, map[string]interface{}{
-			"type":            "Object",
-			"displayName":     o.ObjectName,
-			"objectKey":       o.ObjectKey,
-			"objectStructure": props,
+			"type":             "Object",
+			"displayName":      o.ObjectName,
+			"objectKey":        o.ObjectKey,
+			"objectStructure":  props,
+			"dataTypeClassify": 3,
 		})
 	}
 

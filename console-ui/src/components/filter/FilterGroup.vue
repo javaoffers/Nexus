@@ -39,7 +39,7 @@ export default {
       @change="onChange($event, index)"
     />
     <el-button @click="onAdd"
-      ><el-icon><Plus /></el-icon>或条件</el-button
+      ><el-icon><Plus /></el-icon>{{ $t('filter.orCondition') }}</el-button
     >
   </div>
 </template>

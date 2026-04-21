@@ -62,15 +62,15 @@ export default {
   methods: {
     validate() {
       if (!this.nodeData.name) {
-        ElMessage.error('节点名称不能为空');
+        ElMessage.error(this.$t('design.nodeNameRequired'));
         return false;
       }
       if (!this.nodeData.dataSourceId) {
-        ElMessage.error('数据源不能为空');
+        ElMessage.error(this.$t('design.dataSourceRequired'));
         return false;
       }
       if (!this.nodeData.operationType) {
-        ElMessage.error('操作类型不能为空');
+        ElMessage.error(this.$t('design.operationTypeRequired'));
         return false;
       }
       return true;
@@ -97,32 +97,32 @@ export default {
 <template>
   <div class="node-method-form">
     <el-form label-position="top">
-      <el-form-item label="节点编码">
+      <el-form-item :label="$t('design.nodeCode')">
         <span>{{ nodeData.key }}</span>
       </el-form-item>
-      <el-form-item label="节点名称" required>
-        <el-input v-model="nodeData.name" maxlength="16" placeholder="请输入"></el-input>
+      <el-form-item :label="$t('design.nodeName')" required>
+        <el-input v-model="nodeData.name" maxlength="16" :placeholder="$t('common.pleaseInput')"></el-input>
       </el-form-item>
-      <el-form-item label="节点描述">
-        <el-input v-model="nodeData.desc" maxlength="60" placeholder="请输入" :rows="2" type="textarea"></el-input>
+      <el-form-item :label="$t('design.nodeDesc')">
+        <el-input v-model="nodeData.desc" maxlength="60" :placeholder="$t('common.pleaseInput')" :rows="2" type="textarea"></el-input>
       </el-form-item>
-      <el-form-item label="数据源" required>
-        <el-select v-model="nodeData.dataSourceId" placeholder="请选择数据源">
+      <el-form-item :label="$t('design.dataSource')" required>
+        <el-select v-model="nodeData.dataSourceId" :placeholder="$t('design.selectDataSource')">
           <el-option v-for="item in dataSourceList" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
-      <el-form-item label="操作类型" required>
-        <el-select v-model="nodeData.operationType" placeholder="请选择操作类型">
-          <el-option key="change" label="更改(增/删/改)" value="change" />
-          <el-option key="query" label="查询" value="query" />
+      <el-form-item :label="$t('design.operationType')" required>
+        <el-select v-model="nodeData.operationType" :placeholder="$t('design.selectOperationType')">
+          <el-option key="change" :label="$t('design.changeOp')" value="change" />
+          <el-option key="query" :label="$t('design.queryOp')" value="query" />
         </el-select>
       </el-form-item>
-      <el-form-item label="SQL语句">
-        <div class="sql-btn"> <el-button @click="sqlDialogVisible = true">编辑SQL</el-button></div>
+      <el-form-item :label="$t('design.sqlStatement')">
+        <div class="sql-btn"> <el-button @click="sqlDialogVisible = true">{{ $t('design.editSql') }}</el-button></div>
         <CodeEditor ref="codeEditRef" v-model="nodeData.sql" height="200px" language="sql" />
       </el-form-item>
-      <el-form-item v-if="nodeData.operationType == 'query'" label="结果输出">
-        <el-select v-model="nodeData.outputVariableKey" placeholder="请选择变量">
+      <el-form-item v-if="nodeData.operationType == 'query'" :label="$t('design.resultOutput')">
+        <el-select v-model="nodeData.outputVariableKey" :placeholder="$t('design.selectVar')">
           <el-option v-for="item in outputVariableList" :key="item.value" :label="item.label" :value="item.value" >
             <span style="float: left">{{ item.value }}</span>
             <span style="float: right;color: var(--el-text-color-secondary);font-size: 13px;margin-left: 5px;">{{ item.label }}</span>
@@ -130,11 +130,11 @@ export default {
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
-        <el-button @click="onCancel">取消</el-button>
+        <el-button type="primary" @click="onSubmit">{{ $t('common.confirm') }}</el-button>
+        <el-button @click="onCancel">{{ $t('common.cancel') }}</el-button>
       </el-form-item>
     </el-form>
-    <el-dialog v-model="sqlDialogVisible" title="SQL代码" width="1000">
+    <el-dialog v-model="sqlDialogVisible" :title="$t('design.sqlCode')" width="1000">
       <CodeEditor ref="codeEditRef" v-model="nodeData.sql" width="960px" height="500px" :language="'sql'" />
     </el-dialog>
   </div>

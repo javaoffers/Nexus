@@ -2,12 +2,14 @@
 import AppLogo from './AppLogo.vue';
 import CurrentUser from './CurrentUser.vue';
 import HeaderMenu from './HeaderMenu.vue';
+import LangSwitch from './LangSwitch.vue';
 
 export default {
   components: {
     AppLogo,
     CurrentUser,
     HeaderMenu,
+    LangSwitch,
   },
 };
 </script>
@@ -18,6 +20,7 @@ export default {
     </div>
     <div class="header-right">
       <HeaderMenu />
+      <LangSwitch />
       <CurrentUser />
     </div>
   </div>

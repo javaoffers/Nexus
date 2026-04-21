@@ -2,7 +2,7 @@
 export default {}
 </script>
 <template>
-  <div class="main-view">首页要好好想想放啥</div>
+  <div class="main-view">{{ $t('homeView.placeholder') }}</div>
 </template>
 
 <style scoped>

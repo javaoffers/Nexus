@@ -59,7 +59,7 @@ export default {
     async addFlowDefineItem(row) {
       const res = await flowDefineService.addDefineInfo(row);
       if (res.result) {
-        ElMessage({ type: 'success', message: '新建成功' });
+        ElMessage({ type: 'success', message: this.$t('common.createSuccess') });
         await this.queryFlowDefinePage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -68,7 +68,7 @@ export default {
     async updateFlowDefineItem(row) {
       const res = await flowDefineService.updateDefineInfo(row);
       if (res.result) {
-        ElMessage({ type: 'success', message: '修改成功' });
+        ElMessage({ type: 'success', message: this.$t('flow.updateSuccess') });
         await this.queryFlowDefinePage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -92,7 +92,7 @@ export default {
         flowVersionRemark: flowVersionRemark,
       });
       if (res.success) {
-        ElMessage({ type: 'success', message: '部署成功' });
+        ElMessage({ type: 'success', message: this.$t('flow.deploySuccess') });
         this.deployFormVisible = false;
         await this.queryFlowDefinePage();
       } else {
@@ -100,9 +100,9 @@ export default {
       }
     },
     openDelete(row) {
-      ElMessageBox.confirm(`确定删除'${row.flowName}'流程吗?`, '操作确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      ElMessageBox.confirm(this.$t('flow.confirmDeleteFlow', { name: row.flowName }), this.$t('common.operationConfirm'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning',
       })
         .then(() => {
@@ -113,7 +113,7 @@ export default {
     async deleteFlowDefineItem(row) {
       const res = await flowDefineService.deleteFlowDefineById(row.id);
       if (res.success) {
-        ElMessage({ type: 'success', message: '删除成功' });
+        ElMessage({ type: 'success', message: this.$t('common.deleteSuccess') });
         await this.queryFlowDefinePage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -133,7 +133,7 @@ export default {
     </div>
     <el-container class="table-container">
       <el-header class="page-header">
-        <el-button :icon="Plus" type="primary" @click="openflowDefineAdd">新建</el-button>
+        <el-button :icon="Plus" type="primary" @click="openflowDefineAdd">{{ $t('common.create') }}</el-button>
       </el-header>
       <el-main class="page-body">
         <FlowDefineTable
@@ -151,22 +151,22 @@ export default {
     </el-container>
     <FlowDefineDrawer ref="drawerRef" @add="addFlowDefineItem" @edit="updateFlowDefineItem" />
 
-    <el-dialog v-model="deployFormVisible" :show-close="false" title="部署流程" width="400">
+    <el-dialog v-model="deployFormVisible" :show-close="false" :title="$t('flow.deployFlow')" width="400">
       <el-form :model="deployForm">
-        <el-form-item label="流程名称">
+        <el-form-item :label="$t('flow.flowName')">
           <el-input v-model="deployForm.flowName" disabled />
         </el-form-item>
-        <el-form-item label="部署版本">
+        <el-form-item :label="$t('flow.deployVersion')">
           <el-input v-model="deployForm.flowDeployVersion" disabled />
         </el-form-item>
-        <el-form-item label="版本描述">
+        <el-form-item :label="$t('flow.versionDesc')">
           <el-input type="textarea" v-model="deployForm.flowVersionRemark" maxlength="120" />
         </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="deployFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="onSubmitDeploy">部署</el-button>
+          <el-button @click="deployFormVisible = false">{{ $t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="onSubmitDeploy">{{ $t('flow.deploy') }}</el-button>
         </span>
       </template>
     </el-dialog>

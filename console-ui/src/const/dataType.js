@@ -1,11 +1,18 @@
+import i18n from '@/i18n';
 
-export const DataTypeMap = {
-    String: '字符串',
-    Integer: '整数',
-    Double: '小数',
-    Boolean: '布尔',
-    Date: '日期',
-    Time: '时间',
-    Object: '对象',
-    List: '集合',
-};
+export const DataTypeMap = new Proxy({}, {
+  get(_, key) {
+    const t = i18n.global.t;
+    const map = {
+      String: t('dataTypeLabel.string'),
+      Integer: t('dataTypeLabel.integer'),
+      Double: t('dataTypeLabel.double'),
+      Boolean: t('dataTypeLabel.boolean'),
+      Date: t('dataTypeLabel.date'),
+      Time: t('dataTypeLabel.time'),
+      Object: t('dataTypeLabel.object'),
+      List: t('dataTypeLabel.list'),
+    };
+    return map[key];
+  },
+});

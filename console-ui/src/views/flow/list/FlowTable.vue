@@ -20,19 +20,19 @@ export default {
 
 <template>
   <el-table v-loading="loading" :data="dataRows" size="large" header-cell-class-name="table-header">
-    <el-table-column prop="flowKey" label="流程编码" width="180" />
-    <el-table-column prop="flowName" label="流程名称" width="220" />
-    <el-table-column prop="flowType" label="流程类型" width="140">
+    <el-table-column prop="flowKey" :label="$t('flow.flowCode')" width="180" />
+    <el-table-column prop="flowName" :label="$t('flow.flowName')" width="220" />
+    <el-table-column prop="flowType" :label="$t('flow.flowType')" width="140">
       <template #default="scope">
-        <el-tag v-if="scope.row.flowType == 'sync'" type="success">同步</el-tag>
-        <el-tag v-else type="warning">异步</el-tag>
+        <el-tag v-if="scope.row.flowType == 'sync'" type="success">{{ $t('flow.sync') }}</el-tag>
+        <el-tag v-else type="warning">{{ $t('flow.async') }}</el-tag>
       </template>
     </el-table-column>
-    <el-table-column prop="remark" label="流程描述" show-overflow-tooltip />
-    <el-table-column label="操作" width="130">
+    <el-table-column prop="remark" :label="$t('flow.flowDesc')" show-overflow-tooltip />
+    <el-table-column :label="$t('common.operation')" width="130">
       <template #default="scope">
-        <el-button link type="primary" size="small" @click="goFlowVersionListPage(scope.row.id)"> 版本列表 </el-button>
-        <el-button link type="primary" size="small" @click.prevent="deleteRow(scope.row, scope.$index)"> 删除 </el-button>
+        <el-button link type="primary" size="small" @click="goFlowVersionListPage(scope.row.id)"> {{ $t('flow.versionList') }} </el-button>
+        <el-button link type="primary" size="small" @click.prevent="deleteRow(scope.row, scope.$index)"> {{ $t('common.delete') }} </el-button>
       </template>
     </el-table-column>
   </el-table>

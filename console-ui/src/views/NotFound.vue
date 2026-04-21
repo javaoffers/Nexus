@@ -8,5 +8,5 @@ export default {
 };
 </script>
 <template>
-  <div>页面未找到，返回<RouterLink to="/">首页</RouterLink></div>
+  <div>{{ $t('notFound.message') }}<RouterLink to="/">{{ $t('notFound.home') }}</RouterLink></div>
 </template>

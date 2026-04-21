@@ -44,7 +44,7 @@ export default {
 <template>
   <el-select
     :modelValue="modelValue"
-    placeholder="请选择套件"
+    :placeholder="$t('design.selectSuite')"
     style="width: 100%"
     filterable
     @visibleChange="onVisibleChange"
@@ -52,7 +52,7 @@ export default {
   >
     <template v-slot:empty>
       <div class="select-option-empty" v-loading="suiteLoading">
-        <span v-if="!suiteLoading">无数据</span>
+        <span v-if="!suiteLoading">{{ $t('design.noData') }}</span>
       </div>
     </template>
     <el-option v-for="item in suiteList" :key="item.value" :label="item.label" :value="item.value" />

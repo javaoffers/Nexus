@@ -13,25 +13,25 @@ export default {
       editItem: undefined,
       formValue: this.getDefault(),
       rules: {
-        dataSourceName: [{ required: true, message: '请输入数据源名称', trigger: 'blur' }],
-        dataSourceType: [{ required: true, message: '请选择数据源类型', trigger: 'blur' }],
-        address: [{ required: true, message: '请输入连接地址', trigger: 'blur' }],
+        dataSourceName: [{ required: true, message: this.$t('system.inputDataSourceName'), trigger: 'blur' }],
+        dataSourceType: [{ required: true, message: this.$t('system.selectDataSourceType'), trigger: 'blur' }],
+        address: [{ required: true, message: this.$t('system.inputConnAddress'), trigger: 'blur' }],
         port: [
-          { required: true, message: '请输入连接端口', trigger: 'blur' },
-          { pattern: /^[0-9_]+$/, message: '请输入数字', trigger: 'blur' },
+          { required: true, message: this.$t('system.inputPort'), trigger: 'blur' },
+          { pattern: /^[0-9_]+$/, message: this.$t('system.inputNumber'), trigger: 'blur' },
         ],
-        userName: [{ required: true, message: '请输入连接账号', trigger: 'blur' }],
-        password: [{ required: true, message: '请输入连接密码', trigger: 'blur' }],
-        databaseName: [{ required: true, message: '请输入连接数据库名', trigger: 'blur' }],
+        userName: [{ required: true, message: this.$t('system.inputAccount'), trigger: 'blur' }],
+        password: [{ required: true, message: this.$t('system.inputPassword'), trigger: 'blur' }],
+        databaseName: [{ required: true, message: this.$t('system.inputDbName'), trigger: 'blur' }],
       },
     };
   },
   computed: {
     title() {
       if (this.editItem) {
-        return '编辑数据源';
+        return this.$t('system.editDataSource');
       }
-      return '新增数据源';
+      return this.$t('system.addDataSource');
     },
   },
   methods: {
@@ -103,69 +103,69 @@ export default {
   <ResizableDrawer v-model="dialogVisible" :size="480" :title="title" destroyOnClose drawer-key="DATA_SOURCE">
     <div class="form">
       <el-form ref="dataSourceFormRef" label-position="top" :model="formValue" :rules="rules">
-        <el-form-item label="数据源名称" prop="dataSourceName">
+        <el-form-item :label="$t('system.dataSourceName')" prop="dataSourceName">
           <el-input v-model="formValue.dataSourceName" maxlength="30" />
         </el-form-item>
-        <el-form-item label="数据源类型" prop="dataSourceType">
+        <el-form-item :label="$t('system.dataSourceType')" prop="dataSourceType">
           <el-select v-model="formValue.dataSourceType">
             <el-option value="MYSQL" key="MYSQL">MySql</el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="描述" prop="dataSourceDesc">
+        <el-form-item :label="$t('common.description')" prop="dataSourceDesc">
           <el-input v-model="formValue.dataSourceDesc" type="textarea" :rows="2" maxlength="120" />
         </el-form-item>
         <el-row :gutter="20">
           <el-col :span="18">
-            <el-form-item label="连接地址" prop="address">
+            <el-form-item :label="$t('system.connAddress')" prop="address">
               <el-input v-model="formValue.address" />
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="端口" prop="port">
+            <el-form-item :label="$t('system.port')" prop="port">
               <el-input v-model="formValue.port" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="账号" prop="userName">
+            <el-form-item :label="$t('system.account')" prop="userName">
               <el-input v-model="formValue.userName" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="密码" prop="password">
+            <el-form-item :label="$t('system.password')" prop="password">
               <el-input type="password" v-model="formValue.password" />
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="数据库名称" prop="databaseName">
+        <el-form-item :label="$t('system.dbName')" prop="databaseName">
           <el-input v-model="formValue.databaseName" />
         </el-form-item>
-        <el-form-item label="连接拓展信息" prop="connectExtInfo">
+        <el-form-item :label="$t('system.connExtInfo')" prop="connectExtInfo">
           <el-input v-model="formValue.connectExtInfo" />
         </el-form-item>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="最小连接数" prop="minPoolSize">
+            <el-form-item :label="$t('system.minConn')" prop="minPoolSize">
               <el-input-number v-model="formValue.minPoolSize" controls-position="right" :min="1" :max="2000" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="最大连接数" prop="maxPoolSize">
+            <el-form-item :label="$t('system.maxConn')" prop="maxPoolSize">
               <el-input-number v-model="formValue.maxPoolSize" class="mx-4" controls-position="right" :min="1" :max="2000"/>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="查询超时时间（秒）" prop="queryTimeout">
+        <el-form-item :label="$t('system.queryTimeout')" prop="queryTimeout">
           <el-input-number v-model="formValue.queryTimeout" controls-position="right" :min="1" :max="600" style="width: 100%">
             <template #suffix>
-              <span>秒</span>
+              <span>{{ $t('system.second') }}</span>
             </template>
           </el-input-number>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">确定</el-button>
-          <el-button @click="onCancel">取消</el-button>
+          <el-button type="primary" @click="onSubmit">{{ $t('common.confirm') }}</el-button>
+          <el-button @click="onCancel">{{ $t('common.cancel') }}</el-button>
         </el-form-item>
       </el-form>
     </div>

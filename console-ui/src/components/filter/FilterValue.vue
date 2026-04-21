@@ -56,7 +56,7 @@ export default {
       :max="9999999999999"
       :precision="0"
       :size="size"
-      placeholder="请输入"
+      :placeholder="$t('common.pleaseInput')"
     />
     <el-input-number
       v-else-if="currentType === 'Double'"
@@ -66,7 +66,7 @@ export default {
       :max="9999999999999"
       :precision="2"
       :size="size"
-      placeholder="请输入"
+      :placeholder="$t('common.pleaseInput')"
     />
     <el-date-picker
         v-else-if="currentType === 'Date'"
@@ -84,12 +84,12 @@ export default {
       v-else-if="currentType === 'Boolean'"
       v-model="switchValue"
       inline-prompt
-      active-text="是"
-      inactive-text="否"
+      :active-text="$t('common.yes')"
+      :inactive-text="$t('common.no')"
       :size="size"
       :width="48"
     />
-    <el-input v-else v-model="innerValue" :size="size" placeholder="请输入" />
+    <el-input v-else v-model="innerValue" :size="size" :placeholder="$t('common.pleaseInput')" />
   </div>
 </template>
 

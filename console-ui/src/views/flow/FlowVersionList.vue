@@ -45,9 +45,9 @@ export default {
       this.queryFlowVersionPage();
     },
     openUpdateFlowVersionStatus(row) {
-      ElMessageBox.confirm(`确定${row.flowVersionStatus == 0 ? '启用' : '禁用'} ${row.flowName} 流程的 ${row.flowVersion} 版本吗?`, '操作确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      ElMessageBox.confirm(this.$t('flow.confirmToggleVersion', { action: this.$t(row.flowVersionStatus == 0 ? 'flow.enabled' : 'flow.disabled'), name: row.flowName, version: row.flowVersion }), this.$t('common.operationConfirm'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning',
       })
         .then(() => {
@@ -58,16 +58,16 @@ export default {
     async updateFlowStatus(row) {
       const res = await flowVersionService.updateFlowVersionStatus(row.id, row.flowVersionStatus);
       if (res.success) {
-        ElMessage({ type: 'success', message: '操作成功' });
+        ElMessage({ type: 'success', message: this.$t('common.operationSuccess') });
         await this.queryFlowVersionPage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
       }
     },
     openDelete(row) {
-      ElMessageBox.confirm(`确定删除'${row.flowName}'流程吗?`, '操作确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      ElMessageBox.confirm(this.$t('flow.confirmDeleteVersion', { name: row.flowName }), this.$t('common.operationConfirm'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning',
       })
         .then(() => {
@@ -78,7 +78,7 @@ export default {
     async deleteFlowVersionItem(row) {
       const res = await flowVersionService.deleteFlowVersionById(row.id);
       if (res.success) {
-        ElMessage({ type: 'success', message: '删除成功' });
+        ElMessage({ type: 'success', message: this.$t('common.deleteSuccess') });
         await this.queryFlowVersionPage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });

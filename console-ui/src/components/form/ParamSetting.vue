@@ -19,7 +19,7 @@ export default {
     },
     paramTypeName: {
       type: String,
-      default: '参数',
+      default: '',
     },
     dataTypeClassify: String,
     addText: String,
@@ -28,15 +28,22 @@ export default {
   data() {
     return {
       params: [...(this.modelValue || [])],
-      columns: [
-        { name: this.paramTypeName + '编码', prop: 'paramKey' },
-        { name: this.paramTypeName + '名称', prop: 'paramName' },
-        { name: '参数位置', prop: 'paramPosition' },
-        { name: '数据类型', prop: 'dataType' },
-        { name: '必填', prop: 'required' },
-        { name: '描述', prop: 'paramDesc' },
-      ],
     };
+  },
+  computed: {
+    resolvedParamTypeName() {
+      return this.paramTypeName || this.$t('paramSetting.param');
+    },
+    columns() {
+      return [
+        { name: this.resolvedParamTypeName + this.$t('paramSetting.code'), prop: 'paramKey' },
+        { name: this.resolvedParamTypeName + this.$t('paramSetting.name'), prop: 'paramName' },
+        { name: this.$t('paramSetting.paramPosition'), prop: 'paramPosition' },
+        { name: this.$t('common.dataType'), prop: 'dataType' },
+        { name: this.$t('paramSetting.required'), prop: 'required' },
+        { name: this.$t('common.description'), prop: 'paramDesc' },
+      ];
+    },
   },
   watch: {
     modelValue(val) {
@@ -115,7 +122,7 @@ export default {
       </div>
     </div>
     <div class="param-setting-foot">
-      <el-button size="small" type="info" @click="addParam">{{ addText || '新增入参' }}</el-button>
+      <el-button size="small" type="info" @click="addParam">{{ addText || $t('common.addInput') }}</el-button>
     </div>
   </div>
 </template>

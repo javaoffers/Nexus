@@ -44,9 +44,9 @@ export default {
       this.queryFlowPage();
     },
     openUpdateFlowStatus(row) {
-      ElMessageBox.confirm(`确定${row.flowStatus == 0 ? '启用' : '禁用'}'${row.flowName}'流程吗?`, '操作确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      ElMessageBox.confirm(this.$t('flow.confirmToggleFlow', { action: this.$t(row.flowStatus == 0 ? 'flow.enabled' : 'flow.disabled'), name: row.flowName }), this.$t('common.operationConfirm'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning',
       }).then(() => {
           this.updateFlowStatus(row);
@@ -56,16 +56,16 @@ export default {
     async updateFlowStatus(row) {
       const res = await flowService.updateFlowStatus(row.id, row.flowStatus);
       if (res.success) {
-        ElMessage({ type: 'success', message: '操作成功' });
+        ElMessage({ type: 'success', message: this.$t('common.operationSuccess') });
         await this.queryFlowPage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
       }
     },
     openDelete(row) {
-      ElMessageBox.confirm(`确定删除'${row.flowName}'流程吗?`, '操作确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      ElMessageBox.confirm(this.$t('flow.confirmDeleteFlow', { name: row.flowName }), this.$t('common.operationConfirm'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning',
       })
         .then(() => {
@@ -76,7 +76,7 @@ export default {
     async deleteFlowItem(row) {
       const res = await flowService.deleteFlowById(row.id);
       if (res.success) {
-        ElMessage({ type: 'success', message: '删除成功' });
+        ElMessage({ type: 'success', message: this.$t('common.deleteSuccess') });
         await this.queryFlowPage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });

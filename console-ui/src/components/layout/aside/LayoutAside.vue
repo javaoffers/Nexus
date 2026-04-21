@@ -20,26 +20,26 @@ export default {
       <el-sub-menu index="2">
         <template #title>
           <el-icon><IconFlow /></el-icon>
-          <span>流程</span>
+          <span>{{ $t('menu.flow') }}</span>
         </template>
-        <el-menu-item index="/flow/define">流程定义</el-menu-item>
-        <el-menu-item index="/flow/list">流程列表</el-menu-item>
+        <el-menu-item index="/flow/define">{{ $t('menu.flowDefine') }}</el-menu-item>
+        <el-menu-item index="/flow/list">{{ $t('menu.flowList') }}</el-menu-item>
       </el-sub-menu>
       <el-menu-item index="/suite/list">
         <el-icon><IconInterface /></el-icon>
-        <span>套件</span>
+        <span>{{ $t('menu.suite') }}</span>
       </el-menu-item>
       <el-menu-item index="/object/list">
         <el-icon><Coin /></el-icon>
-        <span>对象</span>
+        <span>{{ $t('menu.object') }}</span>
       </el-menu-item>
       <el-sub-menu index="5">
         <template #title>
           <el-icon><IconSetting/></el-icon>
-          <span>设置</span>
+          <span>{{ $t('menu.settings') }}</span>
         </template>
-        <el-menu-item index="/system/token">令牌</el-menu-item>
-        <el-menu-item index="/system/datasource">数据源</el-menu-item>
+        <el-menu-item index="/system/token">{{ $t('menu.token') }}</el-menu-item>
+        <el-menu-item index="/system/datasource">{{ $t('menu.dataSource') }}</el-menu-item>
       </el-sub-menu>
     </el-menu>
   </div>

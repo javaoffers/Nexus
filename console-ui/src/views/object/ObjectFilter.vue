@@ -21,14 +21,14 @@ export default {
 
 <template>
   <el-form :inline="true" :model="objectFilterFormValue">
-    <el-form-item label="对象名称">
-      <el-input v-model="objectFilterFormValue.objectName" placeholder="请输入对象名称" />
+    <el-form-item :label="$t('object.objectName')">
+      <el-input v-model="objectFilterFormValue.objectName" :placeholder="$t('object.inputObjectName')" />
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="onSubmit">查询</el-button>
+      <el-button type="primary" @click="onSubmit">{{ $t('common.search') }}</el-button>
     </el-form-item>
     <el-form-item>
-      <el-button @click="onReset">重置</el-button>
+      <el-button @click="onReset">{{ $t('common.reset') }}</el-button>
     </el-form-item>
   </el-form>
 </template>

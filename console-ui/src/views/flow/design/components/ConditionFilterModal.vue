@@ -59,14 +59,14 @@ export default {
 </script>
 
 <template>
-  <el-dialog title="设置分支条件" :width="640" v-model="visible" class="condition-filter-modal">
-    <div class="condition-name-label">分支名称</div>
-    <el-input v-model="condition.conditionName" class="condition-name-input" placeholder="请输入" />
+  <el-dialog :title="$t('design.setBranchCondition')" :width="640" v-model="visible" class="condition-filter-modal">
+    <div class="condition-name-label">{{ $t('design.branchName') }}</div>
+    <el-input v-model="condition.conditionName" class="condition-name-input" :placeholder="$t('common.pleaseInput')" />
     <FilterGroup :value="condition.conditionExpressions" @change="onChange" :sourceList="sourceList" :targetList="sourceList" />
     <template #footer>
       <span class="dialog-footer">
-        <el-button @click="onCancel">取消</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button @click="onCancel">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="onSubmit">{{ $t('common.confirm') }}</el-button>
       </span>
     </template>
   </el-dialog>

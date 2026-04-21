@@ -17,20 +17,20 @@ export default {
       objectFormValue: this.getDefaultObject(),
       rules: {
         objectKey: [
-          { required: true, message: '请输入对象编码', trigger: 'blur' },
-          { pattern: /^[a-zA-Z0-9_]+$/, message: '请输入大小写字母、下划线和数字', trigger: 'blur' },
+          { required: true, message: this.$t('object.inputObjectCode'), trigger: 'blur' },
+          { pattern: /^[a-zA-Z0-9_]+$/, message: this.$t('object.objectCodeFormat'), trigger: 'blur' },
           { validator: this.validateObjectKey, trigger: 'blur' },
         ],
-        objectName: [{ required: true, message: '请输入对象名称', trigger: 'blur' }],
+        objectName: [{ required: true, message: this.$t('object.inputObjectName'), trigger: 'blur' }],
       },
     };
   },
   computed: {
     title() {
       if (this.editItem) {
-        return '编辑对象';
+        return this.$t('object.editObject');
       }
-      return '新增对象';
+      return this.$t('object.addObject');
     },
   },
   methods: {
@@ -50,7 +50,7 @@ export default {
       };
       objectService.isExistObjectKey(param).then((response) => {
         if (response.success && response.result) {
-          callback(new Error('对象key已经存在'));
+          callback(new Error(this.$t('object.objectKeyExists')));
         } else {
           callback();
         }
@@ -109,7 +109,7 @@ export default {
       for (const [index, param] of this.objectFormValue.props.entries()) {
         const error = this.validateProps(param);
         if (error) {
-          ElMessage.error(`对象属性的第${index + 1}行: ${error}`);
+          ElMessage.error(this.$t('object.propRowError', { index: index + 1, error: error }));
           return false;
         }
       }
@@ -117,13 +117,13 @@ export default {
     },
     validateProps(props) {
       if (!props.paramKey) {
-        return '属性编码不能为空';
+        return this.$t('object.propCodeRequired');
       }
       if (!/^[a-zA-Z0-9_]+$/.test(props.paramKey)) {
-        return '属性编码只能包含大小写字母数字或下划线';
+        return this.$t('object.propCodeFormat');
       }
       if (!props.paramName) {
-        return '属性名称不能为空';
+        return this.$t('object.propNameRequired');
       }
       return null;
     },
@@ -135,21 +135,21 @@ export default {
   <ResizableDrawer v-model="objectDrawerVisible" :title="title" destroyOnClose drawer-key="OBJECT">
     <div>
       <el-form ref="formRef" label-position="top" :model="objectFormValue" :rules="rules">
-        <el-form-item label="对象编码" prop="objectKey">
+        <el-form-item :label="$t('object.objectCode')" prop="objectKey">
           <el-input v-model="objectFormValue.objectKey" maxlength="20" />
         </el-form-item>
-        <el-form-item label="对象名称" prop="objectName">
+        <el-form-item :label="$t('object.objectName')" prop="objectName">
           <el-input v-model="objectFormValue.objectName" maxlength="30" />
         </el-form-item>
-        <el-form-item label="对象描述">
+        <el-form-item :label="$t('object.objectDesc')">
           <el-input type="textarea" v-model="objectFormValue.objectDesc" maxlength="120" />
         </el-form-item>
-        <el-form-item label="对象属性">
-          <ParamSetting v-model="objectFormValue.props" :paramTypeName="'属性'" addText="新增属性" />
+        <el-form-item :label="$t('object.objectProps')">
+          <ParamSetting v-model="objectFormValue.props" :paramTypeName="$t('object.property')" :addText="$t('object.addProperty')" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmit">确定</el-button>
-          <el-button @click="onCancel">取消</el-button>
+          <el-button type="primary" @click="onSubmit">{{ $t('common.confirm') }}</el-button>
+          <el-button @click="onCancel">{{ $t('common.cancel') }}</el-button>
         </el-form-item>
       </el-form>
     </div>

@@ -13,11 +13,11 @@ export default {
     copyToken() {
       const { copy, isSupported } = useClipboard({ legacy: true });
       if (!isSupported) {
-        ElMessage({ type: 'error', message: '当前浏览器不知道复制API' });
+        ElMessage({ type: 'error', message: this.$t('system.tokenCopyFail') });
         return;
       }
       copy(this.tokenValue);
-      ElMessage({ type: 'success', message: '复制成功' });
+      ElMessage({ type: 'success', message: this.$t('system.copySuccess') });
     },
     open(value) {
       this.tokenSuccessVisible = true;
@@ -30,18 +30,18 @@ export default {
 };
 </script>
 <template>
-  <el-dialog v-model="tokenSuccessVisible" title="令牌生成提示" :close-on-click-modal="false" width="400">
-    <el-result icon="success" title="令牌生成成功"> </el-result>
+  <el-dialog v-model="tokenSuccessVisible" :title="$t('system.tokenGenTitle')" :close-on-click-modal="false" width="400">
+    <el-result icon="success" :title="$t('system.tokenGenSuccess')"> </el-result>
     <el-input v-model="tokenValue">
       <template #append>
-        <el-button @click.prevent="copyToken">复制</el-button>
+        <el-button @click.prevent="copyToken">{{ $t('common.copy') }}</el-button>
       </template>
     </el-input>
     <div class="token-tips">
-      <el-text class="mx-1" type="danger">本页面关闭后，平台将不在显示私人令牌，请妥善保管。</el-text>
+      <el-text class="mx-1" type="danger">{{ $t('system.tokenWarning') }}</el-text>
     </div>
     <template #footer>
-      <el-button type="primary" @click.prevent="close">确认并关闭</el-button>
+      <el-button type="primary" @click.prevent="close">{{ $t('system.confirmClose') }}</el-button>
     </template>
   </el-dialog>
 </template>

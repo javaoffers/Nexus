@@ -80,7 +80,7 @@ export default {
       try {
         await this.queryFlowDefineInfo();
       } catch (error) {
-        ElMessage({ type: 'error', message: '流程定义内容解析失败' });
+        ElMessage({ type: 'error', message: this.$t('flow.parseError') });
         return;
       }
       this.refreshFlow();
@@ -189,7 +189,7 @@ export default {
         flowVariables: flowVariables,
       });
       if (res.success) {
-        ElMessage({ type: 'success', message: '保存成功' });
+        ElMessage({ type: 'success', message: this.$t('common.saveSuccess') });
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
       }
@@ -202,10 +202,10 @@ export default {
   <div class="page-flow-design">
     <div class="flow-header">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item :to="'/flow/define'">流程定义</el-breadcrumb-item>
+        <el-breadcrumb-item :to="'/flow/define'">{{ $t('flow.flowDefinition') }}</el-breadcrumb-item>
         <el-breadcrumb-item>{{ flowName }}</el-breadcrumb-item>
       </el-breadcrumb>
-      <el-button class="flow-submit" type="primary" @click="flowSubmit">保存</el-button>
+      <el-button class="flow-submit" type="primary" @click="flowSubmit">{{ $t('common.save') }}</el-button>
     </div>
     <div class="flow-canvas">
       <VueFlow

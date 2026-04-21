@@ -48,9 +48,9 @@ export default {
       this.$refs.formRef.open(row);
     },
     openDelete(row) {
-      ElMessageBox.confirm(`确定删除'${row.tokenDesc}'吗?,删除后将影响使用该令牌的系统`, '操作确认', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      ElMessageBox.confirm(this.$t('system.confirmDeleteToken', { name: row.tokenDesc }), this.$t('common.operationConfirm'), {
+        confirmButtonText: this.$t('common.confirm'),
+        cancelButtonText: this.$t('common.cancel'),
         type: 'warning',
       })
         .then(() => {
@@ -73,7 +73,7 @@ export default {
         tokenDesc: row.tokenDesc,
       });
       if (res.result) {
-        ElMessage({ type: 'success', message: '编辑成功' });
+        ElMessage({ type: 'success', message: this.$t('common.editSuccess') });
         await this.queryPage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -82,7 +82,7 @@ export default {
     async deleteTokenItem(row) {
       const res = await tokenService.deleteToken(row.id);
       if (res.result) {
-        ElMessage({ type: 'success', message: '删除成功' });
+        ElMessage({ type: 'success', message: this.$t('common.deleteSuccess') });
         await this.queryPage();
       } else {
         ElMessage({ type: 'error', message: res.errorMsg });
@@ -95,7 +95,7 @@ export default {
   <div class="page-interface-token">
     <el-container class="table-container">
       <el-header class="page-header">
-        <el-button :icon="Plus" type="primary" @click="openAdd">新建</el-button>
+        <el-button :icon="Plus" type="primary" @click="openAdd">{{ $t('common.create') }}</el-button>
       </el-header>
       <el-main class="page-body">
         <TokenTable

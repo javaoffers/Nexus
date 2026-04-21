@@ -28,7 +28,7 @@ export default {
       if ('Object' == dataType.type) {
         displayName = this.objectDataTypeMap[dataType.objectKey];
       } else if ('List' == dataType.type) {
-        const start = '列表<';
+        const start = this.$t('dataTypeLabel.listPrefix');
         let itemDisplayName;
         if (dataType.itemType) {
           itemDisplayName = this.getDataTypeDisplayName({

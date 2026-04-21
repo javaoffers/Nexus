@@ -16,7 +16,7 @@ export default {
   methods: {
     async submit() {
       if (!this.userName || !this.password) {
-        ElMessage.error('用户名或密码为空');
+        ElMessage.error(this.$t('login.emptyError'));
         return;
       }
       this.loading = true;
@@ -27,7 +27,7 @@ export default {
       if (result.success) {
         await this.$router.push({ name: 'flow' });
       } else {
-        ElMessage.error(result.errorMsg || '登录失败');
+        ElMessage.error(result.errorMsg || this.$t('login.failed'));
       }
       this.loading = false;
     },
@@ -38,13 +38,13 @@ export default {
 <template>
   <div class="login-form">
     <div class="login-form-item">
-      <el-input v-model="userName" type="text" placeholder="用户名" size="large" :prefix-icon="User" @keyup.enter="submit" />
+      <el-input v-model="userName" type="text" :placeholder="$t('login.username')" size="large" :prefix-icon="User" @keyup.enter="submit" />
     </div>
     <div class="login-form-item">
-      <el-input v-model="password" type="password" placeholder="密码" show-password size="large" :prefix-icon="Lock" @keyup.enter="submit" />
+      <el-input v-model="password" type="password" :placeholder="$t('login.password')" show-password size="large" :prefix-icon="Lock" @keyup.enter="submit" />
     </div>
     <div class="login-form-item">
-      <el-button type="primary" size="large" :style="{ width: '100%', marginTop: '24px' }" :loading="loading" @click="submit"> 登录 </el-button>
+      <el-button type="primary" size="large" :style="{ width: '100%', marginTop: '24px' }" :loading="loading" @click="submit"> {{ $t('login.submit') }} </el-button>
     </div>
   </div>
 </template>

@@ -21,18 +21,18 @@ export default {
 
 <template>
   <el-form :inline="true" :model="formValue">
-    <el-form-item label="流程状态" style="width: 250px">
-      <el-select v-model="formValue.flowVersionStatus" placeholder="请选择流程类型">
-        <el-option key="all" label="全部" value="" />
-        <el-option key="ENABLE" label="启用" value="1" />
-        <el-option key="DISABLED" label="禁用" value="0" />
+    <el-form-item :label="$t('flow.flowStatus')" style="width: 250px">
+      <el-select v-model="formValue.flowVersionStatus" :placeholder="$t('flow.selectFlowType')">
+        <el-option key="all" :label="$t('flow.all')" value="" />
+        <el-option key="ENABLE" :label="$t('flow.enabled')" value="1" />
+        <el-option key="DISABLED" :label="$t('flow.disabled')" value="0" />
       </el-select>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="onSubmit">查询</el-button>
+      <el-button type="primary" @click="onSubmit">{{ $t('common.search') }}</el-button>
     </el-form-item>
     <el-form-item>
-      <el-button @click="onReset">重置</el-button>
+      <el-button @click="onReset">{{ $t('common.reset') }}</el-button>
     </el-form-item>
   </el-form>
 </template>
