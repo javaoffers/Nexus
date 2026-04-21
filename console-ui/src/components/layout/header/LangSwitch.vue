@@ -26,11 +26,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 6px;
   cursor: pointer;
-  margin-right: 8px;
+  margin: 0 12px;
   transition: background-color 0.2s;
   user-select: none;
 }
