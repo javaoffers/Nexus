@@ -3,7 +3,6 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/nexus-flow/nexus/core/handler"
-	"github.com/nexus-flow/nexus/core/handler/example"
 	"github.com/nexus-flow/nexus/core/middleware"
 )
 
@@ -112,15 +111,4 @@ func Setup(r *gin.Engine) {
 		open.GET("/flow/getAsyncFlowResult/:flowInstanceId", handler.OpenGetAsyncFlowResult)
 	}
 
-	// ---- Example mock API (no auth) ----
-	ex := r.Group("/example")
-	{
-		ex.POST("/user/login", example.ExampleLogin)
-		ex.POST("/user/register", example.ExampleRegister)
-		ex.POST("/user/info", example.ExampleUserInfo)
-		ex.POST("/goods/create", example.CreateGoods)
-		ex.POST("/goods/query", example.QueryGoods)
-		ex.POST("/order/create", example.CreateOrder)
-		ex.POST("/order/query", example.QueryOrder)
-	}
 }
