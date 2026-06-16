@@ -1,4 +1,4 @@
-package item_server
+package main
 
 import (
 	"fmt"
@@ -29,4 +29,5 @@ func main() {
 		})
 	})
 	r.Run("localhost:8090")
+	fmt.Println(" start done port 8090")
 }

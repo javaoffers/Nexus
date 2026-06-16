@@ -97,7 +97,7 @@ export default {
       const params = {};
       flowInputParams.forEach((param) => {
         const dataType = param.dataType;
-        if (!this.isEmpty(param.value)) {
+        if (!this.isEmpty(param.value) && dataType ) {
           if (dataType.type === 'Object' || dataType.type === 'List') {
             params[param.paramKey] = JSON.parse(param.value);
           } else if (dataType.type === 'String') {
@@ -106,7 +106,7 @@ export default {
             params[param.paramKey] = param.value;
           }
         } else {
-          if (dataType.type === 'Boolean') {
+          if (dataType && dataType.type === 'Boolean') {
             params[param.paramKey] = false;
           }
         }

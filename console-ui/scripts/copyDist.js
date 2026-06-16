@@ -54,7 +54,7 @@ function copyDir(source, dest) {
                 delDir(target);
             }
             console.log(`\r${styles.yellow[0]}Create Directory${styles.yellow[1]}: ${target}`);
-            fs.mkdirSync(target);
+            fs.mkdirSync(target, { recursive: true });
             copyDir(src, target);
         }
     });
