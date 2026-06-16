@@ -110,16 +110,17 @@ export default {
       const params = {};
       apiInputParams.forEach((param) => {
         const dataType = param.dataType;
+        console.log(param)
         if (!this.isEmpty(param.value)) {
-          if (dataType.type === 'Object' || dataType.type === 'List') {
+          if (dataType && (dataType.type === 'Object' || dataType.type === 'List')) {
             params[param.paramKey] = JSON.parse(param.value);
-          } else if (dataType.type === 'String') {
+          } else if (dataType && dataType.type === 'String') {
             params[param.paramKey] = safeTrim(param.value);
           } else {
             params[param.paramKey] = param.value;
           }
         } else {
-          if (dataType.type === 'Boolean') {
+          if (dataType && dataType.type === 'Boolean') {
             params[param.paramKey] = false;
           }
         }
