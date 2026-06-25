@@ -78,6 +78,7 @@ func TriggerFlowVersion(c *gin.Context) {
 	response.OK(c, result)
 }
 
+// 获取异步流程结果
 func GetAsyncFlowResult(c *gin.Context) {
 	instanceID := c.Param("flowInstanceId")
 	data, err := service.GetAsyncFlowResult(instanceID)

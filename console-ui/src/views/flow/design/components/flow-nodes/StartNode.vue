@@ -18,24 +18,31 @@ export default {
 </script>
 
 <template>
-  <div class="start-node">
-    <div class="start-circle">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M8 5v14l11-7L8 5z" fill="#fff" />
-      </svg>
+  <div class="node-wrapper">
+    <div class="start-node">
+      <div class="start-circle">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M8 5v14l11-7L8 5z" fill="#fff" />
+        </svg>
+      </div>
+      <Handle type="source" :position="Position.Right" />
     </div>
-    <Handle type="source" :position="Position.Bottom" />
-  </div>
-  <div class="add-btn-wrap">
-    <div class="add-btn" @click="onAdd">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M7 1v12M1 7h12" stroke="#fff" stroke-width="2" stroke-linecap="round" />
-      </svg>
+    <div class="add-btn-wrap">
+      <div class="add-btn" @click="onAdd">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1v12M1 7h12" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.node-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .start-node {
   display: flex;
   align-items: center;
@@ -60,7 +67,6 @@ export default {
 .add-btn-wrap {
   display: flex;
   justify-content: center;
-  margin-top: 12px;
 }
 .add-btn {
   width: 28px;

@@ -9,7 +9,13 @@ export default {
       suiteList: [],
       suiteLoading: false,
       suiteLoaded: false,
+      currentValue: this.modelValue,
     };
+  },
+  watch: {
+    modelValue(val) {
+      this.currentValue = val;
+    },
   },
   created() {
     if (this.auto) {
@@ -35,6 +41,7 @@ export default {
       }
     },
     onChange(val) {
+      if (val === '' || val === null || val === undefined) return;
       this.$emit('update:modelValue', val);
       this.$emit('change', val);
     },
@@ -43,7 +50,7 @@ export default {
 </script>
 <template>
   <el-select
-    :modelValue="modelValue"
+    v-model="currentValue"
     :placeholder="$t('design.selectSuite')"
     style="width: 100%"
     filterable
