@@ -5,14 +5,14 @@ import { MarkerType } from '@vue-flow/core';
 const box = {
   width: 220,
   height: 56,
-  marginBottom: 100,
-  marginRight: 80,
+  marginRight: 100,
+  marginBottom: 80,
   startSize: 56,
-  branchLabelHeight: 36,
+  branchLabelWidth: 100,
 };
 
-const heightAndMargin = box.height + box.marginBottom;
-const branchTop = box.height + box.marginBottom * 0.6;
+const widthAndMargin = box.width + box.marginRight;
+const branchLeft = box.width + box.marginRight * 0.6;
 
 /**
  * Convert a DataBranch tree into Vue Flow nodes[] and edges[].
@@ -22,14 +22,14 @@ const branchTop = box.height + box.marginBottom * 0.6;
 export function computeFlowLayout(dataRoot) {
   const nodes = [];
   const edges = [];
-  // Layout the tree starting from root, centered at x=0
+  // Layout the tree starting from root, centered at y=0
   layoutBranch(dataRoot, 0, 0, nodes, edges);
-  // Center all nodes: find min x and shift everything so the leftmost node is at x=40
+  // Center all nodes vertically: find min y and shift everything so the topmost node is at y=40
   if (nodes.length > 0) {
-    const minX = Math.min(...nodes.map(n => n.position.x));
-    const offsetX = -minX + 40;
+    const minY = Math.min(...nodes.map(n => n.position.y));
+    const offsetY = -minY + 40;
     nodes.forEach(n => {
-      n.position.x += offsetX;
+      n.position.y += offsetY;
     });
   }
   return { nodes, edges };
@@ -38,32 +38,32 @@ export function computeFlowLayout(dataRoot) {
 function layoutBranch(branch, startX, startY, nodes, edges) {
   const children = branch.getChildren();
   let prevKey = null;
-  let prevBottom = startY;
-  let branchWidth = box.width;
+  let prevRight = startX;
+  let branchHeight = box.height;
 
   children.forEach((child) => {
     if (child.type === ElementType.CONDITION) {
-      const result = layoutCondition(child, startX, prevBottom, nodes, edges);
+      const result = layoutCondition(child, prevRight, startY, nodes, edges);
       if (prevKey) {
         addEdge(edges, prevKey, child.key);
       }
       prevKey = '__merge_' + child.key;
-      prevBottom = result.bottom;
-      branchWidth = Math.max(branchWidth, result.width);
+      prevRight = result.right;
+      branchHeight = Math.max(branchHeight, result.height);
     } else {
-      const nodeResult = layoutNormalNode(child, startX, prevBottom, nodes);
+      const nodeResult = layoutNormalNode(child, prevRight, startY, nodes);
       if (prevKey) {
         addEdge(edges, prevKey, child.key);
       }
       prevKey = child.key;
-      prevBottom = nodeResult.bottom;
+      prevRight = nodeResult.right;
     }
   });
 
-  return { bottom: prevBottom, width: branchWidth, lastKey: prevKey };
+  return { right: prevRight, height: branchHeight, lastKey: prevKey };
 }
 
-function layoutNormalNode(dataNode, centerX, topY, nodes) {
+function layoutNormalNode(dataNode, leftX, centerY, nodes) {
   const isTerminal = [ElementType.START, ElementType.END].includes(dataNode.type);
   const w = isTerminal ? box.startSize : box.width;
   const h = isTerminal ? box.startSize : box.height;
@@ -75,22 +75,22 @@ function layoutNormalNode(dataNode, centerX, topY, nodes) {
   nodes.push({
     id: dataNode.key,
     type: vfType,
-    position: { x: centerX - w / 2, y: topY },
+    position: { x: leftX, y: centerY - h / 2 },
     data: {
       dataNode,
       nodeConfig: nodeMap[dataNode.type] || {},
     },
   });
 
-  return { bottom: topY + h + box.marginBottom };
+  return { right: leftX + w + box.marginRight };
 }
 
-function layoutCondition(conditionNode, centerX, topY, nodes, edges) {
+function layoutCondition(conditionNode, leftX, centerY, nodes, edges) {
   // Place the condition node itself
   nodes.push({
     id: conditionNode.key,
     type: 'conditionNode',
-    position: { x: centerX - box.width / 2, y: topY },
+    position: { x: leftX, y: centerY - box.height / 2 },
     data: {
       dataNode: conditionNode,
       nodeConfig: nodeMap[ElementType.CONDITION] || {},
@@ -100,7 +100,7 @@ function layoutCondition(conditionNode, centerX, topY, nodes, edges) {
   const branches = conditionNode.getChildren();
   const branchCount = branches.length;
 
-  // First pass: compute each branch's content to get widths
+  // First pass: compute each branch's content to get heights
   const branchLayouts = [];
   branches.forEach((branch) => {
     const tempNodes = [];
@@ -110,30 +110,30 @@ function layoutCondition(conditionNode, centerX, topY, nodes, edges) {
       branch,
       tempNodes,
       tempEdges,
-      width: Math.max(result.width, box.width),
-      bottom: result.bottom,
+      height: Math.max(result.height, box.height),
+      right: result.right,
       lastKey: result.lastKey,
     });
   });
 
-  // Compute total width and position each branch
-  const totalWidth = branchLayouts.reduce((sum, bl) => sum + bl.width, 0) + (branchCount - 1) * box.marginRight;
-  let currentX = centerX - totalWidth / 2;
+  // Compute total height and position each branch vertically
+  const totalHeight = branchLayouts.reduce((sum, bl) => sum + bl.height, 0) + (branchCount - 1) * box.marginBottom;
+  let currentY = centerY - totalHeight / 2;
 
-  const branchLabelY = topY + branchTop;
-  const branchContentY = branchLabelY + box.branchLabelHeight + box.marginBottom * 0.5;
+  const branchLabelX = leftX + branchLeft;
+  const branchContentX = branchLabelX + box.branchLabelWidth + box.marginRight * 0.5;
 
-  let maxBottom = branchContentY;
+  let maxRight = branchContentX;
 
   branchLayouts.forEach((bl) => {
-    const branchCenterX = currentX + bl.width / 2;
+    const branchCenterY = currentY + bl.height / 2;
     const branchLabelId = bl.branch.key;
 
     // Place branch label node
     nodes.push({
       id: branchLabelId,
       type: 'branchLabel',
-      position: { x: branchCenterX - 70, y: branchLabelY },
+      position: { x: branchLabelX, y: branchCenterY - 18 },
       data: {
         dataNode: bl.branch,
       },
@@ -144,8 +144,8 @@ function layoutCondition(conditionNode, centerX, topY, nodes, edges) {
 
     // Offset temp nodes to correct position
     bl.tempNodes.forEach(n => {
-      n.position.x += branchCenterX;
-      n.position.y += branchContentY;
+      n.position.x += branchContentX;
+      n.position.y += branchCenterY;
       nodes.push(n);
     });
     bl.tempEdges.forEach(e => edges.push(e));
@@ -156,12 +156,12 @@ function layoutCondition(conditionNode, centerX, topY, nodes, edges) {
       addEdge(edges, branchLabelId, branchChildren[0].key);
     }
 
-    const adjustedBottom = bl.bottom + branchContentY;
-    if (adjustedBottom > maxBottom) {
-      maxBottom = adjustedBottom;
+    const adjustedRight = bl.right + branchContentX;
+    if (adjustedRight > maxRight) {
+      maxRight = adjustedRight;
     }
 
-    currentX += bl.width + box.marginRight;
+    currentY += bl.height + box.marginBottom;
   });
 
   // Place invisible merge-point node
@@ -169,7 +169,7 @@ function layoutCondition(conditionNode, centerX, topY, nodes, edges) {
   nodes.push({
     id: mergeId,
     type: 'mergePoint',
-    position: { x: centerX - 1, y: maxBottom },
+    position: { x: maxRight, y: centerY - 1 },
     data: {},
   });
 
@@ -185,8 +185,8 @@ function layoutCondition(conditionNode, centerX, topY, nodes, edges) {
   });
 
   return {
-    bottom: maxBottom + box.marginBottom * 0.5,
-    width: totalWidth,
+    right: maxRight + box.marginRight * 0.5,
+    height: totalHeight,
   };
 }
 

@@ -20,7 +20,7 @@ export function getDataTypeObject(dataType) {
       result = dataType;
     }
   } catch (error) {
-    const message = `数据类型解析失败: 类型对象为"${key}"'`;
+    const message = `数据类型解析失败: 类型数据结构为"${key}"'`;
     console.error(new Error(message));
   }
   return result;
@@ -73,12 +73,12 @@ export function isDataTypeMatch(sourceDataTypeItem, filterDataType) {
   }
 
   if(filterDataType.type == "Object"){
-    //都是对象类型，且对象编码一致
+    //都是数据结构类型，且数据结构编码一致
     if(sourceDataTypeItem.type == 'Object' && sourceDataTypeItem.objectKey == filterDataType.objectKey){
       console.log("object", filterDataType,sourceDataTypeItem);
       return true;
     }
-    // 对象属性中有匹配的对象
+    // 数据结构属性中有匹配的数据结构
     if(sourceDataTypeItem.type == 'Object' && isMatchObjectStructure(filterDataType,sourceDataTypeItem?.objectStructure)){
        return true;
     }
@@ -87,7 +87,7 @@ export function isDataTypeMatch(sourceDataTypeItem, filterDataType) {
 }
 
 /**
- * 对象字段是否有匹配属性
+ * 数据结构字段是否有匹配属性
  * @param filterDataType
  * @param objectStructure
  */

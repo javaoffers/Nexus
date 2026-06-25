@@ -71,6 +71,8 @@ export default {
       outputSourceList: [],
       headerRequiredKeys: [],
       inputRequiredKeys: [],
+      currentSuiteCode: null,
+      syncingSuite: false,
     };
   },
   computed: {
@@ -92,6 +94,9 @@ export default {
       handler(val) {
         if (val !== this.nodeData) {
           this.nodeData = Object.assign(getDefaultData(), cloneDeep(val));
+          this.syncingSuite = true;
+          this.currentSuiteCode = this.nodeData.method.suiteCode;
+          this.$nextTick(() => { this.syncingSuite = false; });
           if (this.nodeData.method && this.nodeData.method.methodCode) {
             this.initApiSourceList(this.nodeData.method.methodCode);
           } else {
@@ -101,13 +106,17 @@ export default {
       },
       immediate: true,
     },
+    currentSuiteCode(val) {
+      if (this.syncingSuite) return;
+      this.nodeData.method = Object.assign({}, getDefaultData().method, { suiteCode: val });
+    },
   },
   created() {
     this.querySuiteList();
   },
   methods: {
-    async initApiSourceList(apiCode) {
-      var res = await apiService.queryApiInfoByCode(apiCode);
+    async initApiSourceList(apiId) {
+      var res = await apiService.queryApiInfo(apiId);
       if (res.result) {
         var result = res.result;
         this.headerSourceList = result.apiHeaders.map(function (item) { return Object.assign({}, item, { targetType: valueType.HEADER }); });
@@ -119,12 +128,9 @@ export default {
         this.inputRequiredKeys = inputRequired.map(function (item) { return item.paramKey; });
       }
     },
-    onSuiteChange(suiteCode) {
-      this.nodeData.method = Object.assign({}, getDefaultData().method, { suiteCode: suiteCode });
-    },
-    async onApiChange(apiCode) {
-      console.log('apiCode=', apiCode);
-      var res = await apiService.queryApiInfoByCode(apiCode);
+    async onApiChange(apiId) {
+      var res = await apiService.queryApiInfo(apiId);
+      console.log('res=', res);
       if (res.result) {
         var result = res.result;
         var method = this.nodeData.method;
@@ -227,11 +233,10 @@ export default {
       </el-form-item>
       <el-form-item :label="$t('design.suite')" required>
         <el-select
-            :modelValue="nodeData.method.suiteCode"
+            v-model="currentSuiteCode"
             :placeholder="$t('design.selectSuite')"
             style="width: 100%"
             filterable
-            @change="onSuiteChange"
         >
           <template v-slot:empty>
             <div class="select-option-empty" v-loading="suiteLoading">
