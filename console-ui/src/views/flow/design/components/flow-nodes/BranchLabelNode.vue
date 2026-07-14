@@ -36,26 +36,33 @@ export default {
 </script>
 
 <template>
-  <div class="branch-label-node">
-    <Handle type="target" :position="Position.Top" />
-    <div class="branch-pill" :class="{ 'is-default': isDefault }" @click.stop="onEdit">
-      <span class="branch-name">{{ branchName }}</span>
-      <svg class="edit-icon" width="12" height="12" viewBox="0 0 14 14" fill="none">
-        <path d="M10.5 1.5l2 2L4.5 11.5H2.5v-2l8-8z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
+  <div class="node-wrapper">
+    <div class="branch-label-node">
+      <Handle type="target" :position="Position.Left" />
+      <div class="branch-pill" :class="{ 'is-default': isDefault }" @click.stop="onEdit">
+        <span class="branch-name">{{ branchName }}</span>
+        <svg class="edit-icon" width="12" height="12" viewBox="0 0 14 14" fill="none">
+          <path d="M10.5 1.5l2 2L4.5 11.5H2.5v-2l8-8z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <Handle type="source" :position="Position.Right" />
     </div>
-    <Handle type="source" :position="Position.Bottom" />
-  </div>
-  <div class="add-btn-wrap">
-    <div class="add-btn" @click="data.onAdd && data.onAdd(data.dataNode)">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M7 1v12M1 7h12" stroke="#fff" stroke-width="2" stroke-linecap="round" />
-      </svg>
+    <div class="add-btn-wrap">
+      <div class="add-btn" @click="data.onAdd && data.onAdd(data.dataNode)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1v12M1 7h12" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.node-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .branch-label-node {
   position: relative;
 }
@@ -64,7 +71,7 @@ export default {
   align-items: center;
   gap: 6px;
   padding: 6px 16px;
-  border-radius: 16px;
+  border-radius: 20px;
   background: #f2f3f5;
   border: 1px solid #e5e6e8;
   font-size: 13px;
@@ -96,7 +103,6 @@ export default {
 .add-btn-wrap {
   display: flex;
   justify-content: center;
-  margin-top: 12px;
 }
 .add-btn {
   width: 28px;

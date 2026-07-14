@@ -38,50 +38,57 @@ export default {
 </script>
 
 <template>
-  <div class="normal-node" :style="{ '--header-color': headerColor }">
-    <Handle type="target" :position="Position.Top" />
-    <div class="node-card">
-      <div class="node-header">
-        <span class="type-dot" :style="{ background: headerColor }"></span>
-        <span class="type-name">{{ typeName }}</span>
-      </div>
-      <div class="node-body">
-        <span class="node-name">{{ nodeName }}</span>
-      </div>
-      <div class="hover-actions">
-        <div class="action-btn edit-btn" @click.stop="onEdit" title="Edit">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M10.5 1.5l2 2L4.5 11.5H2.5v-2l8-8z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+  <div class="node-wrapper">
+    <div class="normal-node" :style="{ '--header-color': headerColor }">
+      <Handle type="target" :position="Position.Left" />
+      <div class="node-card">
+        <div class="node-header">
+          <span class="type-dot" :style="{ background: headerColor }"></span>
+          <span class="type-name">{{ typeName }}</span>
         </div>
-        <div class="action-btn delete-btn" @click.stop="onDelete" title="Delete">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M3 3.5l1 8.5h6l1-8.5M2 3.5h10M5.5 1.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <div class="node-body">
+          <span class="node-name">{{ nodeName }}</span>
+        </div>
+        <div class="hover-actions">
+          <div class="action-btn edit-btn" @click.stop="onEdit" title="Edit">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M10.5 1.5l2 2L4.5 11.5H2.5v-2l8-8z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="action-btn delete-btn" @click.stop="onDelete" title="Delete">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 3.5l1 8.5h6l1-8.5M2 3.5h10M5.5 1.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
         </div>
       </div>
+      <Handle type="source" :position="Position.Right" />
     </div>
-    <Handle type="source" :position="Position.Bottom" />
-  </div>
-  <div class="add-btn-wrap">
-    <div class="add-btn" @click="onAdd">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <path d="M7 1v12M1 7h12" stroke="#fff" stroke-width="2" stroke-linecap="round" />
-      </svg>
+    <div class="add-btn-wrap">
+      <div class="add-btn" @click="onAdd">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1v12M1 7h12" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+        </svg>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.node-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .normal-node {
   position: relative;
 }
 .node-card {
   width: 220px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 16px;
   border: 1px solid #e8e8e8;
-  border-top: 4px solid var(--header-color);
+  border-left: 4px solid var(--header-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: box-shadow 0.2s, border-color 0.2s;
   overflow: hidden;
@@ -134,7 +141,7 @@ export default {
 .action-btn {
   width: 26px;
   height: 26px;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,7 +165,6 @@ export default {
 .add-btn-wrap {
   display: flex;
   justify-content: center;
-  margin-top: 12px;
 }
 .add-btn {
   width: 28px;

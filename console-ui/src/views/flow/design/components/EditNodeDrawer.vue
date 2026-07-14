@@ -1,4 +1,5 @@
 <script>
+import { markRaw } from 'vue';
 import { getNodeForm } from './node-form';
 import ResizableDrawer from '@/components/common/ResizableDrawer.vue';
 
@@ -18,7 +19,7 @@ export default {
     open(params) {
       this.visible = true;
       this.openParams = params;
-      this.currentNodeForm = getNodeForm(params.data.elementType);
+      this.currentNodeForm = markRaw(getNodeForm(params.data.elementType));
       this.currentData = params.data;
     },
     onUpdate(val) {

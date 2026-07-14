@@ -14,7 +14,7 @@ export default {
 
 <template>
   <div class="end-node">
-    <Handle type="target" :position="Position.Top" />
+    <Handle type="target" :position="Position.Left" />
     <div class="end-circle">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <rect x="4" y="4" width="12" height="12" rx="2" fill="#fff" />

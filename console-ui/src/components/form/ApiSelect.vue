@@ -8,12 +8,20 @@ export default {
     return {
       apiList: [],
       apiLoading: false,
+      currentValue: this.modelValue || '',
     };
   },
   watch: {
+    modelValue: {
+      handler(val) {
+        this.currentValue = val || '';
+      },
+      immediate: true,
+    },
     suiteCode: {
       handler(val) {
         if (val) {
+          this.apiList = [];
           this.loadData();
         }
       },
@@ -29,21 +37,27 @@ export default {
       }
       this.apiLoading = false;
     },
-    onChange(apiCode) {
-      this.$emit('update:modelValue', apiCode);
-      this.$emit('change', apiCode);
+    onChange(val) {
+      if (val === '' || val === null || val === undefined) return;
+      this.$emit('update:modelValue', val);
+      this.$emit('change', val);
     },
   },
 };
 </script>
 <template>
-  <el-select :modelValue="modelValue" :placeholder="$t('design.selectApi')" style="width: 100%" filterable @change="onChange">
+  <el-select
+    v-model="currentValue"
+    :placeholder="$t('design.selectApi')"
+    style="width: 100%"
+    @change="onChange"
+  >
     <template v-slot:empty>
       <div class="select-option-empty" v-loading="apiLoading">
         <span v-if="!apiLoading">{{ $t('design.noData') }}</span>
       </div>
     </template>
-    <el-option v-for="item in apiList" :key="item.apiCode" :label="item.apiName" :value="item.apiCode" />
+    <el-option v-for="item in apiList" :key="item.id" :label="item.apiName" :value="item.id" />
   </el-select>
 </template>
 <style>
