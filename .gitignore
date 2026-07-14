@@ -1,16 +1,13 @@
-# Go
-server/nexus-server
-*.exe
-*.test
-*.out
-vendor/
-
 # IDE
 .idea/
 .vscode/
 *.iml
 *.iws
 *.ipr
+
+# Java / Maven build
+target/
+*.class
 
 # OS
 .DS_Store

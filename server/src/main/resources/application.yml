@@ -1,0 +1,74 @@
+server:
+  port: 9127
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+spring:
+  profiles:
+    active: sqlite
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:./data/nexus.db
+    username:
+    password:
+    hikari:
+      maximum-pool-size: 100
+      minimum-idle: 10
+  sql:
+    init:
+      mode: always
+      continue-on-error: false
+      schema-locations: classpath:schema-sqlite.sql
+      data-locations: classpath:data-sqlite.sql
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: ""
+    lettuce:
+      pool:
+        max-active: 16
+        max-idle: 8
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+brief:
+  print-sql: false
+  print-cost: false
+  slow-sql:
+    time: 0
+
+# ---- Nexus 业务配置（键名与原 config.yaml 一致）----
+nexus:
+  server:
+    port: 9127
+  database:
+    driver: sqlite
+    sqlite:
+      path: ./data/nexus.db
+    mysql:
+      host: 127.0.0.1
+      port: 3306
+      database: nexus
+      username: root
+      password: "123456"
+  auth:
+    jwt-secret: "www.javaoffers.com####www.nexus.plus"
+    jwt-expire: 7200
+  cache:
+    type: memory
+    redis:
+      addr: "127.0.0.1:6379"
+      password: ""
+  nexus:
+    api-key: ""
+    open-server-addr: "https://open.nexus.plus"
+
+logging:
+  level:
+    root: INFO
+    com.javaoffers: INFO

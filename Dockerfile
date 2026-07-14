@@ -6,26 +6,31 @@ RUN npm install
 COPY console-ui/ ./
 RUN npm run build
 
-# Stage 2: Build Go binary
-FROM golang:1.21-alpine AS go-builder
-RUN apk add --no-cache gcc musl-dev
-WORKDIR /app
-COPY server/go.mod server/go.sum ./server/
-RUN cd server && go mod download
-COPY server/ ./server/
-COPY --from=frontend-builder /app/console-ui/dist ./console-ui/dist
-RUN cd server && CGO_ENABLED=1 GOOS=linux go build -o /app/nexus-server .
+# Stage 2: Build server jar with Maven
+FROM maven:3.8.8-eclipse-temurin-8 AS server-builder
+WORKDIR /build
+# 先拷 pom,利用层缓存拉依赖
+COPY pom.xml ./
+COPY server/pom.xml ./server/
+COPY dag-engine/pom.xml ./dag-engine/
+COPY sample/pom.xml ./sample/
+COPY sample/item-server/pom.xml ./sample/item-server/
+RUN mvn -q -pl server -am -DskipTests dependency:resolve
+# 再拷源码,编译 server(及其依赖模块)
+COPY server/src ./server/src
+COPY dag-engine/src ./dag-engine/src
+RUN mvn -q -pl server -am -DskipTests package
 
 # Stage 3: Runtime
-FROM alpine:3.19
+FROM eclipse-temurin:8-jre-alpine
 RUN apk add --no-cache ca-certificates tzdata
 ENV TZ=Asia/Shanghai
 
-WORKDIR /home/nexus
-COPY --from=go-builder /app/nexus-server .
-COPY --from=go-builder /app/server/config/config.yaml ./config/
+WORKDIR /app
+COPY --from=server-builder /build/server/target/server-1.0.0.jar ./app.jar
+COPY --from=frontend-builder /app/console-ui/dist ./static
 
 RUN mkdir -p data
 
 EXPOSE 9127
-ENTRYPOINT ["./nexus-server"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

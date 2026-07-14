@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 继承顶层 nexus 父 POM,作为 sample 子目录的聚合父 -->
+    <parent>
+        <groupId>com.javaoffers</groupId>
+        <artifactId>nexus</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>sample</artifactId>
+    <packaging>pom</packaging>
+    <name>sample</name>
+    <description>示例工程聚合</description>
+
+    <modules>
+        <module>item-server</module>
+    </modules>
+</project>
