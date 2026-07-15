@@ -1,4 +1,4 @@
-package com.javaoffers.nexus.core.model;
+package com.javaoffers.nexus.common.model;
 
 import com.javaoffers.brief.modelhelper.anno.BaseModel;
 import com.javaoffers.brief.modelhelper.anno.BaseUnique;
@@ -8,9 +8,9 @@ import lombok.Data;
 
 import java.util.Date;
 
-@BaseModel("t_suite")
+@BaseModel("t_user")
 @Data
-public class Suite {
+public class User {
     @BaseUnique
     private Long id;
     private IsDel deleted;
@@ -22,12 +22,6 @@ public class Suite {
     @ColName(value = "id", excludeColAll = true)
     private Long countId;
 
-    private String suiteCode;
-    private String suiteName;
-    private Long suiteClassifyId;
-    private String suiteImage;
-    private String suiteVersion;
-    private String suiteDesc;
-    private String suiteHelpDocJson;
-    private Integer suiteFlag;
+    private String userName;
+    private String password;
 }

@@ -1,4 +1,4 @@
-package com.javaoffers.nexus.core.model;
+package com.javaoffers.nexus.common.model;
 
 import com.javaoffers.brief.modelhelper.anno.BaseModel;
 import com.javaoffers.brief.modelhelper.anno.BaseUnique;
@@ -8,9 +8,9 @@ import lombok.Data;
 
 import java.util.Date;
 
-@BaseModel("t_flow_template")
+@BaseModel("t_flow_version")
 @Data
-public class FlowTemplate {
+public class FlowVersion {
     @BaseUnique
     private Long id;
     private IsDel deleted;
@@ -22,10 +22,11 @@ public class FlowTemplate {
     @ColName(value = "id", excludeColAll = true)
     private Long countId;
 
-    private String templateName;
-    private String templateRemark;
-    private String templateContent;
-    private String flowType;
+    private Long flowId;
+    private String flowVersion;
+    private Integer flowVersionStatus;
+    private String flowVersionRemark;
+    private String flowContent;
     private String inputs;
     private String outputs;
     private String variables;

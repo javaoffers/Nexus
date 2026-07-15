@@ -10,7 +10,7 @@ spring:
     active: sqlite
   datasource:
     driver-class-name: org.sqlite.JDBC
-    url: jdbc:sqlite:./data/nexus.db
+    url: jdbc:sqlite:/Users/cmj/IdeaProjects/Nexus/server/data/nexus.db
     username:
     password:
     hikari:
@@ -49,7 +49,7 @@ nexus:
   database:
     driver: sqlite
     sqlite:
-      path: ./data/nexus.db
+      path: /Users/cmj/IdeaProjects/Nexus/server/data/nexus.db
     mysql:
       host: 127.0.0.1
       port: 3306

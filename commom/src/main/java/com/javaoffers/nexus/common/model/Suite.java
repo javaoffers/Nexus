@@ -1,4 +1,4 @@
-package com.javaoffers.nexus.core.model;
+package com.javaoffers.nexus.common.model;
 
 import com.javaoffers.brief.modelhelper.anno.BaseModel;
 import com.javaoffers.brief.modelhelper.anno.BaseUnique;
@@ -8,9 +8,9 @@ import lombok.Data;
 
 import java.util.Date;
 
-@BaseModel("t_data_source")
+@BaseModel("t_suite")
 @Data
-public class DataSource {
+public class Suite {
     @BaseUnique
     private Long id;
     private IsDel deleted;
@@ -22,17 +22,12 @@ public class DataSource {
     @ColName(value = "id", excludeColAll = true)
     private Long countId;
 
-    private String dataSourceName;
-    private String dataSourceType;
-    private String dataSourceDesc;
-    private String address;
-    private String port;
-    private String userName;
-    private String password;
-    private String databaseName;
-    private String connectExtInfo;
-    private Integer minPoolSize;
-    private Integer maxPoolSize;
-    private Integer queryTimeout;
-    private String dataSourceExtInfo;
+    private String suiteCode;
+    private String suiteName;
+    private Long suiteClassifyId;
+    private String suiteImage;
+    private String suiteVersion;
+    private String suiteDesc;
+    private String suiteHelpDocJson;
+    private Integer suiteFlag;
 }

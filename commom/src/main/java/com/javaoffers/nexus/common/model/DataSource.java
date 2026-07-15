@@ -1,4 +1,4 @@
-package com.javaoffers.nexus.core.model;
+package com.javaoffers.nexus.common.model;
 
 import com.javaoffers.brief.modelhelper.anno.BaseModel;
 import com.javaoffers.brief.modelhelper.anno.BaseUnique;
@@ -8,9 +8,9 @@ import lombok.Data;
 
 import java.util.Date;
 
-@BaseModel("t_api")
+@BaseModel("t_data_source")
 @Data
-public class API {
+public class DataSource {
     @BaseUnique
     private Long id;
     private IsDel deleted;
@@ -22,12 +22,17 @@ public class API {
     @ColName(value = "id", excludeColAll = true)
     private Long countId;
 
-    private Long suiteId;
-    private String apiCode;
-    private String apiProtocol;
-    private String apiUrl;
-    private String apiName;
-    private String apiDesc;
-    private String apiRequestType;
-    private String apiRequestContentType;
+    private String dataSourceName;
+    private String dataSourceType;
+    private String dataSourceDesc;
+    private String address;
+    private String port;
+    private String userName;
+    private String password;
+    private String databaseName;
+    private String connectExtInfo;
+    private Integer minPoolSize;
+    private Integer maxPoolSize;
+    private Integer queryTimeout;
+    private String dataSourceExtInfo;
 }

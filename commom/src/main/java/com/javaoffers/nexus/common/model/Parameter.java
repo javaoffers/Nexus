@@ -1,4 +1,4 @@
-package com.javaoffers.nexus.core.model;
+package com.javaoffers.nexus.common.model;
 
 import com.javaoffers.brief.modelhelper.anno.BaseModel;
 import com.javaoffers.brief.modelhelper.anno.BaseUnique;
@@ -8,9 +8,9 @@ import lombok.Data;
 
 import java.util.Date;
 
-@BaseModel("t_flow_definition")
+@BaseModel("t_parameter")
 @Data
-public class FlowDefinition {
+public class Parameter {
     @BaseUnique
     private Long id;
     private IsDel deleted;
@@ -22,9 +22,13 @@ public class FlowDefinition {
     @ColName(value = "id", excludeColAll = true)
     private Long countId;
 
-    private String flowKey;
-    private String flowName;
-    private String flowType;
-    private String flowContent;
-    private String remark;
+    private Integer paramType;
+    private String paramKey;
+    private String paramName;
+    private String paramPosition;
+    private String paramDesc;
+    private String dataType;
+    private Integer required;
+    private String sourceType;
+    private Long sourceId;
 }

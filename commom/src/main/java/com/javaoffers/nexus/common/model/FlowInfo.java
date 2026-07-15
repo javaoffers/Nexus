@@ -1,20 +1,19 @@
-package com.javaoffers.nexus.core.model;
+package com.javaoffers.nexus.common.model;
 
 import com.javaoffers.brief.modelhelper.anno.BaseModel;
 import com.javaoffers.brief.modelhelper.anno.BaseUnique;
 import com.javaoffers.brief.modelhelper.anno.ColName;
+import com.javaoffers.brief.modelhelper.anno.derive.flag.IsDel;
 import lombok.Data;
 
 import java.util.Date;
 
-/**
- * 注意：原 GORM 模型无 deleted 字段（硬删除），故此处不声明 IsDel。
- */
-@BaseModel("t_variable_info")
+@BaseModel("t_flow_info")
 @Data
-public class VariableInfo {
+public class FlowInfo {
     @BaseUnique
     private Long id;
+    private IsDel deleted;
     private Date createdAt;
     private Long createdBy;
     private Date updatedAt;
@@ -23,9 +22,8 @@ public class VariableInfo {
     @ColName(value = "id", excludeColAll = true)
     private Long countId;
 
-    private Long flowDefinitionId;
-    private String variableKey;
-    private String variableName;
-    private Integer variableType;
-    private String dataType;
+    private String flowKey;
+    private String flowName;
+    private String flowType;
+    private String remark;
 }

@@ -1,4 +1,4 @@
-package com.javaoffers.nexus.core.model;
+package com.javaoffers.nexus.common.model;
 
 import com.javaoffers.brief.modelhelper.anno.BaseModel;
 import com.javaoffers.brief.modelhelper.anno.BaseUnique;
@@ -8,9 +8,9 @@ import lombok.Data;
 
 import java.util.Date;
 
-@BaseModel("t_object")
+@BaseModel("t_api")
 @Data
-public class NexusObject {
+public class API {
     @BaseUnique
     private Long id;
     private IsDel deleted;
@@ -22,7 +22,12 @@ public class NexusObject {
     @ColName(value = "id", excludeColAll = true)
     private Long countId;
 
-    private String objectKey;
-    private String objectName;
-    private String objectDesc;
+    private Long suiteId;
+    private String apiCode;
+    private String apiProtocol;
+    private String apiUrl;
+    private String apiName;
+    private String apiDesc;
+    private String apiRequestType;
+    private String apiRequestContentType;
 }

@@ -4,7 +4,6 @@ import com.javaoffers.nexus.core.model.PageParam;
 import com.javaoffers.nexus.core.model.Suite;
 import com.javaoffers.nexus.core.service.SuiteService;
 import com.javaoffers.nexus.pkg.exception.BizException;
-import com.javaoffers.nexus.pkg.response.PageResult;
 import com.javaoffers.nexus.pkg.response.R;
 import com.javaoffers.nexus.pkg.response.Result;
 import lombok.Data;

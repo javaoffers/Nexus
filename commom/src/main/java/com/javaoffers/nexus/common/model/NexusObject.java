@@ -1,4 +1,4 @@
-package com.javaoffers.nexus.core.model;
+package com.javaoffers.nexus.common.model;
 
 import com.javaoffers.brief.modelhelper.anno.BaseModel;
 import com.javaoffers.brief.modelhelper.anno.BaseUnique;
@@ -8,9 +8,9 @@ import lombok.Data;
 
 import java.util.Date;
 
-@BaseModel("t_flow_version")
+@BaseModel("t_object")
 @Data
-public class FlowVersion {
+public class NexusObject {
     @BaseUnique
     private Long id;
     private IsDel deleted;
@@ -22,12 +22,7 @@ public class FlowVersion {
     @ColName(value = "id", excludeColAll = true)
     private Long countId;
 
-    private Long flowId;
-    private String flowVersion;
-    private Integer flowVersionStatus;
-    private String flowVersionRemark;
-    private String flowContent;
-    private String inputs;
-    private String outputs;
-    private String variables;
+    private String objectKey;
+    private String objectName;
+    private String objectDesc;
 }

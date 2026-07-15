@@ -32,7 +32,7 @@ public class NexusProperties {
 
     @Data
     public static class SqliteCfg {
-        private String path = "./data/nexus.db";
+        private String path = "/Users/cmj/IdeaProjects/Nexus/server/data/nexus.db";
     }
 
     @Data

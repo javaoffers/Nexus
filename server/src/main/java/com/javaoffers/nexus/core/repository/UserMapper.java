@@ -1,7 +1,6 @@
 package com.javaoffers.nexus.core.repository;
 
 import com.javaoffers.brief.modelhelper.mapper.BriefMapper;
-import com.javaoffers.brief.modelhelper.core.Id;
 import com.javaoffers.nexus.core.model.User;
 import org.apache.ibatis.annotations.Mapper;
 

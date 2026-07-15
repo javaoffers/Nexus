@@ -8,8 +8,6 @@ import com.javaoffers.nexus.core.service.FlowRuntimeService;
 import com.javaoffers.nexus.pkg.exception.BizException;
 import com.javaoffers.nexus.pkg.response.R;
 import com.javaoffers.nexus.pkg.response.Result;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,8 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /** 对应 Go core/handler/flow_definition_handler.go。 */
 @RestController
@@ -34,46 +30,11 @@ public class FlowDefinitionController {
         this.flowRuntimeService = flowRuntimeService;
     }
 
-    @Data
-    public static class FlowDefAddParam {
-        private String flowName;
-        private String flowType;
-        private String remark;
-        private List<Parameter> flowInputParams;
-        private List<Parameter> flowOutputParams;
-    }
-
-    @Data
-    public static class FlowDefUpdateParam {
-        private Long id;
-        private String flowName;
-        private String flowType;
-        private String remark;
-        private List<Parameter> flowInputParams;
-        private List<Parameter> flowOutputParams;
-    }
-
-    @Data
-    public static class FlowDefContentParam {
-        private Long id;
-        private String flowContent;
-        private List<VariableInfo> flowVariables;
-    }
-
-    @Data
-    public static class FlowDefDeployParam {
-        private Long flowDefinitionId;
-        private String flowDeployVersion;
-        private String flowVersionRemark;
-    }
-
-    @Data
-    @EqualsAndHashCode(callSuper = true)
-    public static class FlowDefPageParam extends PageParam {
-        private String flowName;
-        private String flowType;
-    }
-
+    /**
+     * 流程定义. 每个流程就是一个服务.
+     * @param param
+     * @return
+     */
     @PostMapping("/add")
     public Result<?> addFlowDefinition(@RequestBody FlowDefAddParam param) {
         if (param.getFlowName() == null || param.getFlowType() == null) {

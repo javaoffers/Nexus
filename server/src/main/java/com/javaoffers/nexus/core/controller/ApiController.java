@@ -1,14 +1,14 @@
 package com.javaoffers.nexus.core.controller;
 
 import com.javaoffers.nexus.core.model.API;
-import com.javaoffers.nexus.core.model.PageParam;
-import com.javaoffers.nexus.core.model.Parameter;
+import com.javaoffers.nexus.core.params.ApiAddParam;
+import com.javaoffers.nexus.core.params.ApiDebugParam;
+import com.javaoffers.nexus.core.params.ApiQueryParam;
+import com.javaoffers.nexus.core.params.ApiUpdateParam;
 import com.javaoffers.nexus.core.service.ApiService;
 import com.javaoffers.nexus.pkg.exception.BizException;
 import com.javaoffers.nexus.pkg.response.R;
 import com.javaoffers.nexus.pkg.response.Result;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,10 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-
-/** 对应 Go core/handler/api_handler.go。 */
+/**
+ * 对应 api 处理
+ */
 @RestController
 @RequestMapping("/api/v1/api")
 public class ApiController {
@@ -32,64 +31,23 @@ public class ApiController {
         this.apiService = apiService;
     }
 
-    @Data
-    public static class ApiAddParam {
-        private Long suiteId;
-        private String apiCode;
-        private String apiUrl;
-        private String apiName;
-        private String apiDesc;
-        private String apiRequestType;
-        private String apiRequestContentType;
-        private List<Parameter> apiHeaders;
-        private List<Parameter> apiInputParams;
-        private List<Parameter> apiOutputParams;
-    }
-
-    @Data
-    public static class ApiUpdateParam {
-        private Long id;
-        private Long suiteId;
-        private String apiUrl;
-        private String apiName;
-        private String apiDesc;
-        private String apiRequestType;
-        private String apiRequestContentType;
-        private List<Parameter> apiHeaders;
-        private List<Parameter> apiInputParams;
-        private List<Parameter> apiOutputParams;
-    }
-
-    @Data
-    @EqualsAndHashCode(callSuper = true)
-    public static class ApiQueryParam extends PageParam {
-        private Long suiteId;
-        private String apiName;
-        private String apiUrl;
-    }
-
-    @Data
-    public static class ApiDebugParam {
-        private Map<String, Object> headerData;
-        private Map<String, Object> inputParamData;
-    }
-
     @PostMapping("/add")
     public Result<?> addAPI(@RequestBody ApiAddParam param) {
-        if (param.getSuiteId() == null || param.getApiUrl() == null || param.getApiName() == null || param.getApiRequestType() == null) {
+        if (param.getSuiteId() == null || param.getApiUrl() == null
+                || param.getApiName() == null || param.getApiRequestType() == null) {
             return R.error(400, "参数错误");
         }
-        API a = new API();
-        a.setSuiteId(param.getSuiteId());
-        a.setApiCode(param.getApiCode());
-        a.setApiUrl(param.getApiUrl());
-        a.setApiName(param.getApiName());
-        a.setApiDesc(param.getApiDesc());
-        a.setApiRequestType(param.getApiRequestType());
-        a.setApiRequestContentType(param.getApiRequestContentType());
+        API api = new API();
+        api.setSuiteId(param.getSuiteId());
+        api.setApiCode(param.getApiCode());
+        api.setApiUrl(param.getApiUrl());
+        api.setApiName(param.getApiName());
+        api.setApiDesc(param.getApiDesc());
+        api.setApiRequestType(param.getApiRequestType());
+        api.setApiRequestContentType(param.getApiRequestContentType());
         try {
-            apiService.createAPI(a);
-            apiService.saveAPIParameters(a.getId(), "api", param.getApiHeaders(), param.getApiInputParams(), param.getApiOutputParams());
+            apiService.createAPI(api);
+            apiService.saveAPIParameters(api.getId(), "api", param.getApiHeaders(), param.getApiInputParams(), param.getApiOutputParams());
             return R.ok(true);
         } catch (BizException e) {
             return R.error(3001, e.getMessage());
@@ -101,17 +59,17 @@ public class ApiController {
         if (param.getId() == null) {
             return R.error(400, "参数错误");
         }
-        API a = new API();
-        a.setId(param.getId());
-        a.setSuiteId(param.getSuiteId());
-        a.setApiUrl(param.getApiUrl());
-        a.setApiName(param.getApiName());
-        a.setApiDesc(param.getApiDesc());
-        a.setApiRequestType(param.getApiRequestType());
-        a.setApiRequestContentType(param.getApiRequestContentType());
+        API api = new API();
+        api.setId(param.getId());
+        api.setSuiteId(param.getSuiteId());
+        api.setApiUrl(param.getApiUrl());
+        api.setApiName(param.getApiName());
+        api.setApiDesc(param.getApiDesc());
+        api.setApiRequestType(param.getApiRequestType());
+        api.setApiRequestContentType(param.getApiRequestContentType());
         try {
-            apiService.updateAPI(a);
-            apiService.saveAPIParameters(a.getId(), "api", param.getApiHeaders(), param.getApiInputParams(), param.getApiOutputParams());
+            apiService.updateAPI(api);
+            apiService.saveAPIParameters(api.getId(), "api", param.getApiHeaders(), param.getApiInputParams(), param.getApiOutputParams());
             return R.ok(true);
         } catch (BizException e) {
             return R.error(3002, e.getMessage());
@@ -167,7 +125,8 @@ public class ApiController {
     @PostMapping("/page")
     public Object pageAPIs(@RequestBody ApiQueryParam param) {
         try {
-            com.javaoffers.nexus.core.service.Page<API> p = apiService.pageAPIs(param, param.getSuiteId(), param.getApiName(), param.getApiUrl());
+            com.javaoffers.nexus.core.service.Page<API> p = apiService.pageAPIs(param, param.getSuiteId(),
+                    param.getApiName(), param.getApiUrl());
             return R.okPage(p.getTotal(), p.getRecords());
         } catch (BizException e) {
             return R.error(3008, e.getMessage());

@@ -23,6 +23,7 @@
         <module>server</module>
         <module>dag-engine</module>
         <module>sample</module>
+        <module>commom</module>
     </modules>
 
     <properties>

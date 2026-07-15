@@ -7,8 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * 对应 Go pkg/response 的 OK / OKPage / Error / ErrorHTTP。
- * 业务正常/错误统一 HTTP 200 + body；鉴权失败由拦截器直接写 HTTP 401。
+ * 统一响应
  */
 @Slf4j
 public class R {
@@ -27,7 +26,6 @@ public class R {
         return Result.error(code, msg);
     }
 
-    /** 直接向响应写入错误（鉴权失败用，对应 Go ErrorHTTP）。 */
     public static void writeError(HttpServletResponse response, int httpCode, int code, String msg) {
         response.setStatus(httpCode);
         response.setContentType("application/json;charset=UTF-8");
